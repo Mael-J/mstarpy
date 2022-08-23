@@ -49,6 +49,8 @@ class MS:
         self.site = SITE[country.lower()]["site"]
         
         self.iso3 = SITE[country.lower()]["iso3"]
+
+        self.country = country
         
         code_list = search_funds(term,['SecId','TenforeId','LegalName'], country, pageSize)
 
@@ -878,7 +880,7 @@ class MS:
             #label
             label = label_list[i].text
             #perf funds
-            result[f'{cat}_cumulative_performance_{label}'] = re.sub('[^0-9,-]','',value_list[i].text)
+            result[f'{cat}_cumulative_performance_{label}'] = re.sub('[^0-9,-\.]','',value_list[i].text)
         return result
 
 
@@ -960,6 +962,8 @@ class MS:
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=5"
         response = requests.get(url, headers=headers)
         soup = BeautifulSoup(response.text, 'html.parser')
+        if soup.find(id='managementFeesDiv') == None:
+            return {}
         #label
         label_list =soup.find(id='managementFeesDiv').find_all('td', {"class": "label"})
         #value
@@ -1006,7 +1010,7 @@ class MS:
             >>> MS.dataPoint('SharpeM36')
 
         """
-        return search_funds(self.code, field,self.iso3,10,currency)
+        return search_funds(self.code, field,self.country,10,currency)
         
 
 

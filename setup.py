@@ -21,7 +21,7 @@ setup(
     license='MIT License',
     author="Maël Jourdain",
     author_email='mael.jourdain@gmail.com',
-    description="Raw financials data from MorningStar",
+    description="Raw mutual funds data from MorningStar",
     long_description= readme(),
     long_description_content_type="text/markdown",
     install_requires=requirements(filename='requirements/requirements.txt'),
