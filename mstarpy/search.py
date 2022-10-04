@@ -49,7 +49,7 @@ def search_field(pattern = ''):
 
   regex = re.compile(f'(?i){pattern}')
   filtered_list = list(filter(lambda field : regex.search(field),FIELDS))
-  print(f"possible fields for DataPoint can be : {', '.join(filtered_list)}")
+  print(f"possible fields for can be : {', '.join(filtered_list)}")
 
   return filtered_list
 
@@ -74,8 +74,8 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR'):
       
 
   Examples:
-    >>> search_funds("Myria",country="fr", pageSize=25)
-    >>> search_funds("FR0011399914", country="fr", pageSize=25)
+    >>> search_funds("Myria",['SecId','TenforeId','LegalName'],country="fr", pageSize=25)
+    >>> search_funds("FR0011399914", 'LegalName', country="fr", pageSize=25)
     
 
   """
