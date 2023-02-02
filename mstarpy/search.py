@@ -24,7 +24,7 @@ def get_bearer_token():
 
   response = requests.get(url, headers=headers)
   soup = BeautifulSoup(response.text, 'html.parser')
-  script = soup.find('script', {'type':'text/javascript'})
+  script = soup.find_all('script', {'type':'text/javascript'})
   bearerToken = str(script).split('tokenMaaS:')[-1].split('}')[0].replace('"','').strip()
   return bearerToken
 
