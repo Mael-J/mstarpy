@@ -1187,7 +1187,7 @@ class Funds:
                     
         """
 
-        return self.GetFundsData("portfolio/holding/v2")
+        return self.GetFundsData("portfolio/holding/v2", params = {"premiumNum" : 10000, "freeNum" : 10000})
 
     def proxyVotingManagement(self):
         """
