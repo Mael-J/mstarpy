@@ -12,7 +12,7 @@ from mstarpy.utils import FILTER
 #print(search_filter())
 # print(filter_universe('administratorCompanyId'))
 
-result = search_funds("",['GBRReturnM12','TenforeId','Name', 'ReturnM12'],filters={"GBRReturnM12":(0,5),"AdministratorCompanyId" : ["0C00004AM7","0C00001OGC"] })
+result = search_funds('equity',['SecId','TenforeId','LegalName'], country="fr", pageSize=10,currency="EUR",filters={"GBRReturnM12":(0,5)})
 print(result)
 # print(len(result))
 
