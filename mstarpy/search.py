@@ -4,65 +4,116 @@ from bs4 import BeautifulSoup
 import re
 
 from .utils import random_user_agent
-from .utils import SITE, FIELDS
+from .utils import SITE, FIELDS, FILTER
 from .error import not_200_response
 
-
-
-
-def token_fund_information():
+def filter_universe(field = FILTER):
   """
-  This function will scrape the Bearer Token needed to access MS API funds information
+  This function will use the screener of morningstar.co.uk to find the possible filters and their values.
+
+  Args:
+    
+    field (str | list) : field to find
 
   Returns:
-  str bearer token
+    dict of filter
+      {'LargestRegion': ['', 'RE_AfricaDeveloped', 'RE_AfricaEmerging', 'RE_Asia4TigersEmerging', 'RE_Asiaex4TigersEmerging', 'RE_Australasia', 'RE_Canada', 'RE_CentralandEasternEurope', 'RE_CentralandLatinAmericaEmerging', 'RE_Japan', 'RE_UnitedKingdom', 'RE_UnitedStates', 'RE_WesternEuropeEuro', 'RE_WesternEuropeNonEuroexUK'], 'SustainabilityRank': ['1', '2', '3', '4', '5']}
+    
+  Examples:
+    >>> filter_universe(['LargestRegion','SustainabilityRank'])
+    >>> filter_universe('FeeLevel')
+    
+
   """
-  url = 'https://www.morningstar.co.uk/Common/funds/snapshot/PortfolioSAL.aspx'
-
-  headers = {'user-agent' : random_user_agent()}
-
-
-  response = requests.get(url, headers=headers)
-  soup = BeautifulSoup(response.text, 'html.parser')
-  script = soup.find_all('script', {'type':'text/javascript'})
-  bearerToken = str(script).split('tokenMaaS:')[-1].split('}')[0].replace('"','').strip()
-  return bearerToken
-
-def token_chart():
-  """
-  This function will scrape the Bearer Token needed to access MS API chart data
-
-  Returns:
-  str bearer token
-  """
-  url = 'https://www.morningstar.com/funds/xnas/afozx/chart'
-
-  headers = {'user-agent' : random_user_agent()}
-
-  response = requests.get(url, headers=headers)
-
-  all_text = response.text
-  if all_text.find("token") ==-1:
-    return None
-
-  token_start =all_text[all_text.find("token"):]
-  return token_start[7:token_start.find("}")-1]
   
+  if not isinstance(field, (str, list)):
+    raise TypeError('field parameter should be a string or a list')
+
+  
+  if isinstance(field, list):
+    if 'StarRatingM255' in field:
+      raise ValueError('StarRatingM255 cannot be a field')
+    filterDataPoints = '|'.join(field)
+  else:
+    if field == 'StarRatingM255':
+      raise ValueError('StarRatingM255 cannot be a field')
+    filterDataPoints = field
+
+
+  params = {
+  'outputType' : 'json',
+  'filterDataPoints' : filterDataPoints,
+  }
+
+  result = general_search(params)
+
+  all_filter ={}
+
+  if "filters" not in result:
+    return all_filter
+  if not result['filters']:
+    return all_filter
+
+  for r in result['filters'][0]:
+    all_filter[list(r)[0]] = r[list(r)[0]]
+  
+  return all_filter
+
+
+def general_search(params):
+  """
+  This function will use the screener of morningstar.co.uk to find informations about funds or classification
+
+  Args:
+    params (dict) : paramaters of the request
+  
+  Returns:
+    list of information
+
+  Examples:
+    >>> general_search(params = {
+                                'page' : 1,
+                                'pageSize' : 10,
+                                'sortOrder' : 'LegalName asc',
+                                'outputType' : 'json',
+                                'version' : 1,
+                                'universeIds' : 'FOFRA$$ALL',
+                                'currencyId': 'EUR',
+                                'securityDataPoints' : ['FundTNAV','GBRReturnD1'],
+                                'term' : 'myria',
+                                })
+  
+
+  """
+  if not isinstance(params, dict):
+    raise TypeError('params parameter should be dict')
+  #url
+  url = "https://tools.morningstar.co.uk/api/rest.svc/klr5zyak8x/security/screener"
+  #headers
+  headers = {
+              'user-agent': random_user_agent(),
+              }   
+
+  response = requests.get(url,params=params, headers=headers)
+
+  not_200_response(url, response)
+    
+  return json.loads(response.content.decode())
 
 
 def search_field(pattern = ''):
   """
-  This function retrieves the fields possible for the function dataPoint
+  This function retrieves the possible fields for the function dataPoint
 
   Args:
   pattern (str) : text contained in the field
 
   Returns:
-      list of fields possible for the method dataPoint
+      list of possible fields for the method dataPoint
 
   Example:
-      >>> search_field('fee')
-      >>> search_field('return')
+      >>> search_field('feE')
+      >>> search_field('reTurn')
       
       ['FeeLevel', 'PerformanceFeeActual', 'TransactionFeeActual']
       ['GBRReturnD1', 'GBRReturnM0', 'GBRReturnM1', 'GBRReturnM12', 'GBRReturnM120', 'GBRReturnM3', 'GBRReturnM36', 'GBRReturnM6', 'GBRReturnM60', 'GBRReturnW1', 'ReturnD1', 'ReturnM0', 'ReturnM1', 'ReturnM12', 'ReturnM120', 'ReturnM3', 'ReturnM36', 'ReturnM6', 'ReturnM60', 'ReturnProfileGrowth', 'ReturnProfileHedging', 'ReturnProfileIncome', 'ReturnProfileOther', 'ReturnProfilePreservation', 'ReturnW1', 'totalReturn', 'totalReturnTimeFrame']
@@ -71,19 +122,48 @@ def search_field(pattern = ''):
 
   regex = re.compile(f'(?i){pattern}')
   filtered_list = list(filter(lambda field : regex.search(field),FIELDS))
-  print(f"possible fields for can be : {', '.join(filtered_list)}")
+  print(f"possible fields for function dataPoint can be : {', '.join(filtered_list)}")
 
   return filtered_list
 
-def search_funds(term, field, country = "", pageSize=10, currency ='EUR'):
+
+def search_filter(pattern = ''):
+  """
+  This function retrieves the possible filters for the parameter filters of the function search_funds
+  
+
+  Args:
+  pattern (str) : text contained in the filter
+
+  Returns:
+      list of possible filters
+
+  Example:
+      >>> search_filter('RetUrn')
+      >>> search_filter('id')
+      
+      ['GBRReturnM0', 'GBRReturnM12', 'GBRReturnM120', 'GBRReturnM36', 'GBRReturnM60', 'ReturnProfilePreservation']
+      ['AdministratorCompanyId', 'BrandingCompanyId', 'CategoryId', 'GlobalAssetClassId', 'GlobalCategoryId', 'IMASectorID', 'ShareClassTypeId', 'UmbrellaCompanyId']
+
+  """
+
+  regex = re.compile(f'(?i){pattern}')
+  filtered_list = list(filter(lambda field : regex.search(field),FILTER))
+  print(f"possible keys for the parameter filters of the method seach_funds can be : {', '.join(filtered_list)}")
+
+  return filtered_list
+
+
+def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filters={}):
   """
   This function will use the screener of morningstar.co.uk to find funds which include the term.
 
   Args:
     term (str): text to find a funds can be a the name, part of a name or the isin of the funds
-    field (str) : field to find
+    field (str | list) : field to find
     country (str) : text for code ISO 3166-1 alpha-2 of country
     pageSize (int): number of funds to return
+    currency (str) : currency in 3 letters
 
   Returns:
     list of dict with SecId, TenforId and LegalName
@@ -91,8 +171,8 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR'):
       I'}, {'SecId': 'F00000JW7U', 'TenforeId': '52.8.LU0532306957', 'LegalName': '3F Generation Acc'}, {'SecId': 'F00000UDVR', 'TenforeId': '52.8.FR0011911189', 'LegalName': 'AAM Family Values E1'}, {'SecId': 'F00000UDVS', 'TenforeId': '52.8.FR0011911197', 'LegalName': 'AAM Family Values 
       I'}, {'SecId': 'F0GBR04RG5', 'TenforeId': '52.8.FR0007022025', 'LegalName': 'AAZ Capitalisation'}, {'SecId': 'F000000ITD', 'TenforeId': '52.8.FR0010361600', 'LegalName': 'AAZ Prestige Or'}]
     
-    str if the screener find no funds which match the term
-      '0 funds found whith the term rzt'
+    empty dict str if the screener find no funds which match the term
+     
       
 
   Examples:
@@ -114,6 +194,12 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR'):
   if not isinstance(pageSize, int):
     raise TypeError('pageSize parameter should be an integer')
 
+  if not isinstance(currency, str):
+    raise TypeError('currency parameter should be a string')
+
+  if not isinstance(filters, dict):
+    raise TypeError('filters parameter should be a dict')
+
 
   if isinstance(field, list):
       securityDataPoints = '|'.join(field)
@@ -126,11 +212,29 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR'):
   else:
     universeIds = ""
 
+  filter_list = []
+  #loop on filter dict
+  for f in filters:
+    if f not in FILTER:
+      print(f"{f} is not a valid filter and will be ignored. You can find the possible filters with the method search_filter().")
+    else:
+      #if list, IN condition
+      if isinstance(filters[f], list):
+          filter_list.append(f'{f}:IN:{":".join(filters[f])}')
+      #if tuple, either, BTW, LT or GT condition
+      elif isinstance(filters[f], tuple):
+          if len(filters[f]) == 2:
+              if isinstance(filters[f][0], (int,float)):
+                  filter_list.append(f'{f}:BTW:{filters[f][0]}:{filters[f][1]}')
+              elif filters[f][0] =="<":
+                  filter_list.append(f'{f}:LT:{filters[f][1]}')
+              elif filters[f][0] ==">":
+                  filter_list.append(f'{f}:GT:{filters[f][1]}')
+      #else IN condition
+      else:
+          filter_list.append(f'{f}:IN:{filters[f]}')
 
-
-  #url
-  url = "https://tools.morningstar.co.uk/api/rest.svc/klr5zyak8x/security/screener"
-
+  print('|'.join(filter_list))
   params = {
   'page' : 1,
   'pageSize' : pageSize,
@@ -141,18 +245,10 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR'):
   'currencyId': currency,
   'securityDataPoints' : securityDataPoints,
   'term' : term,
+  'filters' : '|'.join(filter_list),
   }
 
-  #headers
-  headers = {
-              'user-agent': random_user_agent(),
-              }   
-
-  response = requests.get(url,params=params, headers=headers)
-
-  not_200_response(url, response)
-    
-  result =json.loads(response.content.decode())
+  result = general_search(params)
 
   if result['rows']:
     return result['rows']
@@ -161,6 +257,41 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR'):
     return {}
 
 
-    
-        
+def token_chart():
+  """
+  This function will scrape the Bearer Token needed to access MS API chart data
 
+  Returns:
+  str bearer token
+  """
+  url = 'https://www.morningstar.com/funds/xnas/afozx/chart'
+
+  headers = {'user-agent' : random_user_agent()}
+
+  response = requests.get(url, headers=headers)
+
+  all_text = response.text
+  if all_text.find("token") ==-1:
+    return None
+
+  token_start =all_text[all_text.find("token"):]
+  return token_start[7:token_start.find("}")-1]
+
+
+def token_fund_information():
+  """
+  This function will scrape the Bearer Token needed to access MS API funds information
+
+  Returns:
+  str bearer token
+  """
+  url = 'https://www.morningstar.co.uk/Common/funds/snapshot/PortfolioSAL.aspx'
+
+  headers = {'user-agent' : random_user_agent()}
+
+
+  response = requests.get(url, headers=headers)
+  soup = BeautifulSoup(response.text, 'html.parser')
+  script = soup.find_all('script', {'type':'text/javascript'})
+  bearerToken = str(script).split('tokenMaaS:')[-1].split('}')[0].replace('"','').strip()
+  return bearerToken

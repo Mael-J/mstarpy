@@ -63,7 +63,7 @@ class Funds:
                 self.code = code_list[itemRange]["SecId"]
                 self.name = code_list[itemRange]["LegalName"]
                 if "TenforeId" in code_list[itemRange]:
-                    self.isin = code_list[itemRange]["TenforeId"][-12:]
+                    self.isin = code_list[itemRange]["TenforeId"].replace("52.8.","")
                 else:
                     self.isin = None
             else:

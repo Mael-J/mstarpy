@@ -5,7 +5,7 @@ import random
 APIKEY = 'lstzFDEOhfFNMLikKa0am9mgEKLBl49T'
 
 FIELDS = [
-    'administratorCompanyId',
+    'AdministratorCompanyId',
     'AlphaM36',
     'AnalystRatingScale',
     'AverageCreditQualityCode',
@@ -51,7 +51,7 @@ FIELDS = [
     'InvestorTypeEligibleCounterparty',
     'InvestorTypeProfessional',
     'InvestorTypeRetail',
-    'largestSector',
+    'LargestSector',
     'LegalName',
     'managementStyle',
     'ManagerTenure',
@@ -99,6 +99,40 @@ FIELDS = [
     'Yield_M12',
     'yieldPercent',
 ]
+
+
+FILTER = [  
+    'AdministratorCompanyId',
+    'AnalystRatingScale',
+    'BondStyleBox',
+    'BrandingCompanyId',
+    'CategoryId',
+    'CollectedSRRI',
+    'distribution',
+    'EquityStyleBox',
+    'ExpertiseInformed',
+    'FeeLevel',
+    'FundTNAV',
+    'GBRReturnM0',
+    'GBRReturnM12',
+    'GBRReturnM120',
+    'GBRReturnM36',
+    'GBRReturnM60',
+    'GlobalAssetClassId',
+    'GlobalCategoryId',
+    'IMASectorID',
+    'IndexFund',
+    'InvestorTypeProfessional',
+    'LargestRegion',
+    'LargestSector',
+    'OngoingCharge',
+    'QuantitativeRating',
+    'ReturnProfilePreservation',
+    'ShareClassTypeId',
+    'SustainabilityRank',
+    'UmbrellaCompanyId',
+    'Yield_M12',
+        ]
 
 
 

@@ -1,4 +1,4 @@
 from .funds import Funds
-from .search import search_funds, search_field
+from .search import filter_universe, search_field, search_filter, search_funds
 
-__version__ = "0.0.4"
+__version__ = "0.0.5"
