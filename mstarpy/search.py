@@ -10,9 +10,9 @@ from .error import not_200_response
 
 
 
-def get_bearer_token():
+def token_fund_information():
   """
-  This function will scrape the Bearer Token needed to access MS API
+  This function will scrape the Bearer Token needed to access MS API funds information
 
   Returns:
   str bearer token
@@ -27,6 +27,28 @@ def get_bearer_token():
   script = soup.find_all('script', {'type':'text/javascript'})
   bearerToken = str(script).split('tokenMaaS:')[-1].split('}')[0].replace('"','').strip()
   return bearerToken
+
+def token_chart():
+  """
+  This function will scrape the Bearer Token needed to access MS API chart data
+
+  Returns:
+  str bearer token
+  """
+  url = 'https://www.morningstar.com/funds/xnas/afozx/chart'
+
+  headers = {'user-agent' : random_user_agent()}
+
+  response = requests.get(url, headers=headers)
+
+  all_text = response.text
+  if all_text.find("token") ==-1:
+    return None
+
+  token_start =all_text[all_text.find("token"):]
+  return token_start[7:token_start.find("}")-1]
+  
+
 
 def search_field(pattern = ''):
   """

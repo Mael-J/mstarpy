@@ -3,12 +3,12 @@ import json
 import re
 from bs4 import BeautifulSoup
 import pandas as pd
+import datetime
 
-from .utils import random_user_agent
-from .utils import SITE
-from .search import search_funds
-from .utils import APIKEY 
+from .utils import SITE, APIKEY, random_user_agent
+from .search import search_funds, token_chart
 from .error import no_site_error, not_200_response
+
 
 
 
@@ -327,7 +327,7 @@ class Funds:
         Examples:
             >>> Funds("myria", "fr").contact()
 
-            {'Société de gestion': 'Myria Asset Management', 'Téléphone': '-', 'Site Internet': 'www.myria-am.com', 'Adresse': '32, avenue d’Iéna', '\xa0': 'France', 
+            {'Société de gestion': 'Myria Asset Management', 'Téléphone': '-', 'Site Internet': 'www.myria-am.com', 'Adresse': '32, avenue d'Iéna', '\xa0': 'France', 
             'PEA': 'oui', 'PEAPME': 'non', 'Domicile': 'France', 'Structure légale': 'FCP', 'UCITS': 'oui'}
         
         """
@@ -1065,6 +1065,76 @@ class Funds:
 
         return self.GetFundsData("multiLevelFixedIncomeData", params = {"primary": primary,"secondary": secondary})
 
+    def nav(self, start_date,end_date,frequency="daily"):
+        """
+        This function retrieves the NAV of the funds
+
+        Returns:
+            list of dict with nav
+
+            >>> Funds("RMAGX", "us").nav()
+
+            [{
+                "nav": 376.35,
+                "totalReturn": 575.01685,
+                "date": "2023-01-31"
+            },
+            {
+                "nav": 380.28,
+                "totalReturn": 581.02141,
+                "date": "2023-02-01"
+            }]
+
+        Raises:
+            TypeError: raised whenever the parameter type is not the type expected
+            ValueError : raised whenever the parameter is not valid or no funds found
+        """
+        #error raised if start_date is note a datetime.date
+        if not isinstance(start_date,datetime.date):
+            raise TypeError("start_date parameter should be a datetime.date")
+
+        #error raised if end_date is note a datetime.date
+        if not isinstance(end_date,datetime.date):
+            raise TypeError("end_date parameter should be a datetime.date")
+
+        #error if end_date < start_date
+        if end_date < start_date:
+            raise ValueError("end_date must be more recent than start_date")
+
+        #dict of frequency
+        frequency_row = {'daily' : 'd','weekly' : 'w', 'monthly' : 'm'}
+
+        #raise an error if frequency is not daily, wekly or monthly
+        if frequency not in frequency_row:
+            raise ValueError(f"frequency parameter must take one of the following value : { ', '.join(frequency_row.keys())}")
+        
+        #bearer token
+        bearer_token = token_chart()
+        #url for nav
+        url =f"https://www.us-api.morningstar.com/QS-markets/chartservice/v2/timeseries?query={self.code}:nav,totalReturn&frequency={frequency_row[frequency]}&startDate={start_date.strftime('%Y-%m-%d')}&endDate={end_date.strftime('%Y-%m-%d')}&trackMarketData=3.6.3&instid=MSERP"
+        #header with bearer token
+        headers = {
+                    'user-agent' : random_user_agent(), 
+                    'authorization': f'Bearer {bearer_token}',
+                    }
+        #response
+        response = requests.get(url, headers=headers)
+        #manage response
+        not_200_response(url,response)
+        #result
+        result =json.loads(response.content.decode())
+        #return empty list if we don't get data
+        if not result:
+            return []
+        if "series" in result[0]:
+            return result[0]["series"]
+        
+        return []
+            
+        
+
+
+
     def objectiveInvestment(self):
         """        
         This function retrieves the objective of investment of the fund (by scraping pages);
@@ -1075,9 +1145,9 @@ class Funds:
         Examples:
             >>> Funds("myria", "fr").objectiveInvestment()
 
-            L’objectif de gestion du FCP est d’offrir un portefeuille composé de valeurs cotées sur les marchés des pays membres de l’Union Européenne à des souscripteurs 
-            qui souhaitent investir sur les marchés d’actions européens. L’action du gérant vise à obtenir, sur la période de placement recommandée, une performance supérieure à celle de l’indice STOXX Europe ex UK Large® (dividendes réinvestis) représentatif de l’évolution des principales valeurs boursières de l’Union Européenne et de la Suisse, en sélectionnant des titres dans un univers restreint grâce à un filtre extra-financier fondé sur des critères quantitatifs de Gouvernance, 
-            de Responsabilité sociale et sociétale, et de respect de l’environnement.
+            L'objectif de gestion du FCP est d'offrir un portefeuille composé de valeurs cotées sur les marchés des pays membres de l'Union Européenne à des souscripteurs 
+            qui souhaitent investir sur les marchés d'actions européens. L'action du gérant vise à obtenir, sur la période de placement recommandée, une performance supérieure à celle de l'indice STOXX Europe ex UK Large® (dividendes réinvestis) représentatif de l'évolution des principales valeurs boursières de l'Union Européenne et de la Suisse, en sélectionnant des titres dans un univers restreint grâce à un filtre extra-financier fondé sur des critères quantitatifs de Gouvernance, 
+            de Responsabilité sociale et sociétale, et de respect de l'environnement.
             Bien que nommé « Myria Actions Durables Europe », le fonds ne bénéficie pas du label ISR.
         """
         
