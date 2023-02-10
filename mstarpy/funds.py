@@ -57,15 +57,22 @@ class Funds:
         
         code_list = search_funds(term,['SecId','TenforeId','LegalName'], country, pageSize)
 
-        
+        self.asset_type = 'fund'
+
         if code_list:
             if itemRange < len(code_list):
                 self.code = code_list[itemRange]["SecId"]
                 self.name = code_list[itemRange]["LegalName"]
                 if "TenforeId" in code_list[itemRange]:
+                    tenforeId = code_list[itemRange]["TenforeId"]
+                    regex = re.compile("52.8.|126.1.")
+                    self.isin = regex.sub('',tenforeId)
                     self.isin = code_list[itemRange]["TenforeId"].replace("52.8.","")
+                    if  "126.1." in tenforeId:
+                        self.asset_type = "etf"
                 else:
                     self.isin = None
+                    
             else:
                 raise ValueError(f'Found only {len(code_list)} funds found with the term {term}. The paramater itemRange must maximum equal to {len(code_list)-1}')
         else:
