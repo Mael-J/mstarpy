@@ -23,7 +23,9 @@ FIELDS = [
     'ExpertiseAdvanced',
     'ExpertiseBasic',
     'ExpertiseInformed',
+    'ExchangeId'
     'FeeLevel',
+    'fundShareClassId',
     'fundSize',
     'fundStyle',
     'FundTNAV',
