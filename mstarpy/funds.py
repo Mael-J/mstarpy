@@ -14,10 +14,10 @@ from .error import no_site_error, not_200_response
 
 class Funds:
     """
-    Main class to access data about funds
+    Main class to access data about funds and etf
     Args:
-        term (str): text to find a funds can be a the name, part of a name or the isin of the funds
-        country (str) : text for code ISO 3166-1 alpha-2 of country
+        term (str): text to find a fund can be a name, part of a name or the isin of the funds
+        country (str) : text for code ISO 3166-1 alpha-2 of country, should be '' for etf
         pageSize (int): number of funds to return
         itemRange (int) : index of funds to return (must be inferior to PageSize)
 
@@ -27,7 +27,7 @@ class Funds:
 
     Raises:
         TypeError: raised whenever the parameter type is not the type expected
-        ValueError : raised whenever the parameter is not valid or no funds found
+        ValueError : raised whenever the parameter is not valid or no fund found
 
     """
 
@@ -55,31 +55,30 @@ class Funds:
 
         self.country = country
         
-        code_list = search_funds(term,['SecId','TenforeId','LegalName'], country, pageSize)
+        code_list = search_funds(term,['fundShareClassId','SecId','TenforeId','LegalName'], country, pageSize)
 
         self.asset_type = 'fund'
 
         if code_list:
             if itemRange < len(code_list):
-                self.code = code_list[itemRange]["SecId"]
+                self.code = code_list[itemRange]["fundShareClassId"]
                 self.name = code_list[itemRange]["LegalName"]
                 if "TenforeId" in code_list[itemRange]:
                     tenforeId = code_list[itemRange]["TenforeId"]
-                    regex = re.compile("52.8.|126.1.")
-                    self.isin = regex.sub('',tenforeId)
-                    self.isin = code_list[itemRange]["TenforeId"].replace("52.8.","")
                     if  "126.1." in tenforeId:
-                        self.asset_type = "etf"
+                        self.asset_type = 'etf'
+                    regex = re.compile("52.8.|126.1.")
+                    self.isin = regex.sub('',tenforeId)                   
                 else:
                     self.isin = None
                     
             else:
-                raise ValueError(f'Found only {len(code_list)} funds found with the term {term}. The paramater itemRange must maximum equal to {len(code_list)-1}')
+                raise ValueError(f'Found only {len(code_list)} fund with the term {term}. The paramater itemRange must maximum equal to {len(code_list)-1}')
         else:
             if country:
-                raise ValueError(f'0 funds found with the term {term} and country {country}')
+                raise ValueError(f'0 fund found with the term {term} and country {country}')
             else:
-                raise ValueError(f'0 funds found with the term {term}')
+                raise ValueError(f'0 fund found with the term {term}')
         
 
     def allocationMap(self):
@@ -795,7 +794,7 @@ class Funds:
             raise TypeError('params parameter should be a dict')
 
         #url of API
-        url = f"""https://api-global.morningstar.com/sal-service/v1/fund/{field}/{self.code}/data"""
+        url = f"""https://api-global.morningstar.com/sal-service/v1/{self.asset_type}/{field}/{self.code}/data"""
 
 
         #headers
@@ -855,7 +854,7 @@ class Funds:
         """
         
         #url
-        url = f"""https://api-global.morningstar.com/sal-service/v1/fund/performance/v3/{self.code}"""
+        url = f"""https://api-global.morningstar.com/sal-service/v1/{self.asset_type}/performance/v3/{self.code}"""
         #headers
         headers = {
             "apikey" : APIKEY,
@@ -881,6 +880,8 @@ class Funds:
             {'feeLevelComparisonGroup': 'Government Retirement, Large', 'currentYear': '2022', 'fundExpenseHistoryList': [{'annualReportDate': '2018-08-31T05:00:00.000', 'netExpenseRatio': 0.3, 'managementExpenseRatio': None}, {'annualReportDate': '2019-08-31T05:00:00.000', 'netExpenseRatio': 0.29, 'managementExpenseRatio': None}, {'annualReportDate': '2020-08-31T05:00:00.000', 'netExpenseRatio': 0.25, 'managementExpenseRatio': None}, {'annualReportDate': '2021-08-31T05:00:00.000', 'netExpenseRatio': 0.22, 'managementExpenseRatio': None}], 'feeLevelMedianList': [{'date': '2018-12-31T06:00:00.000', 'median': 0.46}, {'date': '2019-12-31T06:00:00.000', 'median': 0.47}, {'date': '2020-12-31T06:00:00.000', 'median': 0.455}, {'date': '2021-12-31T06:00:00.000', 'median': 0.44}, {'date': '2022-08-31T05:00:00.000', 'median': 0.44}], 'categoryExpenseAverageList': [{'year': '2022', 'categoryExpenseRatio': 0.709, 'categoryManagementExpenseRatio': None}, {'year': '2018', 'categoryExpenseRatio': 0.782, 'categoryManagementExpenseRatio': None}, {'year': '2019', 'categoryExpenseRatio': 0.785, 'categoryManagementExpenseRatio': None}, {'year': '2020', 'categoryExpenseRatio': 0.753, 'categoryManagementExpenseRatio': None}, {'year': '2021', 'categoryExpenseRatio': 0.706, 'categoryManagementExpenseRatio': None}]}
         
         """
+        if self.asset_type == 'etf':
+            return {}
         return self.GetFundsData("price/historicalExpenses")
 
     def holdings(self, holdingType: str = 'all'):
@@ -1174,6 +1175,22 @@ class Funds:
         #investment objective funds
         return soup.find(id='overviewObjectiveDiv').find('td', {"class": "value text"}).text
 
+    def otherFee(self):
+        """
+        This function retrieves the other fee of the etf
+
+        Returns:
+            dict fees
+
+        Examples:
+            >>> Funds("American Century Foc Dynmc Gr ETF").otherFee()
+            
+            {'expenseWaiver': False, 'expenseReimbursement': None, 'expirationDate': None, 'expenseWaivers': None}
+                    
+        """
+        return self.GetFundsData("price/otherFee")
+
+
     def ownershipZone(self):
         """        
         This function retrieves ownershipZone of the funds, index and category.
@@ -1450,9 +1467,9 @@ class Funds:
             'minInvestmentCurrency': 'EUR', 'frontloadFeeBreakpointUnit': None, 'frontloadFeeUnit': None, 'redemptionFeeBreakpointUnit': 'Months', 'redemptionFeeUnit': 'Percentage', 'deferredloadFeeBreakpointUnit': 'Months', 'deferredloadFeeUnit': 'Percentage', 'minimumInitialInvestmentUnit': 'Monetary'}
                     
         """
+        if self.asset_type == 'etf':
+            return {}
         return self.GetFundsData("price/salesFees")
-
-
 
     def sector(self):
         """
@@ -1504,6 +1521,23 @@ class Funds:
         
         return self.GetFundsData("parent/mstarRating/StarRatingFundDesc")
 
+    def taxes(self):
+        """
+        This function retrieves the other fee of the etf
+
+        Returns:
+            dict taxes
+
+        Examples:
+            >>> Funds("American Century Foc Dynmc Gr ETF").taxes()
+
+            {'categoryEndDate': None, 'returnEndDate': '2023-01-31T06:00:00.000', 'trailing1YearTaxCostRatio': None, 'trailing3YearTaxCostRatio': None, 
+            'trailing5YearTaxCostRatio': None, 'trailing10YearTaxCostRatio': None, 'trailing15YearTaxCostRatio': None, 'sinceInceptionTaxCostRatio': None, 
+            'potentialCapitalGain': -0.15581910000000002, 'trailing1YearTaxCostRatioCategory': None, 'trailing3YearTaxCostRatioCategory': None, 'trailing5YearTaxCostRatioCategory': None, 
+            'trailing10YearTaxCostRatioCategory': None, 'trailing15YearTaxCostRatioCategory': None, 'sinceInceptionTaxCostRatioCategory': None, 'priceTemplate': 'USA_ETF'}
+
+        """
+        return self.GetFundsData("price/taxes")
 
     def trailingReturn(self, duration ='daily'):
         """
