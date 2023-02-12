@@ -10,13 +10,18 @@ from mstarpy.utils import FILTER
 start_date = datetime.datetime(2021,1,1)
 end_date = datetime.datetime.today()
 
-funds = Funds("BlackRock High Yield Bond K")
+
+funds = Funds("myria", proxies={})
+
+# print(filter_universe(['StarRatingM2556', 'LargestRegion','SustainabilityRank' ],proxies=proxies))
 
 # print(funds.code)
 # print(funds.isin)
+# print(funds.name)
+
 # print(funds.asset_type)
 # print(funds.allocationMap())
-print(funds.dataPoint("TenforeId"))
+# print(funds.dataPoint("TenforeId"))
 # print(funds.allocationWeighting())
 # print(funds.analystRating())
 # print(funds.analystRatingTopFunds())
@@ -50,10 +55,11 @@ print(funds.dataPoint("TenforeId"))
 # #print(funds.fundsQuarterlyPerformance())
 # print(funds.graphData())
 # print(funds.historicalData())
-# print(funds.historicalExpenses())
+print(funds.historicalExpenses())
 # print(funds.holdings())
 # #print(funds.indexAnnualPerformance())
 # #print(funds.indexCumulativePerformance())
+# print(funds.investmentStrategy())
 # print(funds.marketCapitalization())
 # print(funds.maturitySchedule())
 # print(funds.maxDrawDown())
