@@ -16,6 +16,7 @@ FIELDS = [
     'categoryId',
     'CategoryName',
     'ClosePrice',
+    'currency',
     'distribution',
     'EffectiveDuration',
     'equityStyle',
@@ -23,7 +24,8 @@ FIELDS = [
     'ExpertiseAdvanced',
     'ExpertiseBasic',
     'ExpertiseInformed',
-    'ExchangeId'
+    'exchangeCode',
+    'exchangeId'
     'FeeLevel',
     'fundShareClassId',
     'fundSize',
@@ -49,6 +51,7 @@ FIELDS = [
     'investmentExpertise',
     'investmentExpertise',
     'investmentObjective',
+    'investmentType',
     'investorType',
     'InvestorTypeEligibleCounterparty',
     'InvestorTypeProfessional',
@@ -93,6 +96,7 @@ FIELDS = [
     'SustainabilityRank',
     'sustainabilityRating',
     'TenforeId',
+    'ticker',
     'totalReturn',
     'totalReturnTimeFrame',
     'TrackRecordExtension',
