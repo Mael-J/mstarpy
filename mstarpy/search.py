@@ -7,7 +7,7 @@ from .utils import random_user_agent
 from .utils import SITE, FIELDS, FILTER
 from .error import not_200_response
 
-def filter_universe(field = FILTER):
+def filter_universe(field = FILTER, proxies = {}):
   """
   This function will use the screener of morningstar.co.uk to find the possible filters and their values.
 
@@ -29,23 +29,23 @@ def filter_universe(field = FILTER):
   if not isinstance(field, (str, list)):
     raise TypeError('field parameter should be a string or a list')
 
+  if 'StarRatingM255' in field:
+    raise ValueError('StarRatingM255 cannot be a field')
   
   if isinstance(field, list):
-    if 'StarRatingM255' in field:
-      raise ValueError('StarRatingM255 cannot be a field')
     filterDataPoints = '|'.join(field)
   else:
-    if field == 'StarRatingM255':
-      raise ValueError('StarRatingM255 cannot be a field')
     filterDataPoints = field
 
+  if not isinstance(proxies, dict):
+    raise TypeError('proxies parameter should be dict')
 
   params = {
   'outputType' : 'json',
   'filterDataPoints' : filterDataPoints,
   }
 
-  result = general_search(params)
+  result = general_search(params, proxies=proxies)
 
   all_filter ={}
 
@@ -60,12 +60,13 @@ def filter_universe(field = FILTER):
   return all_filter
 
 
-def general_search(params):
+def general_search(params, proxies={}):
   """
   This function will use the screener of morningstar.co.uk to find informations about funds or classification
 
   Args:
     params (dict) : paramaters of the request
+    proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
   
   Returns:
     list of information
@@ -87,6 +88,9 @@ def general_search(params):
   """
   if not isinstance(params, dict):
     raise TypeError('params parameter should be dict')
+
+  if not isinstance(proxies, dict):
+    raise TypeError('proxies parameter should be dict')
   #url
   url = "https://tools.morningstar.co.uk/api/rest.svc/klr5zyak8x/security/screener"
   #headers
@@ -94,7 +98,7 @@ def general_search(params):
               'user-agent': random_user_agent(),
               }   
 
-  response = requests.get(url,params=params, headers=headers)
+  response = requests.get(url,params=params, headers=headers,proxies=proxies)
 
   not_200_response(url, response)
     
@@ -154,7 +158,7 @@ def search_filter(pattern = ''):
   return filtered_list
 
 
-def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filters={}):
+def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filters={}, proxies = {}):
   """
   This function will use the screener of morningstar.co.uk to find funds which include the term.
 
@@ -199,6 +203,9 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filter
 
   if not isinstance(filters, dict):
     raise TypeError('filters parameter should be a dict')
+
+  if not isinstance(proxies, dict):
+    raise TypeError('proxies parameter should be dict')
 
 
   if isinstance(field, list):
@@ -248,7 +255,7 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filter
   'filters' : '|'.join(filter_list),
   }
 
-  result = general_search(params)
+  result = general_search(params, proxies=proxies)
 
   if result['rows']:
     return result['rows']
@@ -257,18 +264,25 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filter
     return {}
 
 
-def token_chart():
+def token_chart(proxies={}):
   """
   This function will scrape the Bearer Token needed to access MS API chart data
+
+  Args:
+  proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
   Returns:
   str bearer token
   """
+
+  if not isinstance(proxies, dict):
+    raise TypeError('proxies parameter should be dict')
+
   url = 'https://www.morningstar.com/funds/xnas/afozx/chart'
 
   headers = {'user-agent' : random_user_agent()}
 
-  response = requests.get(url, headers=headers)
+  response = requests.get(url, headers=headers,proxies=proxies)
 
   all_text = response.text
   if all_text.find("token") ==-1:
@@ -278,20 +292,53 @@ def token_chart():
   return token_start[7:token_start.find("}")-1]
 
 
-def token_fund_information():
+def token_fund_information(proxies={}):
   """
   This function will scrape the Bearer Token needed to access MS API funds information
+
+  Args:
+  proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
   Returns:
   str bearer token
   """
+  if not isinstance(proxies, dict):
+    raise TypeError('proxies parameter should be dict')
+
   url = 'https://www.morningstar.co.uk/Common/funds/snapshot/PortfolioSAL.aspx'
 
   headers = {'user-agent' : random_user_agent()}
 
 
-  response = requests.get(url, headers=headers)
+  response = requests.get(url, headers=headers,proxies=proxies)
   soup = BeautifulSoup(response.text, 'html.parser')
   script = soup.find_all('script', {'type':'text/javascript'})
   bearerToken = str(script).split('tokenMaaS:')[-1].split('}')[0].replace('"','').strip()
   return bearerToken
+
+def token_investment_strategy(proxies={}):
+  """
+  This function will scrape the Bearer Token needed to access the investment strategy
+
+  Args:
+  proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+
+  Returns:
+  str bearer token
+  """
+  if not isinstance(proxies, dict):
+    raise TypeError('proxies parameter should be dict')
+
+  url = 'https://www.morningstar.com.au/investments/security/ASX/VHY'
+
+  headers = {'user-agent' : random_user_agent()}
+
+  response = requests.get(url, headers=headers, proxies = proxies)
+
+  all_text = response.text
+  if all_text.find("token") ==-1:
+    return None
+  start_flag ='"0P0000T416",0,'
+  end_flag = 'www.morningstar.com.au'
+  token_start = all_text[all_text.find(start_flag)+len(start_flag)+1:]
+  return token_start[:token_start.find(end_flag)-3]
