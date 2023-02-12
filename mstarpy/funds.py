@@ -6,7 +6,7 @@ import pandas as pd
 import datetime
 
 from .utils import SITE, APIKEY, random_user_agent
-from .search import search_funds, token_chart
+from .search import search_funds, token_chart, token_investment_strategy
 from .error import no_site_error, not_200_response
 
 
@@ -31,7 +31,7 @@ class Funds:
 
     """
 
-    def __init__(self, term = None, country: str = "", pageSize : int =1, itemRange: int = 0):
+    def __init__(self, term = None, country: str = "", pageSize : int =1, itemRange: int = 0, proxies={}):
         if not isinstance(country, str):
             raise TypeError('country parameter should be a string')
 
@@ -47,6 +47,11 @@ class Funds:
         if pageSize <= itemRange :
             raise ValueError('itemRange parameter should be strictly inferior to pageSize parameter')
 
+        if not isinstance(proxies, dict):
+            raise TypeError('proxies parameter should be dict')
+
+        self.proxies = proxies
+
         if country:
             self.site = SITE[country.lower()]["site"]
         else:
@@ -55,7 +60,7 @@ class Funds:
 
         self.country = country
         
-        code_list = search_funds(term,['fundShareClassId','SecId','TenforeId','LegalName'], country, pageSize)
+        code_list = search_funds(term,['fundShareClassId','SecId','TenforeId','LegalName'], country, pageSize,proxies = self.proxies)
 
         self.asset_type = 'fund'
 
@@ -210,7 +215,7 @@ class Funds:
         #page 1 - performance
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=1"
         
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, proxies=self.proxies)
         not_200_response(url,response)
         soup = BeautifulSoup(response.text, 'html.parser')
         #label are dates
@@ -344,7 +349,7 @@ class Funds:
         #page 1 - performance
         #page 4 - info about found
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=4"
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers,proxies=self.proxies)
         not_200_response(url,response)
         soup = BeautifulSoup(response.text, 'html.parser')
         #label
@@ -428,7 +433,7 @@ class Funds:
             [{'SharpeM36': 0.11}]
 
         """
-        return search_funds(self.code, field,self.country,10,currency)
+        return search_funds(self.code, field,self.country,10,currency, proxies=self.proxies)
 
     def distribution(self, period = "annual"):
         """
@@ -490,7 +495,7 @@ class Funds:
         #page 1 - performance
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=1"
         
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, proxies=self.proxies)
         not_200_response(url,response)
         soup = BeautifulSoup(response.text, 'html.parser')
         cumulative_performance_date = soup.find(id='returnsTrailingDiv').find('td', {"class": "titleBarNote"}).text
@@ -605,7 +610,7 @@ class Funds:
         #headers random agent
         headers = {'user-agent' : random_user_agent()}
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=5"
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, proxies=self.proxies)
         not_200_response(url,response)
         soup = BeautifulSoup(response.text, 'html.parser')
         if soup.find(id='managementFeesDiv') == None:
@@ -733,7 +738,7 @@ class Funds:
         #page 1 - performance
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=1"
         
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, proxies=self.proxies)
         not_200_response(url,response)
         soup = BeautifulSoup(response.text, 'html.parser')
         quarterly_performance_date = soup.find(id='returnsTrailingDiv').find('td', {"class": "titleBarNote"}).text
@@ -766,7 +771,7 @@ class Funds:
             result[label + 'quarter_4'] = quarter_4_list[i].text
         return result
 
-    def GetFundsData(self,field,params={}):
+    def GetFundsData(self,field,params={},headers={}):
         """
         Generic function to use MorningStar global api for funds.
 
@@ -798,11 +803,14 @@ class Funds:
 
 
         #headers
-        headers = {
+        default_headers = {
             "apikey" : APIKEY,
         }
 
-        response = requests.get(url,params=params, headers=headers)
+        all_headers = default_headers | headers
+        
+
+        response = requests.get(url,params=params, headers=all_headers,proxies=self.proxies)
 
 
         not_200_response(url,response)
@@ -860,7 +868,7 @@ class Funds:
             "apikey" : APIKEY,
         }
 
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, proxies=self.proxies)
 
         not_200_response(url,response)
         
@@ -955,6 +963,29 @@ class Funds:
         
         return self.CumulativePerformance('index')
 
+    def investmentStrategy(self):
+        """
+        This function retrieves the investment strategy.
+  
+        Returns:
+            dict investment strategy
+
+        Examples:
+            >>> Funds("LU0823421689").investmentStrategy()
+
+            {
+                "investmentStrategy": "Increase the value of its assets over the medium term by investing primarily in innovative technology companies.",
+                "languageId": "0L00000122",
+                "isInvestmentStrategyEmpty": false
+            }
+        """
+        bearer_token = token_investment_strategy()
+        #header with bearer token
+        headers = {
+                    'authorization': f'Bearer {bearer_token}',
+                    }
+        return self.GetFundsData("morningstarTake/investmentStrategy",headers=headers)
+        
     def marketCapitalization(self):
         """
         This function retrieves the marketCapitalization breakdown of the funds, category and index.
@@ -990,7 +1021,7 @@ class Funds:
 
     def maxDrawDown(self, year = 3):
         """
-        This function retrieves the the max drawdown of the funds, index and category.
+        This function retrieves the max drawdown of the funds, index and category.
   
         Args:
             year (int) : period of calculation in year
@@ -1002,7 +1033,7 @@ class Funds:
             TypeError whenever the parameter year is not an integer
 
         Examples:
-            >>> Funds("myria", "fr").marketVolatilityMeasure()
+            >>> Funds("myria", "fr").maxDrawDown()
 
             {'year': 3, 'maxDrawDownAsOfDate': '2022-08-31T05:00:00.000', 'fundName': 'Myria Actions Durables Europe', 'indexName': 'Morningstar Eur TME GR EUR', 'categoryName': 'Europe Large-Cap Blend Equity', 'peakDate': '2020-01-01T00:00:00.000', 'valleyDate': '2020-03-31T00:00:00.000', 'duration': 3.0, 'inceptionDate': '2015-11-25T06:00:00.000', 'calculationBenchmark': 'MSCI Europe NR EUR', 'cur': 'EUR', 'measureMap': {'fund': {'secId': 'F00000YIJ0', 'asOfDate': '2022-08-31T05:00:00.000', 'upside': 91.446, 'downside': 116.07, 'maxDrawDown': -23.9633902597, 'peakDate': '2020-01-01T00:00:00.000', 'valleyDate': '2020-03-31T00:00:00.000', 'duration': 3.0, 'isAddExtendedFlag': False}, 'index': {'secId': 'F000016V5C', 'asOfDate': '2022-08-31T05:00:00.000', 'upside': None, 'downside': None, 'maxDrawDown': -22.9713828113, 'peakDate': '2020-01-01T00:00:00.000', 'valleyDate': '2020-03-31T00:00:00.000', 'duration': 3.0, 'isAddExtendedFlag': False}, 'category': {'secId': 'EUCA000511', 'asOfDate': '2022-08-31T05:00:00.000', 'upside': 97.812, 'downside': 102.698, 'maxDrawDown': -22.2434389098, 'peakDate': '2020-01-01T00:00:00.000', 'valleyDate': '2020-03-31T00:00:00.000', 'duration': 3.0, 'isAddExtendedFlag': False}}}
         
@@ -1126,7 +1157,7 @@ class Funds:
                     'authorization': f'Bearer {bearer_token}',
                     }
         #response
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, proxies=self.proxies)
         #manage response
         not_200_response(url,response)
         #result
@@ -1166,7 +1197,7 @@ class Funds:
         #url page overview
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}"
         #get HTML page overview
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, proxies=self.proxies)
         #if page not found
 
         not_200_response(url,response)
@@ -1364,7 +1395,7 @@ class Funds:
         #url page overview
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}"
         #get HTML page overview
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, proxies=self.proxies)
         #if page not found
         
         not_200_response(url,response)
