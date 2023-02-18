@@ -1,25 +1,28 @@
-import requests
-import json
-import re
 from bs4 import BeautifulSoup
-import pandas as pd
 import datetime
+import json
+import pandas as pd
+import re
+import requests
 
-from .utils import SITE, APIKEY, random_user_agent
-from .search import search_funds, token_chart, token_investment_strategy
 from .error import no_site_error, not_200_response
+from .search import search_funds, token_chart, token_investment_strategy
+from .utils import random_user_agent
+
+from .security import Security
 
 
 
 
-class Funds:
+class Funds(Security):
     """
-    Main class to access data about funds and etf
+    Main class to access data about funds and etf, inherit from Security class
     Args:
-        term (str): text to find a fund can be a name, part of a name or the isin of the funds
+        term (str): text to find a fund, can be a name, part of a name or the isin of the funds
         country (str) : text for code ISO 3166-1 alpha-2 of country, should be '' for etf
         pageSize (int): number of funds to return
         itemRange (int) : index of funds to return (must be inferior to PageSize)
+        proxies = (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
     Examples:
         >>> Funds('0P0000712R', "ca", 9, 0)
@@ -31,59 +34,10 @@ class Funds:
 
     """
 
-    def __init__(self, term = None, country: str = "", pageSize : int =1, itemRange: int = 0, proxies={}):
-        if not isinstance(country, str):
-            raise TypeError('country parameter should be a string')
-
-        if country and not country.lower() in SITE.keys():
-            raise ValueError(f'country parameter can only take one of the values: {", ".join(SITE.keys())}')
-
-        if not isinstance(pageSize, int):
-            raise TypeError('pageSize parameter should be an integer')
-
-        if not isinstance(itemRange, int):
-            raise TypeError('itemRange parameter should be an integer')
-
-        if pageSize <= itemRange :
-            raise ValueError('itemRange parameter should be strictly inferior to pageSize parameter')
-
-        if not isinstance(proxies, dict):
-            raise TypeError('proxies parameter should be dict')
-
-        self.proxies = proxies
-
-        if country:
-            self.site = SITE[country.lower()]["site"]
-        else:
-            self.site =""
+    def __init__(self, term = None, country: str = "", pageSize : int =1, itemRange: int = 0, filters: dict = {}, proxies: dict = {}):
         
-
-        self.country = country
+        super().__init__(term=term,asset_type='fund',country=country,pageSize=pageSize,itemRange=itemRange,filters=filters,proxies=proxies)
         
-        code_list = search_funds(term,['fundShareClassId','SecId','TenforeId','LegalName'], country, pageSize,proxies = self.proxies)
-
-        self.asset_type = 'fund'
-
-        if code_list:
-            if itemRange < len(code_list):
-                self.code = code_list[itemRange]["fundShareClassId"]
-                self.name = code_list[itemRange]["LegalName"]
-                if "TenforeId" in code_list[itemRange]:
-                    tenforeId = code_list[itemRange]["TenforeId"]
-                    if  "126.1." in tenforeId:
-                        self.asset_type = 'etf'
-                    regex = re.compile("52.8.|126.1.")
-                    self.isin = regex.sub('',tenforeId)                   
-                else:
-                    self.isin = None
-                    
-            else:
-                raise ValueError(f'Found only {len(code_list)} fund with the term {term}. The paramater itemRange must maximum equal to {len(code_list)-1}')
-        else:
-            if country:
-                raise ValueError(f'0 fund found with the term {term} and country {country}')
-            else:
-                raise ValueError(f'0 fund found with the term {term}')
         
 
     def allocationMap(self):
@@ -103,7 +57,7 @@ class Funds:
             'longAllocationIndex': '0.00309', 'longAllocationCategory': '4.74916', 'targetAllocation': None}, 'assetAllocConvertible': {'netAllocation': '0.00000', 'shortAllocation': '0.00000', 'longAllocation': '0.00000', 'longAllocationIndex': '0.00000', 'longAllocationCategory': '0.00168', 'targetAllocation': None}, 'assetAllocFixedIncome': {'netAllocation': '0.00000', 'shortAllocation': '0.00000', 'longAllocation': '0.00000', 'longAllocationIndex': '0.00000', 'longAllocationCategory': '0.17067', 'targetAllocation': None}}}
 
         """
-        return self.GetFundsData("process/asset/v2")
+        return self.GetData("process/asset/v2")
 
     def allocationWeighting(self):
         """
@@ -120,7 +74,7 @@ class Funds:
             'smallValue': '0.05000', 'smallBlend': '0.06100', 'smallGrowth': '0.00000'}
         
         """
-        return self.GetFundsData("process/weighting")
+        return self.GetData("process/weighting")
 
     def analystRating(self):
         """
@@ -139,7 +93,7 @@ class Funds:
         """
         
 
-        return self.GetFundsData("parent/analystRating")
+        return self.GetData("parent/analystRating")
 
     def analystRatingTopFunds(self):
         """
@@ -156,7 +110,7 @@ class Funds:
 
         """
         
-        return self.GetFundsData("parent/analystRating/topfunds")
+        return self.GetData("parent/analystRating/topfunds")
 
 
     def analystRatingTopFundsUpDown(self):
@@ -176,7 +130,7 @@ class Funds:
     
         """
 
-        return self.GetFundsData("parent/analystRating/topfundsUpDown")
+        return self.GetData("parent/analystRating/topfundsUpDown")
 
 
     def AnnualPerformance(self, cat):
@@ -277,7 +231,7 @@ class Funds:
             
         """
 
-        return self.GetFundsData("esg/carbonMetrics")
+        return self.GetData("esg/carbonMetrics")
 
     def category(self):
         """
@@ -377,7 +331,7 @@ class Funds:
             'redemption': 0.0, 'total': 1439.2716218792, 'purchasePer': 0.0366280205, 'ongoingPer': 0.0550548847, 'redemptionPer': 0.0, 'totalPer': 0.0916829053}]}
         
         """
-        return self.GetFundsData("price/costIllustration")
+        return self.GetData("price/costIllustration")
 
     def couponRange(self):
         """
@@ -394,7 +348,7 @@ class Funds:
             'benchmarkCouponRange': None, 'morningstarIndexCouponRange': {'portfolioDate': '2022-08-31T05:00:00.000', 'name': 'Morningstar US Trsy Bd TR USD', 'coupon0': 0.0, 'coupon0To2': 59.67448, 'coupon2To4': 39.12677, 'coupon4To6': 1.19873, 'coupon6To8': 0.0, 'coupon8To10': 0.0, 'couponMoreThan10': 0.0}}
         
         """
-        return self.GetFundsData("process/couponRange")
+        return self.GetData("process/couponRange")
 
 
     def creditQuality(self):
@@ -413,7 +367,7 @@ class Funds:
             'index': {'creditQualityDate': None, 'creditQualityAAA': None, 'creditQualityAA': None, 'creditQualityA': None, 'creditQualityBBB': None, 'creditQualityBB': None, 'creditQualityB': None, 'creditQualityBelowB': None, 'creditQualityNotRated': None}}
         
         """
-        return self.GetFundsData("portfolio/creditQuality")
+        return self.GetData("portfolio/creditQuality")
 
     def dataPoint(self, field, currency ='EUR'):
         """
@@ -460,7 +414,7 @@ class Funds:
         if period not in period_choice:
             raise ValueError(f'period parameter can only take one of the values: {", ".join(period_choice)}')
 
-        return self.GetFundsData(f"distribution/{period}")
+        return self.GetData(f"distribution/{period}")
 
 
 
@@ -528,7 +482,7 @@ class Funds:
 
             {'portfolioDate': '2022-08-31T05:00:00.000', 'assetType': 'EQUITY', 'fund': {'prospectiveEarningsYield': 12.03844, 'prospectiveBookValueYield': 1.8135, 'prospectiveRevenueYield': 1.21333, 'prospectiveCashFlowYield': 6.76284, 'prospectiveDividendYield': 4.69964, 'forecasted5YearEarningsGrowth': 9.87483, 'forecastedEarningsGrowth': 24.99911, 'forecastedBookValueGrowth': 4.39037, 'forecastedRevenueGrowth': 0.88596, 'forecastedCashFlowGrowth': 18.98939, 'portfolioDate': '2022-08-31T05:00:00.000', 'name': 'Myria Actions Durables Europe', 'secId': 'F00000YIJ0', 'currencyId': 'EUR'}, 'categoryAverage': {'prospectiveEarningsYield': 11.96095, 'prospectiveBookValueYield': 1.73223, 'prospectiveRevenueYield': 1.23013, 'prospectiveCashFlowYield': 6.87331, 'prospectiveDividendYield': 4.24151, 'forecasted5YearEarningsGrowth': 11.40056, 'forecastedEarningsGrowth': 19.96503, 'forecastedBookValueGrowth': 4.75903, 'forecastedRevenueGrowth': 2.20284, 'forecastedCashFlowGrowth': 13.83039, 'portfolioDate': '2022-08-31T05:00:00.000', 'name': 'Europe Large-Cap Blend Equity', 'secId': 'EUCA000511', 'currencyId': ''}, 'indexAverage': {'prospectiveEarningsYield': 11.07388, 'prospectiveBookValueYield': 1.5651, 'prospectiveRevenueYield': 1.11395, 'prospectiveCashFlowYield': 5.96117, 'prospectiveDividendYield': 4.3768, 'forecasted5YearEarningsGrowth': 11.18655, 'forecastedEarningsGrowth': 24.87068, 'forecastedBookValueGrowth': 4.49942, 'forecastedRevenueGrowth': 1.64071, 'forecastedCashFlowGrowth': 14.56048, 'portfolioDate': '2022-08-31T05:00:00.000', 'name': 'Morningstar Eur TME GR EUR', 'secId': 'F000016V5C', 'currencyId': ''}}
         """
-        return self.GetFundsData("process/stockStyle/v2")
+        return self.GetData("process/stockStyle/v2")
     
     def equityStyleBoxHistory(self):
         """
@@ -543,7 +497,7 @@ class Funds:
             {'history': [{'year': 2022, 'portfolioDate': '2022-08-31T05:00:00.000', 'style': 2, 'percentage': 97.01546, 'relativeVolatility': None, 'categoryName': 'EAA Fund Europe Large-Cap Blend Equity'}], 'secId': 'F00000YIJ0', 'masterPortfolioId': '2852268', 'asOfDate': '2022-08-31T05:00:00.000'}
 
         """
-        return self.GetFundsData("process/equityStyleBoxHistory")
+        return self.GetData("process/equityStyleBoxHistory")
 
     def esgData(self):
         """
@@ -560,7 +514,7 @@ class Funds:
         
         """
 
-        return self.GetFundsData("esg/v1")
+        return self.GetData("esg/v1")
 
     def factorProfile(self):
         """
@@ -575,7 +529,7 @@ class Funds:
             {'name': 'Myria Actions Durables Europe', 'categoryId': 'EUCA000511', 'categoryName': 'Europe Large-Cap Blend Equity', 'indexId': 'F000016V5C', 'indexName': 'Morningstar Eur TME GR EUR', 'indexEffectiveDate': '2022-08-31', 'categoryEffectiveDate': '2022-08-31', 'ticker': None, 'id': '0P00019Q8D', 'effectiveDate': '2022-08-31', 'factors': {'style': {'categoryAvg': 43.972717, 'indexAvg': 53.582795, 'percentile': 41.810942, 'historicRange': [{'year': '1', 'min': 37.737166, 'max': 50.694038}, {'year': '3', 'min': 37.737166, 'max': 50.694038}, {'year': '5', 'min': 37.737166, 'max': 50.694038}]}, 'yield': {'categoryAvg': 44.894873, 'indexAvg': 32.632299, 'percentile': 32.396237, 'historicRange': [{'year': '1', 'min': 25.010467, 'max': 40.238631}, {'year': '3', 'min': 25.010467, 'max': 40.238631}, {'year': '5', 'min': 25.010467, 'max': 40.238631}]}, 'quality': {'categoryAvg': 48.689334, 'indexAvg': 54.731861, 'percentile': 43.387003, 'historicRange': [{'year': '1', 'min': 40.856001, 'max': 50.587487}, {'year': '3', 'min': 40.856001, 'max': 50.587487}, {'year': '5', 'min': 40.856001, 'max': 50.587487}]}, 'momentum': {'categoryAvg': 54.346187, 'indexAvg': 41.592238, 'percentile': 47.615288, 'historicRange': [{'year': '1', 'min': 35.098478, 'max': 58.163375}, {'year': '3', 'min': 35.098478, 'max': 58.163375}, {'year': '5', 'min': 35.098478, 'max': 58.163375}]}, 'volatility': {'categoryAvg': 59.365095, 'indexAvg': 64.87211, 'percentile': 72.380962, 'historicRange': [{'year': '1', 'min': 58.840344, 'max': 74.446747}, {'year': '3', 'min': 58.840344, 'max': 74.446747}, {'year': '5', 'min': 58.840344, 'max': 74.446747}]}, 'liquidity': {'categoryAvg': 42.525891, 'indexAvg': 36.874471, 'percentile': 50.802125, 'historicRange': [{'year': '1', 'min': 30.942716, 'max': 53.826165}, {'year': '3', 'min': 30.942716, 'max': 53.826165}, {'year': '5', 'min': 30.942716, 'max': 53.826165}]}, 'size': {'categoryAvg': 64.682823, 'indexAvg': 77.751371, 'percentile': 92.165035, 'historicRange': [{'year': '1', 'min': 92.165035, 'max': 94.167559}, {'year': '3', 'min': 92.165035, 'max': 94.167559}, {'year': '5', 'min': 92.165035, 'max': 94.167559}]}}}
         
         """
-        return self.GetFundsData("factorProfile")
+        return self.GetData("factorProfile")
 
     def feeLevel(self):
         """        
@@ -590,7 +544,7 @@ class Funds:
             {'morningstarFeeLevelRankDate': '2022-08-31T05:00:00.000', 'morningstarFeeLevelGroup': '$GFS$000E9', 'name': 'Government Retirement, Large', 'morningstarFeeLevel': 1, 'morningstarFeeLevelPercentileRank': 1.0, 'morningstarFeeLevelGroupSize': 29.0, 'median': 0.44, 'morningstarFeeLevelGroupStartingDistribution': 0.22, 'morningstarFeeLevelGroup1stBreakpointDistribution': 0.32, 'morningstarFeeLevelGroup2ndBreakpointDistribution': 0.39, 'morningstarFeeLevelGroup3rdBreakpointDistribution': 0.48, 'morningstarFeeLevelGroup4thBreakpointDistribution': 0.6, 'morningstarFeeLevelGroupEndBreakpointDistribution': 0.67, 'fundFee': 0.22, 'reportDate': '2021-08-31T05:00:00.000', 'peerMedian': 2.5555555555555554, 'fundIndex': 0.0, 'prospectusExpenseRatio': 0.22, 'icrFund': None, 'priceTemplate': 'USA_OE', 'morningstarTotalCostRatioPDS': None}
 
         """
-        return self.GetFundsData("price/feeLevel")
+        return self.GetData("price/feeLevel")
 
     def fees(self):
         """        
@@ -639,7 +593,7 @@ class Funds:
             '_PO_', 'noMoatPercentage': '_PO_', 'financialHealthGradeType': '_PO_', 'profitabilityGradeType': '_PO_', 'growthGradeType': '_PO_', 'roic': '_PO_', 'cashReturn': '_PO_', 'freeCashFlowYield': '_PO_', 'debtToCapital': '_PO_', 'securityName': 'American Funds Mortgage R6'}, 'category': {'masterPortfolioId': '210755', 'portfolioDate': '2022-08-31T05:00:00.000', 'wideMoatPercentage': '_PO_', 'narrowMoatPercentage': '_PO_', 'noMoatPercentage': '_PO_', 'financialHealthGradeType': '_PO_', 'profitabilityGradeType': '_PO_', 'growthGradeType': '_PO_', 'roic': '_PO_', 'cashReturn': '_PO_', 'freeCashFlowYield': '_PO_', 'debtToCapital': '_PO_', 'securityName': 'Intermediate Government'}, 'index': {'masterPortfolioId': '1853142', 'portfolioDate': '2022-08-31T05:00:00.000', 'wideMoatPercentage': '_PO_', 'narrowMoatPercentage': '_PO_', 'noMoatPercentage': '_PO_', 'financialHealthGradeType': '_PO_', 'profitabilityGradeType': '_PO_', 'growthGradeType': '_PO_', 'roic': '_PO_', 'cashReturn': '_PO_', 'freeCashFlowYield': '_PO_', 'debtToCapital': '_PO_', 'securityName': 'Morningstar US Trsy Bd TR USD'}}
         
         """
-        return self.GetFundsData("process/financialMetrics")
+        return self.GetData("process/financialMetrics")
 
 
     def fixedIncomeStyle(self):
@@ -657,7 +611,7 @@ class Funds:
 
         """
 
-        return self.GetFundsData("process/fixedIncomeStyle")
+        return self.GetData("process/fixedIncomeStyle")
 
     def fixedincomeStyleBoxHistory(self):
         """        
@@ -672,7 +626,7 @@ class Funds:
             {'history': [{'year': 2022, 'portfolioDate': '2022-06-30T05:00:00.000', 'style': 2, 'percentage': 65.12712, 'relativeVolatility': None, 'categoryName': 'US Fund Intermediate Government'}, {'year': 2021, 'portfolioDate': '2021-12-31T06:00:00.000', 'style': 1, 'percentage': 63.32053, 'relativeVolatility': None, 'categoryName': 'US Fund Intermediate Government'}, {'year': 2020, 'portfolioDate': '2020-12-31T06:00:00.000', 'style': 1, 'percentage': 64.09708, 'relativeVolatility': None, 'categoryName': 'US Fund Intermediate Government'}, {'year': 2019, 'portfolioDate': '2019-12-31T06:00:00.000', 'style': 1, 'percentage': 79.54471, 'relativeVolatility': None, 'categoryName': 'US Fund Intermediate Government'}, {'year': 2018, 'portfolioDate': '2018-12-31T06:00:00.000', 'style': 2, 'percentage': 74.84264, 'relativeVolatility': None, 'categoryName': 'US Fund Intermediate Government'}], 'secId': 'F00000JNX4', 'masterPortfolioId': '564578', 'asOfDate': '2022-06-30T05:00:00.000'}
 
         """
-        return self.GetFundsData("process/fixedincomeStyleBoxHistory")
+        return self.GetData("process/fixedincomeStyleBoxHistory")
 
     def fundsAnnualPerformance(self):
         """        
@@ -771,53 +725,6 @@ class Funds:
             result[label + 'quarter_4'] = quarter_4_list[i].text
         return result
 
-    def GetFundsData(self,field,params={},headers={}):
-        """
-        Generic function to use MorningStar global api for funds.
-
-        Args:
-            field (str) : endpoint of the request
-            params (dict) : parameter for the request
-
-        Raises:
-            TypeError raised whenever type of paramater are invalid
-
-        Returns:
-            dict with funds data
-
-        Examples:
-            >>> Funds("rmagx", "us").GetFundsData("price/feeLevel")
-
-            {'morningstarFeeLevelRankDate': '2022-08-31T05:00:00.000', 'morningstarFeeLevelGroup': '$GFS$000E9', 'name': 'Government Retirement, Large', 'morningstarFeeLevel': 1, 'morningstarFeeLevelPercentileRank': 1.0, 'morningstarFeeLevelGroupSize': 29.0, 'median': 0.44, 'morningstarFeeLevelGroupStartingDistribution': 0.22, 'morningstarFeeLevelGroup1stBreakpointDistribution': 0.32, 'morningstarFeeLevelGroup2ndBreakpointDistribution': 0.39, 'morningstarFeeLevelGroup3rdBreakpointDistribution': 0.48, 'morningstarFeeLevelGroup4thBreakpointDistribution': 0.6, 'morningstarFeeLevelGroupEndBreakpointDistribution': 0.67, 'fundFee': 0.22, 'reportDate': '2021-08-31T05:00:00.000', 'peerMedian': 2.5555555555555554, 'fundIndex': 0.0, 'prospectusExpenseRatio': 0.22, 'icrFund': None, 'priceTemplate': 'USA_OE', 'morningstarTotalCostRatioPDS': None}
-
-        """
-
-        if not isinstance(field, str):
-            raise TypeError('field parameter should be a string')
-
-        if not isinstance(params, dict):
-            raise TypeError('params parameter should be a dict')
-
-        #url of API
-        url = f"""https://api-global.morningstar.com/sal-service/v1/{self.asset_type}/{field}/{self.code}/data"""
-
-
-        #headers
-        default_headers = {
-            "apikey" : APIKEY,
-        }
-
-        all_headers = default_headers | headers
-        
-
-        response = requests.get(url,params=params, headers=all_headers,proxies=self.proxies)
-
-
-        not_200_response(url,response)
-
-        return json.loads(response.content.decode()) 
-
-
     def graphData(self):
         """        
         This function retrieves historical data of the funds.
@@ -835,7 +742,7 @@ class Funds:
                     
         """
 
-        return self.GetFundsData("parent/graphData")
+        return self.GetData("parent/graphData")
 
     def historicalData(self):
         """
@@ -860,19 +767,8 @@ class Funds:
             '-3.03365', '27.33027', '-18.73191'], 'epFlag': [False, False, False, False, False, False, False, False, False, False, False]}, {'label': 'percentileRank', 'endDate': '2022-09-26T00:00:00.000', 'datum': [None, None, None, None, '88', '29', '80', '76', '96', '77', None], 'epFlag': [False, False, False, False, False, False, False, False, False, False, False]}, {'label': 'fundNumber', 'endDate': '2022-09-26T00:00:00.000', 'datum': ['1436', '1448', '1548', '1588', '1734', '1846', '1958', '2050', '1878', '1915', '746'], 'epFlag': [True, True, True, True, False, False, False, False, False, False, False]}, {'label': 'categoryName', 'endDate': None, 'datum': [None, None, None, 'EAA Fund Europe Large-Cap Blend Equity', 'EAA Fund Europe Large-Cap Blend Equity', 'EAA Fund Europe Large-Cap Blend Equity', 'EAA Fund Europe Large-Cap Blend Equity', 'EAA Fund Europe Large-Cap Blend Equity', 'EAA Fund Europe Large-Cap Blend Equity', 'EAA Fund Europe Large-Cap Blend Equity', 'EAA Fund Europe Large-Cap Blend Equity'], 'epFlag': []}, {'label': 'categoryNameAbbr', 'endDate': None, 'datum': [None, None, None, 'EU0511', 'EU0511', 'EU0511', 'EU0511', 'EU0511', 'EU0511', 'EU0511', 'EU0511'], 'epFlag': []}]}, 'currentValues': [{'type': 'fund', 'name': None, 'baseCurrency': 'EUR', 'currentValue': 9224.7, 'currentSymbol': '€'}, {'type': 'index', 'name': '', 'baseCurrency': 'EUR', 'currentValue': 12712.08831211816, 'currentSymbol': '€'}, {'type': 'category', 'name': '', 'baseCurrency': 'EUR', 'currentValue': 11251.033314798367, 'currentSymbol': '€'}], 'instrumentId': '52.8.FR0013028339', 'fundFlowQuarterlyData': [], 'isLimitAgeData': False, 'cur': 'EUR', 'isUKCefAvailable': False, 'template': 'SA_USA'}
 
         """
-        
-        #url
-        url = f"""https://api-global.morningstar.com/sal-service/v1/{self.asset_type}/performance/v3/{self.code}"""
-        #headers
-        headers = {
-            "apikey" : APIKEY,
-        }
+        return self.GetData("performance/v3", url_suffixe='')
 
-        response = requests.get(url, headers=headers, proxies=self.proxies)
-
-        not_200_response(url,response)
-        
-        return json.loads(response.content.decode()) 
 
 
     def historicalExpenses(self):
@@ -890,7 +786,7 @@ class Funds:
         """
         if self.asset_type == 'etf':
             return {}
-        return self.GetFundsData("price/historicalExpenses")
+        return self.GetData("price/historicalExpenses")
 
     def holdings(self, holdingType: str = 'all'):
         """        
@@ -984,7 +880,7 @@ class Funds:
         headers = {
                     'authorization': f'Bearer {bearer_token}',
                     }
-        return self.GetFundsData("morningstarTake/investmentStrategy",headers=headers)
+        return self.GetData("morningstarTake/investmentStrategy",headers=headers)
         
     def marketCapitalization(self):
         """
@@ -1000,7 +896,7 @@ class Funds:
             {'portfolioDate': '2022-08-31T05:00:00.000', 'assetType': 'EQUITY', 'currencyId': 'EUR', 'fund': {'portfolioDate': '2022-08-31T05:00:00.000', 'name': 'Myria Actions Durables Europe', 'avgMarketCap': 78534.26123, 'giant': 56.34528, 'large': 36.19509, 'medium': 5.2644, 'small': 0.10863, 'micro': 0.0}, 'category': {'portfolioDate': '2022-08-31T05:00:00.000', 'name': 'Europe Large-Cap Blend Equity', 'avgMarketCap': 46610.56573, 'giant': 39.27023, 'large': 35.83477, 'medium': 17.88083, 'small': 0.31315, 'micro': 0.01735}, 'index': {'portfolioDate': '2022-08-31T05:00:00.000', 'name': 'Morningstar Eur TME GR EUR', 'avgMarketCap': 47357.05144, 'giant': 41.94314, 'large': 41.62452, 'medium': 16.10521, 'small': 0.149, 'micro': 0.0}}
         
         """
-        return self.GetFundsData("process/marketCap")
+        return self.GetData("process/marketCap")
 
 
     def maturitySchedule(self):
@@ -1016,7 +912,7 @@ class Funds:
             {'fund': {'date': '2022-06-30T05:00:00.000', 'name': 'American Funds Mortgage R6', 'schedule': ['7.59099', '1.75764', '2.86851', '4.15766', '1.58966', '4.93620', '58.45084', '10.67651']}, 'benchMark': None, 'category': {'date': '2022-08-31T05:00:00.000', 'name': 'Intermediate Government', 'schedule': ['3.16287', '4.43564', '14.33945', '36.00389', '0.71253', '1.90584', '37.50619', '5.14632']}, 'proxy': {'date': '2022-08-31T05:00:00.000', 'name': 'Morningstar US Trsy Bd TR USD', 'schedule': ['33.90583', '21.52942', '15.50681', '9.03698', '0.00000', '5.92073', '12.84950', '0.00000']}, 'scheduleLabel': ['Maturity1-3Yr%', 'Maturity3-5Yr%', 'Maturity5-7Yr%', 'Maturity7-10Yr%', 'Maturity10-15Yr%', 'Maturity15-20Yr%', 'Maturity20-30Yr%', 'Maturity30+Yr%']}
         
         """
-        return self.GetFundsData("process/maturitySchedule")
+        return self.GetData("process/maturitySchedule")
 
 
     def maxDrawDown(self, year = 3):
@@ -1043,7 +939,7 @@ class Funds:
             raise TypeError('year parameter should be an integer')
 
 
-        return self.GetFundsData("performance/marketVolatilityMeasure", params = {"year": year})
+        return self.GetData("performance/marketVolatilityMeasure", params = {"year": year})
 
     def morningstarAnalyst(self):
         """
@@ -1065,7 +961,7 @@ class Funds:
                     
         """
 
-        return self.GetFundsData("morningstarAnalyst")
+        return self.GetData("morningstarAnalyst")
 
     def multiLevelFixedIncomeData(self, primary = "superEffectiveDuration", secondary = "superSector.weight"):
         """
@@ -1102,7 +998,7 @@ class Funds:
         if primary == "creditQuality" and secondary == "creditQuality.weight":
             raise ValueError(f'primary and secondary parameters cannot be both credit quality')
 
-        return self.GetFundsData("multiLevelFixedIncomeData", params = {"primary": primary,"secondary": secondary})
+        return self.GetData("multiLevelFixedIncomeData", params = {"primary": primary,"secondary": secondary})
 
     def nav(self, start_date,end_date,frequency="daily"):
         """
@@ -1111,7 +1007,7 @@ class Funds:
         Returns:
             list of dict with nav
 
-            >>> Funds("RMAGX", "us").nav()
+            >>> Funds("RMAGX", "us").nav(datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today())
 
             [{
                 "nav": 376.35,
@@ -1128,47 +1024,9 @@ class Funds:
             TypeError: raised whenever the parameter type is not the type expected
             ValueError : raised whenever the parameter is not valid or no funds found
         """
-        #error raised if start_date is note a datetime.date
-        if not isinstance(start_date,datetime.date):
-            raise TypeError("start_date parameter should be a datetime.date")
 
-        #error raised if end_date is note a datetime.date
-        if not isinstance(end_date,datetime.date):
-            raise TypeError("end_date parameter should be a datetime.date")
-
-        #error if end_date < start_date
-        if end_date < start_date:
-            raise ValueError("end_date must be more recent than start_date")
-
-        #dict of frequency
-        frequency_row = {'daily' : 'd','weekly' : 'w', 'monthly' : 'm'}
-
-        #raise an error if frequency is not daily, wekly or monthly
-        if frequency not in frequency_row:
-            raise ValueError(f"frequency parameter must take one of the following value : { ', '.join(frequency_row.keys())}")
-        
-        #bearer token
-        bearer_token = token_chart()
-        #url for nav
-        url =f"https://www.us-api.morningstar.com/QS-markets/chartservice/v2/timeseries?query={self.code}:nav,totalReturn&frequency={frequency_row[frequency]}&startDate={start_date.strftime('%Y-%m-%d')}&endDate={end_date.strftime('%Y-%m-%d')}&trackMarketData=3.6.3&instid=MSERP"
-        #header with bearer token
-        headers = {
-                    'user-agent' : random_user_agent(), 
-                    'authorization': f'Bearer {bearer_token}',
-                    }
-        #response
-        response = requests.get(url, headers=headers, proxies=self.proxies)
-        #manage response
-        not_200_response(url,response)
-        #result
-        result =json.loads(response.content.decode())
-        #return empty list if we don't get data
-        if not result:
-            return []
-        if "series" in result[0]:
-            return result[0]["series"]
-        
-        return []
+        return self.TimeSeries(["nav","totalReturn"],
+                                start_date=start_date,end_date=end_date,frequency=frequency)
             
         
 
@@ -1219,7 +1077,7 @@ class Funds:
             {'expenseWaiver': False, 'expenseReimbursement': None, 'expirationDate': None, 'expenseWaivers': None}
                     
         """
-        return self.GetFundsData("price/otherFee")
+        return self.GetData("price/otherFee")
 
 
     def ownershipZone(self):
@@ -1235,7 +1093,7 @@ class Funds:
             {'portfolioDate': '2022-08-31T05:00:00.000', 'fund': {'portfolioDate': '2022-08-31T05:00:00.000', 'scaledSizeScore': 313.034, 'scaledStyleScore': 146.716, 'sizeVariance': 60.703, 'styleVariance': 129.764, 'rho': 0.231, 'secId': 'F00000YIJ0', 'name': 'Myria Actions Durables Europe', 'objectZone75Percentile': 2.477}, 'benchmark': {'portfolioDate': '2022-08-31T05:00:00.000', 'scaledSizeScore': 279.883, 'scaledStyleScore': 133.831, 'sizeVariance': 73.359, 'styleVariance': 130.45, 'rho': 0.145, 'secId': 'F000016V5C', 'name': 'Morningstar Eur TME GR EUR', 'objectZone75Percentile': 3.04}, 'category': {'portfolioDate': '2022-08-31T05:00:00.000', 'scaledSizeScore': 279.493, 'scaledStyleScore': 147.115, 'sizeVariance': 75.69, 'styleVariance': 125.886, 'rho': 0.151, 'secId': 'EUCA000511', 'name': 'Europe Large-Cap Blend Equity', 'objectZone75Percentile': 2.804}}
         """
 
-        return self.GetFundsData("process/ownershipZone")
+        return self.GetData("process/ownershipZone")
 
     def parentMstarRating(self):
 
@@ -1253,7 +1111,7 @@ class Funds:
         """
 
 
-        return self.GetFundsData("parent/parentMstarRating")
+        return self.GetData("parent/parentMstarRating")
 
     def parentSummary(self):
         """
@@ -1268,7 +1126,7 @@ class Funds:
             {'secId': 'F00000JNX4', 'fundId': 'FSUSA0B07G', 'companyId': '0C00001YPH', 'marketName': 'US Open-end ex MM ex FoF ex Feeder', 'firmName': 'American Funds', 'currency': 'USD', 'netAsset': 1908002314120.0, 'netFlowTTM': -21913764984.0, 'netAssetTTM': 2307099660250.0, 'assetGrowthRate': -0.0094984041, 'numFund': 38, 'managerRetention5Year': 96.0}
         
         """
-        return self.GetFundsData("parent/parentSummary")
+        return self.GetData("parent/parentSummary")
 
     def people(self):
         """
@@ -1284,7 +1142,7 @@ class Funds:
             '147767', 'familyName': 'MacDonald', 'middleName': 'N.', 'givenName': 'Fergus', 'startDate': '2010-11-01T05:00:00.000', 'ownershipLevelId': '7', 'endDate': None, 'gender': 'male', 'genderSourceType': 'reported'}, {'personId': '173796', 'familyName': 'Betanzos', 'middleName': 'J.', 'givenName': 'David', 'startDate': '2013-11-01T05:00:00.000', 'ownershipLevelId': '6', 'endDate': None, 'gender': 'male', 'genderSourceType': 'reported'}, {'personId': '200392', 'familyName': 'Edmonds', 'middleName': 'V.', 'givenName': 'Oliver', 'startDate': '2019-10-30T05:00:00.000', 'ownershipLevelId': '5', 'endDate': None, 'gender': None, 'genderSourceType': 'reported'}], 'pastManagerList': [{'personId': '107716', 'familyName': 'Phoa', 'middleName': 'K.-S.', 'givenName': 'Wesley', 'startDate': '2010-11-01T05:00:00.000', 'ownershipLevelId': '5', 'endDate': '2013-11-01T05:00:00.000', 'gender': 'male', 'genderSourceType': 'reported'}, {'personId': '84745', 'familyName': 'Adams', 'middleName': None, 'givenName': 'Kevin', 'startDate': '2011-11-01T05:00:00.000', 'ownershipLevelId': '1', 'endDate': '2013-11-01T05:00:00.000', 'gender': 'male', 'genderSourceType': 'reported'}], 'lastTurnoverRatio': 10.15, 'longestTenureStartDate': '2010-11-01'}
         
         """
-        return self.GetFundsData("people")
+        return self.GetData("people")
 
     def position(self):
 
@@ -1312,7 +1170,7 @@ class Funds:
                     
         """
 
-        return self.GetFundsData("portfolio/holding/v2", params = {"premiumNum" : 10000, "freeNum" : 10000})
+        return self.GetData("portfolio/holding/v2", params = {"premiumNum" : 10000, "freeNum" : 10000})
 
     def proxyVotingManagement(self):
         """
@@ -1327,7 +1185,7 @@ class Funds:
             {'template': 'US', 'managementList': []}
 
         """
-        return self.GetFundsData("people/proxyVoting/management")
+        return self.GetData("people/proxyVoting/management")
     
 
     def proxyVotingShareHolder(self):
@@ -1343,7 +1201,7 @@ class Funds:
             {'template': 'US', 'shareholderList': []}
 
         """
-        return self.GetFundsData("people/proxyVoting/shareHolder")
+        return self.GetData("people/proxyVoting/shareHolder")
 
     def productInvolvement(self):
         """
@@ -1359,7 +1217,7 @@ class Funds:
 
         """
 
-        return self.GetFundsData("esg/productInvolvement")
+        return self.GetData("esg/productInvolvement")
 
 
     def referenceIndex(self, index):
@@ -1418,7 +1276,7 @@ class Funds:
             {'fundPortfolio': {'portfolioDate': '2022-08-31T05:00:00.000', 'masterPortfolioId': '2852268', 'northAmerica': 1.156, 'unitedKingdom': 3.89123, 'europeDeveloped': 94.899, 'europeEmerging': 0.0, 'africaMiddleEast': 0.0, 'japan': 0.0, 'australasia': 0.0, 'asiaDeveloped': 0.0, 'asiaEmerging': 0.037, 'latinAmerica': 0.018}, 'categoryPortfolio': {'portfolioDate': '2022-08-31T05:00:00.000', 'masterPortfolioId': '204249', 'northAmerica': 1.86, 'unitedKingdom': 21.81407, 'europeDeveloped': 75.741, 'europeEmerging': 0.058, 'africaMiddleEast': 0.001, 'japan': 0.027, 'australasia': 0.017, 'asiaDeveloped': 0.381, 'asiaEmerging': 0.018, 'latinAmerica': 0.085}, 'indexPortfolio': {'portfolioDate': '2022-08-31T05:00:00.000', 'masterPortfolioId': '2593297', 'northAmerica': 1.476, 'unitedKingdom': 23.80484, 'europeDeveloped': 73.341, 'europeEmerging': 0.937, 'africaMiddleEast': 0.0, 'japan': 0.0, 'australasia': 0.0, 'asiaDeveloped': 0.26, 'asiaEmerging': 0.0, 'latinAmerica': 0.182}, 'categoryName': 'Europe Large-Cap Blend Equity', 'indexName': 'Morningstar Eur TME GR EUR', 'fundName': 'Myria Actions Durables Europe', 'assetType': 'EQUITY'}
 
         """
-        return self.GetFundsData("portfolio/regionalSector")
+        return self.GetData("portfolio/regionalSector")
 
     def regionalSectorIncludeCountries(self):
         """
@@ -1433,7 +1291,7 @@ class Funds:
             {'fundPortfolio': {'countries': [{'name': 'france', 'percent': 32.17199}, {'name': 'switzerland', 'percent': 20.13421}, {'name': 'germany', 'percent': 15.54962}, {'name': 'netherlands', 'percent': 13.02451}, {'name': 'spain', 'percent': 6.99548}, {'name': 'unitedKingdom', 'percent': 3.89123}, {'name': 'denmark', 'percent': 3.55594}, {'name': 'italy', 'percent': 3.45533}, {'name': 'unitedStates', 'percent': 1.15552}, {'name': 'china', 'percent': 0.03717}, {'name': 'brazil', 'percent': 0.01753}, {'name': 'sweden', 'percent': 0.01147}, {'name': 'argentina', 'percent': 0.0}, {'name': 'australia', 'percent': 0.0}, {'name': 'austria', 'percent': 0.0}, {'name': 'belgium', 'percent': 0.0}, {'name': 'canada', 'percent': 0.0}, {'name': 'chile', 'percent': 0.0}, {'name': 'colombia', 'percent': 0.0}, {'name': 'czechRepublic', 'percent': 0.0}, {'name': 'estonia', 'percent': 0.0}, {'name': 'finland', 'percent': 0.0}, {'name': 'greece', 'percent': 0.0}, {'name': 'hongKong', 'percent': 0.0}, {'name': 'hungary', 'percent': 0.0}, {'name': 'india', 'percent': 0.0}, {'name': 'indonesia', 'percent': 0.0}, {'name': 'ireland', 'percent': 0.0}, {'name': 'israel', 'percent': 0.0}, {'name': 'japan', 'percent': 0.0}, {'name': 'latvia', 'percent': 0.0}, {'name': 'lithuania', 'percent': 0.0}, {'name': 'malaysia', 'percent': 0.0}, {'name': 'mexico', 'percent': 0.0}, {'name': 'newZealand', 'percent': 0.0}, {'name': 'norway', 'percent': 0.0}, {'name': 'pakistan', 'percent': 0.0}, {'name': 'peru', 'percent': 0.0}, {'name': 'philippines', 'percent': 0.0}, {'name': 'poland', 'percent': 0.0}, {'name': 'portugal', 'percent': 0.0}, {'name': 'russia', 'percent': 0.0}, {'name': 'singapore', 'percent': 0.0}, {'name': 'slovakia', 'percent': 0.0}, {'name': 'southAfrica', 'percent': 0.0}, {'name': 'southKorea', 'percent': 0.0}, {'name': 'taiwan', 'percent': 0.0}, {'name': 'thailand', 'percent': 0.0}, {'name': 'turkey', 'percent': 0.0}, {'name': 'venezuela', 'percent': 0.0}, {'name': 'vietnam', 'percent': 0.0}], 'regions': [{'name': 'europeDeveloped', 'percent': 94.899}, {'name': 'unitedKingdom', 'percent': 3.89123}, {'name': 'northAmerica', 'percent': 1.156}, {'name': 'asiaEmerging', 'percent': 0.037}, {'name': 'latinAmerica', 'percent': 0.018}, {'name': 'asiaDeveloped', 'percent': 0.0}, {'name': 'australasia', 'percent': 0.0}, {'name': 'europeEmerging', 'percent': 0.0}, {'name': 'japan', 'percent': 0.0}, {'name': 'other Countries', 'percent': 0.0}], 'portfolioDate': '2022-08-31T05:00:00.000'}, 'categoryPortfolio': {'countries': [{'name': 'unitedKingdom', 'percent': 21.81407}, {'name': 'france', 'percent': 19.23783}, {'name': 'switzerland', 'percent': 13.89761}, {'name': 'germany', 'percent': 11.93784}, {'name': 'netherlands', 'percent': 8.36958}, {'name': 'denmark', 'percent': 5.23338}, {'name': 'sweden', 'percent': 4.37311}, {'name': 'spain', 'percent': 3.82678}, {'name': 'italy', 'percent': 2.7155}, {'name': 'unitedStates', 'percent': 1.85551}, {'name': 'finland', 'percent': 1.71156}, {'name': 'norway', 'percent': 1.52106}, {'name': 'belgium', 'percent': 1.13785}, {'name': 'ireland', 'percent': 0.9936}, {'name': 'portugal', 'percent': 0.42586}, {'name': 'singapore', 'percent': 0.37621}, {'name': 'austria', 'percent': 0.33051}, {'name': 'brazil', 'percent': 0.08415}, {'name': 'russia', 'percent': 0.05696}, {'name': 'japan', 'percent': 0.027}, {'name': 'australia', 'percent': 0.0167}, {'name': 'china', 'percent': 0.01453}, {'name': 'canada', 'percent': 0.0035}, {'name': 'taiwan', 'percent': 0.0022}, {'name': 'india', 'percent': 0.00206}, {'name': 'southKorea', 'percent': 0.00189}, {'name': 'poland', 'percent': 0.00057}, {'name': 'southAfrica', 'percent': 0.00054}, {'name': 'mexico', 'percent': 0.00052}, {'name': 'indonesia', 'percent': 0.00047}, {'name': 'thailand', 'percent': 0.00039}, {'name': 'hongKong', 'percent': 0.00037}, {'name': 'turkey', 'percent': 0.00027}, {'name': 'hungary', 'percent': 0.00023}, {'name': 'malaysia', 'percent': 0.00018}, {'name': 'greece', 'percent': 0.00013}, {'name': 'chile', 'percent': 0.0001}, {'name': 'israel', 'percent': 1e-05}, {'name': 'argentina', 'percent': 0.0}, {'name': 'colombia', 'percent': 0.0}, {'name': 'czechRepublic', 'percent': 0.0}, {'name': 'estonia', 'percent': 0.0}, {'name': 'latvia', 'percent': 0.0}, {'name': 'lithuania', 'percent': 0.0}, {'name': 'newZealand', 'percent': 0.0}, {'name': 'pakistan', 'percent': 0.0}, {'name': 'peru', 'percent': 0.0}, {'name': 'philippines', 'percent': 0.0}, {'name': 'slovakia', 'percent': 0.0}, {'name': 'venezuela', 'percent': 0.0}, {'name': 'vietnam', 'percent': 0.0}], 'regions': [{'name': 'europeDeveloped', 'percent': 75.741}, {'name': 'unitedKingdom', 'percent': 21.81407}, {'name': 'northAmerica', 'percent': 1.86}, {'name': 'asiaDeveloped', 'percent': 0.381}, {'name': 'latinAmerica', 'percent': 0.085}, {'name': 'europeEmerging', 'percent': 0.058}, {'name': 'other Countries', 'percent': 0.02958}, {'name': 'japan', 'percent': 0.027}, {'name': 'asiaEmerging', 'percent': 0.018}, {'name': 'australasia', 'percent': 0.017}], 'portfolioDate': '2022-08-31T05:00:00.000'}, 'indexPortfolio': {'countries': [{'name': 'unitedKingdom', 'percent': 23.80484}, {'name': 'switzerland', 'percent': 16.48783}, {'name': 'france', 
             'percent': 15.69505}, {'name': 'germany', 'percent': 11.1745}, {'name': 'netherlands', 'percent': 7.38964}, {'name': 'sweden', 'percent': 5.59513}, {'name': 'denmark', 'percent': 4.13353}, {'name': 'spain', 'percent': 3.79743}, {'name': 'italy', 'percent': 3.13256}, {'name': 'finland', 'percent': 1.75564}, {'name': 'norway', 'percent': 1.60206}, {'name': 'unitedStates', 'percent': 1.47578}, {'name': 'belgium', 'percent': 1.3521}, {'name': 'ireland', 'percent': 0.38065}, {'name': 'austria', 'percent': 0.38044}, {'name': 'turkey', 'percent': 0.35875}, {'name': 'poland', 'percent': 0.33953}, {'name': 'portugal', 'percent': 0.28577}, {'name': 'singapore', 'percent': 0.26032}, {'name': 'brazil', 'percent': 0.16549}, {'name': 'greece', 'percent': 0.15367}, {'name': 'hungary', 'percent': 0.12807}, {'name': 'czechRepublic', 'percent': 0.11031}, {'name': 'mexico', 'percent': 0.01678}, {'name': 'argentina', 'percent': 0.0}, {'name': 'australia', 'percent': 0.0}, {'name': 'canada', 'percent': 0.0}, {'name': 'chile', 'percent': 0.0}, {'name': 'china', 'percent': 0.0}, {'name': 'colombia', 'percent': 0.0}, {'name': 'estonia', 'percent': 0.0}, {'name': 'hongKong', 'percent': 0.0}, {'name': 'india', 'percent': 0.0}, {'name': 'indonesia', 'percent': 0.0}, {'name': 'israel', 'percent': 0.0}, {'name': 'japan', 'percent': 0.0}, {'name': 'latvia', 'percent': 0.0}, {'name': 'lithuania', 'percent': 0.0}, {'name': 'malaysia', 'percent': 0.0}, {'name': 'newZealand', 'percent': 0.0}, {'name': 'pakistan', 'percent': 0.0}, {'name': 'peru', 'percent': 0.0}, {'name': 'philippines', 'percent': 0.0}, {'name': 'russia', 'percent': 0.0}, {'name': 'slovakia', 'percent': 0.0}, {'name': 'southAfrica', 'percent': 0.0}, {'name': 'southKorea', 'percent': 0.0}, {'name': 'taiwan', 'percent': 0.0}, {'name': 'thailand', 'percent': 0.0}, {'name': 'venezuela', 'percent': 0.0}, {'name': 'vietnam', 'percent': 0.0}], 'regions': [{'name': 'europeDeveloped', 'percent': 73.341}, {'name': 'unitedKingdom', 'percent': 23.80484}, {'name': 'northAmerica', 'percent': 1.476}, {'name': 'europeEmerging', 'percent': 0.937}, {'name': 'asiaDeveloped', 'percent': 0.26}, {'name': 'latinAmerica', 'percent': 0.182}, {'name': 'other Countries', 'percent': 0.02412}, {'name': 'asiaEmerging', 'percent': 0.0}, {'name': 'australasia', 'percent': 0.0}, {'name': 'japan', 'percent': 0.0}], 'portfolioDate': '2022-08-31T05:00:00.000'}, 'categoryName': 'Europe Large-Cap Blend Equity', 'indexName': 'Morningstar Eur TME GR EUR', 'fundName': 'Myria Actions Durables Europe', 'assetType': 'EQUITY'}
         """
-        return self.GetFundsData("portfolio/regionalSectorIncludeCountries")
+        return self.GetData("portfolio/regionalSectorIncludeCountries")
 
 
 
@@ -1450,7 +1308,7 @@ class Funds:
             {'fundName': 'American Funds Mortgage R6', 'categoryName': 'Intermediate Government', 'indexName': 'Morningstar US Trsy Bd TR USD', 'cur': 'USD', 'isUKCefTemplateAvailable': False, 'extendedPerformanceData': {'ePUsedFor1YearFlag': False, 'ePUsedFor3YearFlag': False, 'ePUsedFor5YearFlag': False, 'ePUsedFor10YearFlag': False, 'ePUsedFor15YearFlag': False}, 'fundScatterplot': {'standardDeviationEndDate': '2022-09-30T05:00:00.000', 'trailingReturnEndDate': '2022-09-30T05:00:00.000', 'trailingReturnPriceEndDate': '2022-09-30T05:00:00.000', 'for1Year': {'trailingReturn': -11.47318, 'trailingReturnPrice': None, 'standardDeviation': 6.535}, 'for3Year': {'trailingReturn': -1.77699, 'trailingReturnPrice': None, 'standardDeviation': 4.53}, 'for5Year': {'trailingReturn': -0.05352, 'trailingReturnPrice': None, 'standardDeviation': 3.847}, 'for10Year': {'trailingReturn': 1.00022, 'trailingReturnPrice': None, 'standardDeviation': 3.14}, 'for15Year': {'trailingReturn': None, 'trailingReturnPrice': None, 'standardDeviation': None}, 'forLongestTenure': None}, 'categoryScatterplot': {'standardDeviationEndDate': '2022-09-30T05:00:00.000', 'trailingReturnEndDate': '2022-09-30T05:00:00.000', 'trailingReturnPriceEndDate': None, 'for1Year': {'trailingReturn': -12.79164, 'trailingReturnPrice': None, 'standardDeviation': 6.297}, 'for3Year': {'trailingReturn': -3.19848, 'trailingReturnPrice': None, 'standardDeviation': 4.687}, 'for5Year': {'trailingReturn': -0.73062, 'trailingReturnPrice': None, 'standardDeviation': 4.127}, 'for10Year': {'trailingReturn': 0.14931, 'trailingReturnPrice': None, 'standardDeviation': 3.508}, 'for15Year': {'trailingReturn': 2.08912, 'trailingReturnPrice': None, 'standardDeviation': 3.732}, 'forLongestTenure': None}, 'indexScatterplot': {'standardDeviationEndDate': '2022-09-30T05:00:00.000', 'trailingReturnEndDate': '2022-09-30T05:00:00.000', 'trailingReturnPriceEndDate': None, 'for1Year': {'trailingReturn': -12.81863, 'trailingReturnPrice': None, 'standardDeviation': 5.753}, 'for3Year': {'trailingReturn': -3.08081, 'trailingReturnPrice': None, 'standardDeviation': 5.312}, 'for5Year': {'trailingReturn': -0.21542, 'trailingReturnPrice': None, 'standardDeviation': 4.929}, 'for10Year': {'trailingReturn': 0.49974, 'trailingReturnPrice': None, 'standardDeviation': 4.092}, 'for15Year': {'trailingReturn': 2.33825, 'trailingReturnPrice': None, 'standardDeviation': 4.389}, 'forLongestTenure': None}}
         
         """
-        return self.GetFundsData("performance/riskReturnScatterplot")
+        return self.GetData("performance/riskReturnScatterplot")
 
     def riskReturnSummary(self):
         """
@@ -1466,7 +1324,7 @@ class Funds:
         
         """
 
-        return self.GetFundsData("performance/riskReturnSummary")
+        return self.GetData("performance/riskReturnSummary")
 
     def riskVolatility(self):
         """
@@ -1481,7 +1339,7 @@ class Funds:
             {'fundName': 'American Funds Mortgage R6', 'categoryName': 'Intermediate Government', 'indexName': 'Morningstar US Trsy Bd TR USD', 'calculationBenchmark': 'Bloomberg US Agg Bond TR USD', 'extendedPerformanceData': {'ePUsedFor1YearFlag': False, 'ePUsedFor3YearFlag': False, 'ePUsedFor5YearFlag': False, 'ePUsedFor10YearFlag': False, 'ePUsedFor15YearFlag': False}, 'fundRiskVolatility': {'primaryIndexNameNew': 'Bloomberg US Agg Bond TR USD', 'bestFitIndexName': None, 'bestFitAlphaFor3Year': None, 'bestFitBetaFor3Year': None, 'bestFitRSquaredFor3Year': None, 'endDate': '2022-09-30T05:00:00.000', 'for1Year': {'alpha': 2.264, 'beta': 0.923, 'rSquared': 94.037, 'standardDeviation': 6.535, 'sharpeRatio': -1.95}, 'for3Year': {'alpha': 0.574, 'beta': 0.763, 'rSquared': 80.231, 'standardDeviation': 4.53, 'sharpeRatio': -0.503}, 'for5Year': {'alpha': -0.187, 'beta': 0.729, 'rSquared': 80.472, 'standardDeviation': 3.847, 'sharpeRatio': -0.302}, 'for10Year': {'alpha': 0.152, 'beta': 0.72, 'rSquared': 79.803, 'standardDeviation': 3.14, 'sharpeRatio': 0.106}, 'for15Year': {'alpha': None, 'beta': None, 'rSquared': None, 'standardDeviation': None, 'sharpeRatio': None}, 'forLongestTenure': None}, 'categoryRiskVolatility': {'endDate': '2022-09-30T05:00:00.000', 'for1Year': {'alpha': None, 'beta': None, 'rSquared': None, 'standardDeviation': 6.297, 'sharpeRatio': -2.305}, 'for3Year': {'alpha': None, 'beta': None, 'rSquared': None, 'standardDeviation': 4.687, 'sharpeRatio': -0.795}, 'for5Year': {'alpha': None, 'beta': None, 'rSquared': None, 'standardDeviation': 4.127, 'sharpeRatio': -0.449}, 'for10Year': {'alpha': None, 'beta': None, 'rSquared': None, 'standardDeviation': 3.508, 'sharpeRatio': -0.15}, 'for15Year': {'alpha': None, 'beta': None, 'rSquared': None, 'standardDeviation': 3.732, 'sharpeRatio': 0.392}, 'forLongestTenure': None}, 'indexRiskVolatility': {'endDate': '2022-09-30T05:00:00.000', 'for1Year': {'alpha': -1.124, 'beta': 0.813, 'rSquared': 94.48, 'standardDeviation': 5.753, 'sharpeRatio': -2.487}, 'for3Year': {'alpha': -0.395, 'beta': 0.85, 'rSquared': 74.013, 'standardDeviation': 5.312, 'sharpeRatio': -0.676}, 'for5Year': {'alpha': -0.056, 'beta': 0.912, 'rSquared': 78.417, 'standardDeviation': 4.929, 'sharpeRatio': -0.262}, 'for10Year': {'alpha': -0.367, 'beta': 0.94, 'rSquared': 81.737, 'standardDeviation': 4.092, 'sharpeRatio': -0.031}, 'for15Year': {'alpha': -0.299, 'beta': 0.967, 'rSquared': 73.717, 'standardDeviation': 4.389, 'sharpeRatio': 0.399}, 'forLongestTenure': None}, 'cur': 'USD'}
         
         """
-        return self.GetFundsData("performance/riskVolatility")
+        return self.GetData("performance/riskVolatility")
 
     def salesFees(self):
         """
@@ -1500,7 +1358,7 @@ class Funds:
         """
         if self.asset_type == 'etf':
             return {}
-        return self.GetFundsData("price/salesFees")
+        return self.GetData("price/salesFees")
 
     def sector(self):
         """
@@ -1516,7 +1374,7 @@ class Funds:
 '           corporate': 0.70065, 'securitized': 0.83335, 'cashAndEquivalents': 79.15027, 'derivative': 17.35662}, 'indexPortfolio': {'portfolioDate': '2022-08-31T05:00:00.000', 'government': 0.0, 'municipal': 0.0, 'corporate': 88.33522, 'securitized': 0.0, 'cashAndEquivalents': 11.66478, 'derivative': 0.0}, 'categoryName': 'Europe Large-Cap Blend Equity', 'indexName': 'Morningstar Eur TME GR EUR', 'fundName': 'Myria Actions Durables Europe', 'assetType': 'FIXEDINCOME'}, 'EQUITY': {'fundPortfolio': {'portfolioDate': '2022-08-31T05:00:00.000', 'basicMaterials': 7.98386, 'consumerCyclical': 12.17881, 'financialServices': 15.12426, 'realEstate': 0.0, 'communicationServices': 4.19609, 'energy': 4.47861, 'industrials': 13.33409, 'technology': 7.88651, 'consumerDefensive': 12.00854, 'healthcare': 18.35617, 'utilities': 4.45305}, 'categoryPortfolio': {'portfolioDate': '2022-08-31T05:00:00.000', 'basicMaterials': 7.40798, 'consumerCyclical': 9.50899, 'financialServices': 15.54632, 'realEstate': 1.522, 'communicationServices': 5.60033, 'energy': 5.00095, 'industrials': 13.70374, 'technology': 7.92333, 'consumerDefensive': 13.26291, 'healthcare': 16.69305, 'utilities': 3.8304}, 'indexPortfolio': {'portfolioDate': '2022-08-31T05:00:00.000', 'basicMaterials': 6.97774, 'consumerCyclical': 9.42487, 'financialServices': 16.12159, 'realEstate': 1.26235, 'communicationServices': 4.99965, 'energy': 6.76732, 'industrials': 13.78767, 'technology': 6.55932, 'consumerDefensive': 13.96182, 'healthcare': 15.84156, 'utilities': 4.29611}, 'categoryName': 'Europe Large-Cap Blend Equity', 'indexName': 'Morningstar Eur TME GR EUR', 'fundName': 'Myria Actions Durables Europe', 'assetType': 'EQUITY'}, 'assetType': 'EQUITY'}
         
         """
-        return self.GetFundsData("portfolio/v2/sector")
+        return self.GetData("portfolio/v2/sector")
 
     def starRatingFundAsc(self):
         """
@@ -1534,7 +1392,7 @@ class Funds:
                     
         """
         
-        return self.GetFundsData("parent/mstarRating/StarRatingFundAsc")
+        return self.GetData("parent/mstarRating/StarRatingFundAsc")
 
     def starRatingFundDesc(self):
         """
@@ -1550,7 +1408,7 @@ class Funds:
         
         """
         
-        return self.GetFundsData("parent/mstarRating/StarRatingFundDesc")
+        return self.GetData("parent/mstarRating/StarRatingFundDesc")
 
     def taxes(self):
         """
@@ -1568,7 +1426,7 @@ class Funds:
             'trailing10YearTaxCostRatioCategory': None, 'trailing15YearTaxCostRatioCategory': None, 'sinceInceptionTaxCostRatioCategory': None, 'priceTemplate': 'USA_ETF'}
 
         """
-        return self.GetFundsData("price/taxes")
+        return self.GetData("price/taxes")
 
     def trailingReturn(self, duration ='daily'):
         """
@@ -1594,4 +1452,4 @@ class Funds:
             raise ValueError(f'duration parameter can only take one of the values: {", ".join(duration_choice)}')
 
 
-        return self.GetFundsData("trailingReturn/v2",{"duration" : duration})
+        return self.GetData("trailingReturn/v2",{"duration" : duration})

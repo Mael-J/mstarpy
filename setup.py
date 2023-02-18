@@ -17,11 +17,11 @@ def requirements(filename):
 setup(
     name="mstarpy",
     packages=find_packages(),
-    version="0.0.6",
+    version="1.0.0",
     license='MIT License',
     author="Maël Jourdain",
     author_email='mael.jourdain@gmail.com',
-    description="Mutual funds data extraction from MorningStar with Python",
+    description="Mutual funds and stocks data extraction from MorningStar with Python",
     long_description= readme(),
     long_description_content_type="text/markdown",
     install_requires=requirements(filename='requirements/requirements.txt'),

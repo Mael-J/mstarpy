@@ -4,10 +4,10 @@ from bs4 import BeautifulSoup
 import re
 
 from .utils import random_user_agent
-from .utils import SITE, FIELDS, FILTER
+from .utils import ASSET_TYPE, EXCHANGE, FIELDS, FILTER_FUND, FILTER_STOCK, SITE
 from .error import not_200_response
 
-def filter_universe(field = FILTER, proxies = {}):
+def filter_universe(field = FILTER_FUND, proxies = {}):
   """
   This function will use the screener of morningstar.co.uk to find the possible filters and their values.
 
@@ -22,6 +22,7 @@ def filter_universe(field = FILTER, proxies = {}):
   Examples:
     >>> filter_universe(['LargestRegion','SustainabilityRank'])
     >>> filter_universe('FeeLevel')
+    >>> filter_universe(FILTER_STOCK)
     
 
   """
@@ -131,7 +132,7 @@ def search_field(pattern = ''):
   return filtered_list
 
 
-def search_filter(pattern = ''):
+def search_filter(pattern = '', asset_type ='fund'):
   """
   This function retrieves the possible filters for the parameter filters of the function search_funds
   
@@ -150,13 +151,28 @@ def search_filter(pattern = ''):
       ['AdministratorCompanyId', 'BrandingCompanyId', 'CategoryId', 'GlobalAssetClassId', 'GlobalCategoryId', 'IMASectorID', 'ShareClassTypeId', 'UmbrellaCompanyId']
 
   """
+  if not isinstance(pattern, (str)):
+    raise TypeError('pattern parameter should be a string')
+  
+  if not isinstance(asset_type, (str)):
+    raise TypeError('asset_type parameter should be a string')
 
+  if asset_type not in ASSET_TYPE:
+     raise TypeError(f"asset_type parameter can only take one of the values : {','.join(ASSET_TYPE)}")
+
+  if asset_type == 'stock':
+     filter = FILTER_STOCK
+  else:
+     filter = FILTER_FUND
+    
   regex = re.compile(f'(?i){pattern}')
-  filtered_list = list(filter(lambda field : regex.search(field),FILTER))
-  print(f"possible keys for the parameter filters of the method seach_funds can be : {', '.join(filtered_list)}")
+  filtered_list = list(filter(lambda field : regex.search(field),filter))
+  if asset_type == 'stock':
+     print(f"possible keys for the parameter filters of the method search_stock can be : {', '.join(filtered_list)}")
+  else:
+    print(f"possible keys for the parameter filters of the method seach_funds can be : {', '.join(filtered_list)}")
 
   return filtered_list
-
 
 def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filters={}, proxies = {}):
   """
@@ -168,17 +184,15 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filter
     country (str) : text for code ISO 3166-1 alpha-2 of country
     pageSize (int): number of funds to return
     currency (str) : currency in 3 letters
+    filters (dict) : filter funds, use the method filter_universe to find the different possible filter keys and values
+    proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
   Returns:
-    list of dict with SecId, TenforId and LegalName
+    list of dict with fund information
       [{'SecId': 'F00000270E', 'TenforeId': '52.8.FR0010342600', 'LegalName': '21 Gestion Active'}, {'SecId': 'F000013BGI', 'TenforeId': '52.8.MT7000022612', 'LegalName': '24 Capital Management SICAV plc - 24 Global Currency Fund Share Class A USD Accumulation'}, {'SecId': 'F00000PZHI', 'TenforeId': '52.8.FR0011443225', 'LegalName': '29 Haussmann Actions Europe C'}, {'SecId': 'F0GBR06QS1', 'TenforeId': '52.8.FR0007057427', 'LegalName': '29 Haussmann Actions Europe D'}, {'SecId': 'F0000101BL', 'TenforeId': '52.8.FR0013266590', 'LegalName': '29 Haussmann Actions Europe 
       I'}, {'SecId': 'F00000JW7U', 'TenforeId': '52.8.LU0532306957', 'LegalName': '3F Generation Acc'}, {'SecId': 'F00000UDVR', 'TenforeId': '52.8.FR0011911189', 'LegalName': 'AAM Family Values E1'}, {'SecId': 'F00000UDVS', 'TenforeId': '52.8.FR0011911197', 'LegalName': 'AAM Family Values 
       I'}, {'SecId': 'F0GBR04RG5', 'TenforeId': '52.8.FR0007022025', 'LegalName': 'AAZ Capitalisation'}, {'SecId': 'F000000ITD', 'TenforeId': '52.8.FR0010361600', 'LegalName': 'AAZ Prestige Or'}]
     
-    empty dict str if the screener find no funds which match the term
-     
-      
-
   Examples:
     >>> search_funds("Myria",['SecId','TenforeId','LegalName'],country="fr", pageSize=25)
     >>> search_funds("FR0011399914", 'LegalName', country="fr", pageSize=25)
@@ -222,7 +236,7 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filter
   filter_list = []
   #loop on filter dict
   for f in filters:
-    if f not in FILTER:
+    if f not in FILTER_FUND:
       print(f"{f} is not a valid filter and will be ignored. You can find the possible filters with the method search_filter().")
     else:
       #if list, IN condition
@@ -241,7 +255,6 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filter
       else:
           filter_list.append(f'{f}:IN:{filters[f]}')
 
-  print('|'.join(filter_list))
   params = {
   'page' : 1,
   'pageSize' : pageSize,
@@ -260,10 +273,105 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filter
   if result['rows']:
     return result['rows']
   else:
-    print('0 funds found whith the term %s' % (term))
+    print('0 fund found whith the term %s' % (term))
     return {}
 
+def search_stock(term,field,exchange, pageSize =10,currency ='EUR', filters={}, proxies={}):
+  """
+  This function will use the screener of morningstar.co.uk to find stocks which include the term.
 
+  Args:
+    term (str): text to find a funds can be a the name, part of a name or the isin of the funds
+    field (str | list) : field to find
+    exchange (str) : stock echange closed list (.utils EXCHANGE)
+    pageSize (int): number of funds to return
+    currency (str) : currency in 3 letters
+    filters (dict) : filter funds, use the method filter_universe to find the different possible filter keys and values
+    proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+
+  Returns:
+    list of dict with stocks information
+      [{'SecId': '0P0001OMLZ', 'TenforeId': '126.1.VCXB', 'LegalName': '10X Capital Venture Acquisition Corp III Ordinary Shares 
+      - Class A'}, {'SecId': '0P0001O9WE', 'TenforeId': '126.1.VCXB/U', 'LegalName': '10X Capital Venture Acquisition Corp III Units (1 Ord Share Class A & 1/2 War)'}, {'SecId': '0P000184MI', 'TenforeId': '126.1.COE', 'LegalName': '51Talk无忧英语 ADR'}, {'SecId': '0P0001NAQE', 'TenforeId': '126.1.AKA', 'LegalName': 'a.k.a. Brands Holding Corp'}]
+    
+  Examples:
+    >>> search_stock("visa",['SecId','TenforeId','LegalName'],exchange="NYSE", pageSize=25)
+    >>> search_stock("FR0000125486", 'LegalName', exchange="PARIS", pageSize=10)
+    
+
+  """
+
+  if not isinstance(field, (str, list)):
+    raise TypeError('field parameter should be a string or a list')
+
+  if not isinstance(exchange, str):
+    raise TypeError('exchange parameter should be a string')
+
+  if not exchange.upper() in EXCHANGE.keys():
+      raise ValueError(f'exchange parameter can only take one of the values : {", ".join(EXCHANGE.keys())}')
+
+  if not isinstance(pageSize, int):
+    raise TypeError('pageSize parameter should be an integer')
+
+  if not isinstance(currency, str):
+    raise TypeError('currency parameter should be a string')
+
+  if not isinstance(filters, dict):
+    raise TypeError('filters parameter should be a dict')
+
+  if not isinstance(proxies, dict):
+    raise TypeError('proxies parameter should be dict')
+
+
+  if isinstance(field, list):
+      securityDataPoints = '|'.join(field)
+  else:
+      securityDataPoints = field
+
+  universeIds = EXCHANGE[exchange.upper()]["id"]
+
+  filter_list = []
+  #loop on filter dict
+  for f in filters:
+    if f not in FILTER_STOCK:
+      print(f"{f} is not a valid filter and will be ignored. You can find the possible filters with the method search_filter().")
+    else:
+      #if list, IN condition
+      if isinstance(filters[f], list):
+          filter_list.append(f'{f}:IN:{":".join(filters[f])}')
+      #if tuple, either, BTW, LT or GT condition
+      elif isinstance(filters[f], tuple):
+          if len(filters[f]) == 2:
+              if isinstance(filters[f][0], (int,float)):
+                  filter_list.append(f'{f}:BTW:{filters[f][0]}:{filters[f][1]}')
+              elif filters[f][0] =="<":
+                  filter_list.append(f'{f}:LT:{filters[f][1]}')
+              elif filters[f][0] ==">":
+                  filter_list.append(f'{f}:GT:{filters[f][1]}')
+      #else IN condition
+      else:
+          filter_list.append(f'{f}:IN:{filters[f]}')
+
+  params = {
+  'page' : 1,
+  'pageSize' : pageSize,
+  'sortOrder' : 'LegalName asc',
+  'outputType' : 'json',
+  'version' : 1,
+  'universeIds' : universeIds,
+  'currencyId': currency,
+  'securityDataPoints' : securityDataPoints,
+  'term' : term,
+  'filters' : '|'.join(filter_list),
+  }
+
+  result = general_search(params, proxies=proxies)
+
+  if result['rows']:
+    return result['rows']
+  else:
+    print('0 stock found whith the term %s' % (term))
+    return {}
 def token_chart(proxies={}):
   """
   This function will scrape the Bearer Token needed to access MS API chart data

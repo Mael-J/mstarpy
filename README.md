@@ -1,6 +1,6 @@
-<h2 align="center">Mutual funds data extraction from MorningStar with Python</h2>
+<h2 align="center">Mutual funds and stocks data extraction from MorningStar with Python</h2>
 
-mstarpy is a Python package to get mutual funds data from MorningStar.
+mstarpy is a Python package to get mutual funds and stocks data from MorningStar.
 
 ##  Installation
 
@@ -58,6 +58,36 @@ print(funds.holdings('equity'))
       
 ```
 
+### Load stock
+
+Load a stock with the class Stock
+
+```python
+stock = Stock("US02079K3059", exchange="NASDAQ")
+
+print(stock.name)
+```
+
+```{r, engine='python', count_lines}       
+Alphabet Inc Class A
+```
+
+### Access Raw Data
+
+You will be able to access all methods and get raw data about this funds
+
+```python
+print(stock.keyRatio())
+```
+
+```{r, engine='python', count_lines}
+
+{'valuationRatio': {'asOfDate': '2023-02-17', 'priceToBook': 4.716981, 'priceToCashFlow': 13.568521, 'priceToSales': 4.389816, 'priceToEPS': 20.703934}, 'growthRatio': {'reportDate': '2022-12-31', 'revenue': 0.204484, 'operatingIncome': 0.277137, 'netIncome': 0.204213, 'eps': 0.228743}, 
+'financialHealth': {'reportDate': '2022-12-31', 'quickRatio': 2.222511, 'currentRatio': 2.377994, 'debtToEquity': 0.115868}, 'efficiencyRatio': 
+{'reportDate': '2022-12-31', 'returnOnAssets': 0.165547, 'returnOnEquity': 0.236213, 'returnOnInvestedCapital': 0.206569}, 'profitabilityRatio': {'reportDate': '2022-12-31', 'interestCoverage': 200.798319, 'netMargin': 0.212038}, 'keyStatsQuoteJson': {'revenue3YearGrowth': {'stockValue': '20.4500', 'indAvg': '18.6600'}, 'netIncome3YearGrowth': {'stockValue': '20.4200', 'indAvg': '20.0600'}, 'operatingMarginTTM': {'stockValue': '26.4600', 'indAvg': '22.2300'}, 'netMarginTTM': {'stockValue': '21.2000', 'indAvg': '18.0900'}, 'roaTTM': {'stockValue': '16.5500', 'indAvg': '12.6300'}, 'roeTTM': {'stockValue': '23.6200', 'indAvg': '18.9300'}, 'debitToEquity': {'stockValue': '0.1062', 'indAvg': '0.1786'}, 'freeCashFlow': {'cashFlowTTM': '60010000000', 'date': '2022-12-31T06:00:00.000'}}}   
+      
+```
+
 ### Search funds
 
 Look for a specific funds before loading a funds with class Funds
@@ -72,6 +102,7 @@ print(search_funds('equity',['SecId','TenforeId','LegalName'], country="fr", pag
 [{'SecId': 'F00000NRKO', 'TenforeId': '52.8.LU0733933617', 'LegalName': 'AB - Asia Ex-Japan Equity Portfolio AY JPY Acc'}, {'SecId': 'F00000NRKP', 'TenforeId': '52.8.LU0733933963', 'LegalName': 'AB - Asia Ex-Japan Equity Portfolio BY JPY Inc'}, {'SecId': 'F00000SE93', 'LegalName': 'AB - Concentrated Global Equity Portfolio S USD Acc'}, {'SecId': 'F0000139L0', 'TenforeId': '52.8.LU1934455194', 
 'LegalName': 'AB - Low Volatility Total Return Equity Portfolio A USD'}, {'SecId': 'F0000139L2', 'TenforeId': '52.8.LU1934455350', 'LegalName': 'AB - Low Volatility Total Return Equity Portfolio I USD'}, {'SecId': 'F00001D6YY', 'TenforeId': '52.8.LU2399902076', 'LegalName': 'AB SICAV I - Global Low Carbon Equity Portfolio I EUR Acc'}, {'SecId': 'F000013YTV', 'TenforeId': '52.8.LU1998907270', 'LegalName': 'AB SICAV I - Low Volatility Equity Portfolio I EUR Acc'}, {'SecId': 'F0GBR052U8', 'TenforeId': '52.8.LU0128316840', 'LegalName': 'AB SICAVI - European Equity Portfolio I Acc'}, {'SecId': 'F0GBR04SJU', 'TenforeId': '52.8.LU0231455378', 'LegalName': 'Aberdeen Standard SICAV I - Asia Pacific Sustainable Equity Fund A Acc GBP'}, {'SecId': 'FOGBR05LNS', 'TenforeId': '52.8.LU0231460451', 'LegalName': 'Aberdeen Standard SICAV I - Europe ex UK Sustainable Equity FundA Acc GBP'}]
 ```
+
 
 ### Look for field
 

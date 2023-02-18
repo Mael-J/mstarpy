@@ -1,20 +1,76 @@
-from mstarpy import Funds, search_field
+from mstarpy import Funds, search_field, Stock
+
+from mstarpy.security import Security
 import datetime
 import pandas as pd
-from mstarpy.search import search_funds, search_filter,filter_universe
-from mstarpy.utils import FILTER
+from mstarpy.search import search_funds, search_filter,filter_universe, search_stock
+from mstarpy.utils import FILTER_FUND, FILTER_STOCK
 
 #print(FILTER)
 #print('AdministratorCompanyId' in FILTER)
 
-start_date = datetime.datetime(2021,1,1)
-end_date = datetime.datetime.today()
+start_date = datetime.datetime(2023,1,4)
+end_date = datetime.datetime.today() + datetime.timedelta(15)
 
+#print(filter_universe('IndustryId'))
+#print(search_stock('FR0014003J32','LegalName',exchange="PARIS"))
 
-funds = Funds("myria", proxies={})
+print(search_stock('',['SecId','TenforeId','LegalName'], exchange="PARIS", pageSize=10,currency="EUR",filters={"GBRReturnM12":(0,20)}))
+
+# security = Security("visa",exchange='NYSE')
+# print(security)
+# print(security.name)
+# code = security.code
+# print(search_funds(code,["Universe", 'ExchangeId']))
+# print(security.asset_type)
+# print(search_filter("CategoryId"))
+# print(filter_universe("CategoryId"))
 
 # print(filter_universe(['StarRatingM2556', 'LargestRegion','SustainabilityRank' ],proxies=proxies))
 
+# stock = Stock("US02079K3059", exchange="NASDAQ")
+
+# print(stock.name)
+# print(stock.asset_type)
+
+# print(stock.analysisData())
+# print(stock.analysisReport())
+# print(stock.balanceSheet('annual', 'original'))
+# print(stock.boardOfDirectors())
+# print(stock.cashFlow('annual', 'restated'))
+# print(stock.dividends())
+# print(stock.esgRisk())
+# print(stock.financialHealth())
+# print(stock.financialSummary('quarterly', 'original'))
+# print(stock.freeCashFlow())
+# print(stock.incomeStatement('annual', 'original'))
+# print(stock.institutionBuyers(top=5))
+# print(stock.institutionConcentratedOwners(top=10))
+# print(stock.institutionOwnership())
+# print(stock.institutionSellers(top=5))
+# print(stock.historical(start_date=start_date, end_date=end_date))
+# print(stock.keyExecutives())
+# print(stock.keyRatio())
+# print(stock.mutualFundBuyers(top=5))
+# print(stock.mutualFundConcentratedOwners(top=10))
+# print(stock.mutualFundOwnership())
+# print(stock.mutualFundSellers(top=5))
+# print(stock.operatingGrowth())
+#print(stock.operatingMargin())
+# print(stock.operatingPerformance())
+# print(stock.split())
+# print(stock.trailingTotalReturn())
+# print(stock.transactionHistory())
+# print(stock.transactionSummary())
+# print(stock.valuation())
+
+
+
+
+
+
+
+#funds = Funds("visa", proxies={})
 # print(funds.code)
 # print(funds.isin)
 # print(funds.name)
@@ -55,7 +111,7 @@ funds = Funds("myria", proxies={})
 # #print(funds.fundsQuarterlyPerformance())
 # print(funds.graphData())
 # print(funds.historicalData())
-print(funds.historicalExpenses())
+# print(funds.historicalExpenses())
 # print(funds.holdings())
 # #print(funds.indexAnnualPerformance())
 # #print(funds.indexCumulativePerformance())
@@ -65,7 +121,7 @@ print(funds.historicalExpenses())
 # print(funds.maxDrawDown())
 # print(funds.morningstarAnalyst())
 # print(funds.multiLevelFixedIncomeData())
-# print(funds.nav(start_date = start_date, end_date=end_date))
+#print(funds.nav(start_date = start_date, end_date=end_date))
 # #print(funds.objectiveInvestment())
 # print(funds.otherFee())
 # print(funds.ownershipZone())

@@ -4,6 +4,176 @@ import random
 
 APIKEY = 'lstzFDEOhfFNMLikKa0am9mgEKLBl49T'
 
+ASSET_TYPE = ['etf', 'fund', 'stock']
+
+EXCHANGE = {
+            "NYSE": {
+                    "name": "exchanges_equity_nyse",
+                    "id": "E0EXG$XNYS"
+                    },
+
+            "NASDAQ" : {
+                    "name": "exchanges_equity_nasdaq",
+                    "id": "E0EXG$XNAS"
+                        },
+
+            "LSE" : {
+                    "name": "exchanges_london_stock_exchange",
+                    "id": "E0EXG$XLON"
+                    },
+
+            "AMSTERDAM" : {
+                    "name": "exchanges_equity_nyse_euronext_amsterdam",
+                    "id": "E0EXG$XAMS"
+                        },
+ 
+            "ATHENS" : {
+                    "name": "exchanges_equity_athens_stock_exchange",
+                    "id": "E0EXG$XATH"
+                        },
+
+            "BOLSA_DE_VALORES" : {
+                    "name": "exchanges_equity_bolsa_de_valores",
+                    "id": "E0EXG$XMEX"
+                        },
+
+            "BOMBAY" : {
+                    "name": "exchanges_equity_bombay_stock_exchange",
+                    "id": "E0EXG$XBOM"
+                        },
+
+            "BORSA_ITALIANA" : {
+                    "name": "exchanges_equity_borsa_italiana",
+                    "id": "E0EXG$XMIL"
+                        },
+
+            "BRUSSELS" : {
+                    "name": "exchanges_equity_nyse_brussels",
+                    "id": "E0EXG$XBRU"
+                        },
+
+            "COPENHAGEN" : {
+                    "name": "exchanges_equity_omx_exchange_copenhagen",
+                    "id": "E0EXG$XCSE"
+                            },
+
+            "HELSINKI" : {
+                    "name": "exchanges_equity_omx_exchange_helsinki",
+                    "id": "E0EXG$XHEL"
+                        },
+
+            "ICELAND" : {
+                    "name": "exchanges_equity_omx_exchange_iceland",
+                    "id": "E0EXG$XICE"
+                        },
+
+            "INDIA" : {
+                    "name": "exchanges_equity_india_stock_exchange",
+                    "id": "E0EXG$XNSE"
+                        },
+
+            "IPSX" : {
+                    "name": "exchanges_equity_exchange_IPSX",
+                    "id": "E0EXG$IPSX"
+                        },
+
+            "IRELAND" : {
+                    "name": "exchanges_equity_irish_stock_exchange",
+                    "id": "E0EXG$XDUB"
+                        },
+
+            "ISTANBUL" : {
+                    "name": "exchanges_equity_istanbul_stock_exchange",
+                    "id": "E0EXG$XIST"
+                        },
+
+            "LISBON" : {
+                    "name": "exchanges_equity_nyse_euronext_lisbon",
+                    "id": "E0EXG$XLIS"
+                        },
+
+            "LUXEMBOURG" : {
+                    "name": "exchanges_equity_luxembourg_stock_exchange",
+                    "id": "E0EXG$XLUX"
+                        },
+
+            "OSLO_BORS" : {
+                    "name": "exchanges_equity_oslo_bors",
+                    "id": "E0EXG$XOSL"
+                        },
+
+            "PARIS" : {
+                    "name": "exchanges_equity_nyse_paris",
+                    "id": "E0EXG$XPAR"
+                        },
+
+            "RIGA" : {
+                    "name": "exchanges_equity_omx_exchange_riga",
+                    "id": "E0EXG$XRIS"
+                        },
+
+            "SHANGAI" : {
+                    "name": "exchanges_equity_shanghai_stock_exchange",
+                    "id": "E0EXG$XSHG"
+                        },
+
+            "SHENZHEN" : {
+                    "name": "exchanges_equity_shenzhen_stock_exchange",
+                    "id": "E0EXG$XSHE"
+                        },
+
+            "SINGAPORE" : {
+                    "name": "exchanges_equity_singapore",
+                    "id": "E0EXG$XSES"
+                        },
+        
+            "STOCKHOLM" : {
+                    "name": "exchanges_equity_nasdaq_omx_stockholm",
+                    "id": "E0EXG$XSTO"
+                        },
+
+            "SWISS" : {
+                    "name": "exchanges_equity_six__swiss_exchange",
+                    "id": "E0EXG$XSWX"
+                    },
+
+            "TAIWAN" : {
+                    "name": "exchanges_equity_taiwan_stock_exchange",
+                    "id": "E0EXG$XTAI"
+                        },
+
+            "TALLIN" : {
+                    "name": "exchanges_equity_tallin_stock_exchange",
+                    "id": "E0EXG$XTAL"
+                        },
+
+            "THAILAND" : {
+                    "name": "exchanges_equity_thailand_stock_exchange",
+                    "id": "E0EXG$XBKK"
+                        },
+
+            "TOKYO" : {
+                    "name": "exchanges_equity_tokyo_stock_exchange",
+                    "id": "E0EXG$XTKS"
+                        },
+
+            "VILNIUS" : {
+                    "name": "exchanges_equity_omx_exchange_vilnius",
+                    "id": "E0EXG$XLIT"
+                        },
+                                                                                
+            "WARSAW" :{
+                    "name": "exchanges_equity_warsaw_stock_exchange",
+                    "id": "E0EXG$XWAR"
+                        },
+
+            "WIENER_BOERSE" : {
+                    "name": "exchanges_equity_wiener_boerse",
+                    "id": "E0EXG$XWBO"
+                        },
+            }
+
+
 FIELDS = [
     'AdministratorCompanyId',
     'AlphaM36',
@@ -17,15 +187,19 @@ FIELDS = [
     'CategoryName',
     'ClosePrice',
     'currency',
+    'DebtEquityRatio',
     'distribution',
+    'DividendYield',
+    'EBTMarginYear1',
     'EffectiveDuration',
+    'EPSGrowth3YYear1',
     'equityStyle',
     'EquityStyleBox',
+    'exchangeCode',
+    'ExchangeId',
     'ExpertiseAdvanced',
     'ExpertiseBasic',
     'ExpertiseInformed',
-    'exchangeCode',
-    'exchangeId'
     'FeeLevel',
     'fundShareClassId',
     'fundSize',
@@ -45,10 +219,10 @@ FIELDS = [
     'globalAssetClassId',
     'globalCategoryId',
     'iMASectorId',
+    'IndustryName',
     'InitialPurchase',
     'instrumentName',
     'investment',
-    'investmentExpertise',
     'investmentExpertise',
     'investmentObjective',
     'investmentType',
@@ -60,13 +234,18 @@ FIELDS = [
     'LegalName',
     'managementStyle',
     'ManagerTenure',
+    'MarketCap',
+    'MarketCountryName',
     'MaxDeferredLoad',
     'MaxFrontEndLoad',
     'MaximumExitCostAcquired',
     'MorningstarRiskM255',
     'Name',
+    'NetMargin',
     'ongoingCharge',
     'OngoingCostActual',
+    'PEGRatio',
+    'PERatio',
     'PerformanceFeeActual',
     'PriceCurrency',
     'QuantitativeRating',
@@ -86,8 +265,14 @@ FIELDS = [
     'ReturnProfileOther',
     'ReturnProfilePreservation',
     'ReturnW1',
+    'RevenueGrowth3Y',
     'riskSrri',
+    'ROATTM',
+    'ROETTM',
+    'ROEYear1',
+    'ROICYear1',
     'SecId',
+    'SectorName',
     'shareClassType',
     'SharpeM36',
     'StandardDeviationM36',
@@ -96,18 +281,20 @@ FIELDS = [
     'SustainabilityRank',
     'sustainabilityRating',
     'TenforeId',
-    'ticker',
+    'Ticker',
     'totalReturn',
     'totalReturnTimeFrame',
     'TrackRecordExtension',
     'TransactionFeeActual',
     'umbrellaCompanyId',
+    'Universe',
     'Yield_M12',
     'yieldPercent',
+
 ]
 
 
-FILTER = [  
+FILTER_FUND = [  
     'AdministratorCompanyId',
     'AnalystRatingScale',
     'BondStyleBox',
@@ -138,6 +325,29 @@ FILTER = [
     'SustainabilityRank',
     'UmbrellaCompanyId',
     'Yield_M12',
+        ]
+
+FILTER_STOCK = [  
+    'debtEquityRatio',
+    'DividendYield',
+    'epsGrowth3YYear1',
+    'EquityStyleBox',
+    'GBRReturnM0',
+    'GBRReturnM12',
+    'GBRReturnM36',
+    'GBRReturnM60',
+    'GBRReturnM120',
+    'IndustryId',
+    'MarketCap',
+    'netMargin',
+    'PBRatio',
+    'PEGRatio',
+    'PERatio',
+    'PSRatio',
+    'revenueGrowth3Y',
+    'roattm',
+    'roettm',
+    'SectorId',
         ]
 
 
