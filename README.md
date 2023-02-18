@@ -15,6 +15,8 @@ To get this package working you will need to install it via pip (with a Python 3
 Load a funds with the class Funds
 
 ```python
+from mstarpy import Funds
+
 funds = Funds("disruptive technology", country="fr")
 
 print(funds.name)
@@ -63,6 +65,8 @@ print(funds.holdings('equity'))
 Load a stock with the class Stock
 
 ```python
+from mstarpy import Stock
+
 stock = Stock("US02079K3059", exchange="NASDAQ")
 
 print(stock.name)
