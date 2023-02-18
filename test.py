@@ -15,7 +15,7 @@ end_date = datetime.datetime.today() + datetime.timedelta(15)
 #print(filter_universe('IndustryId'))
 #print(search_stock('FR0014003J32','LegalName',exchange="PARIS"))
 
-print(search_stock('',['SecId','TenforeId','LegalName'], exchange="PARIS", pageSize=10,currency="EUR",filters={"GBRReturnM12":(0,20)}))
+#print(search_stock('',['SecId','TenforeId','LegalName'], exchange="PARIS", pageSize=10,currency="EUR",filters={"GBRReturnM12":(0,20)}))
 
 # security = Security("visa",exchange='NYSE')
 # print(security)
@@ -28,10 +28,11 @@ print(search_stock('',['SecId','TenforeId','LegalName'], exchange="PARIS", pageS
 
 # print(filter_universe(['StarRatingM2556', 'LargestRegion','SustainabilityRank' ],proxies=proxies))
 
-# stock = Stock("US02079K3059", exchange="NASDAQ")
+stock = Stock("0P0001MKUF")
 
 # print(stock.name)
 # print(stock.asset_type)
+print(stock.isin)
 
 # print(stock.analysisData())
 # print(stock.analysisReport())

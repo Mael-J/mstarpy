@@ -82,7 +82,7 @@ class Security:
                 self.name = code_list[itemRange]["LegalName"]
                 if "TenforeId" in code_list[itemRange]:
                     tenforeId = code_list[itemRange]["TenforeId"]
-                    regex = re.compile("52.8.|126.1.|151.8.")
+                    regex = re.compile("[0-9]*\.[0-9]\.")
                     self.isin = regex.sub('',tenforeId)                   
                 else:
                     self.isin = None
