@@ -15,6 +15,7 @@ from .utils import APIKEY, SITE, random_user_agent
 class Security:
     """
     Parent class to access data about security
+
     Args:
         term (str): text to find a fund can be a name, part of a name or the isin of the funds
         country (str) : text for code ISO 3166-1 alpha-2 of country, should be '' for etf
@@ -138,8 +139,6 @@ class Security:
         Examples:
             >>> Security("rmagx", "us").GetData("price/feeLevel")
 
-            {'morningstarFeeLevelRankDate': '2022-08-31T05:00:00.000', 'morningstarFeeLevelGroup': '$GFS$000E9', 'name': 'Government Retirement, Large', 'morningstarFeeLevel': 1, 'morningstarFeeLevelPercentileRank': 1.0, 'morningstarFeeLevelGroupSize': 29.0, 'median': 0.44, 'morningstarFeeLevelGroupStartingDistribution': 0.22, 'morningstarFeeLevelGroup1stBreakpointDistribution': 0.32, 'morningstarFeeLevelGroup2ndBreakpointDistribution': 0.39, 'morningstarFeeLevelGroup3rdBreakpointDistribution': 0.48, 'morningstarFeeLevelGroup4thBreakpointDistribution': 0.6, 'morningstarFeeLevelGroupEndBreakpointDistribution': 0.67, 'fundFee': 0.22, 'reportDate': '2021-08-31T05:00:00.000', 'peerMedian': 2.5555555555555554, 'fundIndex': 0.0, 'prospectusExpenseRatio': 0.22, 'icrFund': None, 'priceTemplate': 'USA_OE', 'morningstarTotalCostRatioPDS': None}
-
         """
 
         if not isinstance(field, str):
@@ -177,26 +176,22 @@ class Security:
     def TimeSeries(self,field,start_date,end_date,frequency="daily"):
         """
         This function retrieves historical data of the specified fields
+        
+        Args:
+            start_date (datetime) : start date to get history
+            end_date (datetime) : end date to get history
+            frequency (str) : can be daily, weekly, monthly 
 
         Returns:
             list of dict time series
-
+            
+        Examples:
             >>> Funds("RMAGX", "us").TimeSeries(["nav","totalReturn"],datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today())
-
-            [{
-                "nav": 376.35,
-                "totalReturn": 575.01685,
-                "date": "2023-01-31"
-            },
-            {
-                "nav": 380.28,
-                "totalReturn": 581.02141,
-                "date": "2023-02-01"
-            }]
 
         Raises:
             TypeError: raised whenever the parameter type is not the type expected
             ValueError : raised whenever the parameter is not valid or no funds found
+            
         """
 
         #error raised if field is not a string or a list

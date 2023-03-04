@@ -24,7 +24,6 @@ def filter_universe(field = FILTER_FUND, proxies = {}):
     >>> filter_universe('FeeLevel')
     >>> filter_universe(FILTER_STOCK)
     
-
   """
   
   if not isinstance(field, (str, list)):
@@ -119,9 +118,6 @@ def search_field(pattern = ''):
   Example:
       >>> search_field('feE')
       >>> search_field('reTurn')
-      
-      ['FeeLevel', 'PerformanceFeeActual', 'TransactionFeeActual']
-      ['GBRReturnD1', 'GBRReturnM0', 'GBRReturnM1', 'GBRReturnM12', 'GBRReturnM120', 'GBRReturnM3', 'GBRReturnM36', 'GBRReturnM6', 'GBRReturnM60', 'GBRReturnW1', 'ReturnD1', 'ReturnM0', 'ReturnM1', 'ReturnM12', 'ReturnM120', 'ReturnM3', 'ReturnM36', 'ReturnM6', 'ReturnM60', 'ReturnProfileGrowth', 'ReturnProfileHedging', 'ReturnProfileIncome', 'ReturnProfileOther', 'ReturnProfilePreservation', 'ReturnW1', 'totalReturn', 'totalReturnTimeFrame']
 
   """
 
@@ -146,9 +142,6 @@ def search_filter(pattern = '', asset_type ='fund'):
   Example:
       >>> search_filter('RetUrn')
       >>> search_filter('id')
-      
-      ['GBRReturnM0', 'GBRReturnM12', 'GBRReturnM120', 'GBRReturnM36', 'GBRReturnM60', 'ReturnProfilePreservation']
-      ['AdministratorCompanyId', 'BrandingCompanyId', 'CategoryId', 'GlobalAssetClassId', 'GlobalCategoryId', 'IMASectorID', 'ShareClassTypeId', 'UmbrellaCompanyId']
 
   """
   if not isinstance(pattern, (str)):
@@ -161,12 +154,12 @@ def search_filter(pattern = '', asset_type ='fund'):
      raise TypeError(f"asset_type parameter can only take one of the values : {','.join(ASSET_TYPE)}")
 
   if asset_type == 'stock':
-     filter = FILTER_STOCK
+     filter_type = FILTER_STOCK
   else:
-     filter = FILTER_FUND
+     filter_type = FILTER_FUND
     
   regex = re.compile(f'(?i){pattern}')
-  filtered_list = list(filter(lambda field : regex.search(field),filter))
+  filtered_list = list(filter(lambda field : regex.search(field),filter_type))
   if asset_type == 'stock':
      print(f"possible keys for the parameter filters of the method search_stock can be : {', '.join(filtered_list)}")
   else:
@@ -197,7 +190,6 @@ def search_funds(term, field, country = "", pageSize=10, currency ='EUR', filter
     >>> search_funds("Myria",['SecId','TenforeId','LegalName'],country="fr", pageSize=25)
     >>> search_funds("FR0011399914", 'LegalName', country="fr", pageSize=25)
     
-
   """
 
   if not isinstance(field, (str, list)):
@@ -298,7 +290,6 @@ def search_stock(term,field,exchange, pageSize =10,currency ='EUR', filters={}, 
     >>> search_stock("visa",['SecId','TenforeId','LegalName'],exchange="NYSE", pageSize=25)
     >>> search_stock("FR0000125486", 'LegalName', exchange="PARIS", pageSize=10)
     
-
   """
 
   if not isinstance(field, (str, list)):
@@ -381,6 +372,7 @@ def token_chart(proxies={}):
 
   Returns:
   str bearer token
+
   """
 
   if not isinstance(proxies, dict):
@@ -409,6 +401,7 @@ def token_fund_information(proxies={}):
 
   Returns:
   str bearer token
+
   """
   if not isinstance(proxies, dict):
     raise TypeError('proxies parameter should be dict')
@@ -433,6 +426,7 @@ def token_investment_strategy(proxies={}):
 
   Returns:
   str bearer token
+
   """
   if not isinstance(proxies, dict):
     raise TypeError('proxies parameter should be dict')

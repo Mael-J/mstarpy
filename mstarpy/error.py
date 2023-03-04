@@ -4,6 +4,7 @@
 def not_200_response(url,response):
     """
     This function raise a ConnectionError if the status code a requests is not 200.
+
     """
     if not response.status_code == 200:
         raise ConnectionError(f"Error {response.status_code} for the api {url}. Message : {response.reason}.")
@@ -12,6 +13,7 @@ def not_200_response(url,response):
 def no_site_error(code, name, country, site):
     """ 
     This function raise a ValueError if the selected country is "us" or a site is not selected.
+    
     """
     
         

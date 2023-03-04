@@ -6,11 +6,24 @@ import pandas as pd
 from mstarpy.search import search_funds, search_filter,filter_universe, search_stock
 from mstarpy.utils import FILTER_FUND, FILTER_STOCK
 
+
+#print(search_filter(asset_type="stock"))
+#print(filter_universe(["SectorId", "debtEquityRatio"]))
+
+response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], 
+                         exchange='PARIS', filters={"PERatio" : ("<", '10'), "GBRReturnM12" : (">", 20), 
+                                                    "debtEquityRatio" : (0, 5), "SectorId" : ["IG000BA008", "IG000BA006"] })
+
+df = pd.DataFrame(response)
+
+print(df.head())
+
+
 #print(FILTER)
 #print('AdministratorCompanyId' in FILTER)
 
-start_date = datetime.datetime(2023,1,4)
-end_date = datetime.datetime.today() + datetime.timedelta(15)
+# start_date = datetime.datetime(2013,1,1)
+# end_date = datetime.datetime.today()
 
 #print(filter_universe('IndustryId'))
 #print(search_stock('FR0014003J32','LegalName',exchange="PARIS"))
@@ -28,11 +41,11 @@ end_date = datetime.datetime.today() + datetime.timedelta(15)
 
 # print(filter_universe(['StarRatingM2556', 'LargestRegion','SustainabilityRank' ],proxies=proxies))
 
-stock = Stock("0P0001MKUF")
+# stock = Stock("0P0001MKUF")
 
 # print(stock.name)
 # print(stock.asset_type)
-print(stock.isin)
+# print(stock.isin)
 
 # print(stock.analysisData())
 # print(stock.analysisReport())
@@ -71,7 +84,7 @@ print(stock.isin)
 
 
 
-#funds = Funds("visa", proxies={})
+# funds = Funds("VAN0108AU", country='au')
 # print(funds.code)
 # print(funds.isin)
 # print(funds.name)
@@ -100,7 +113,7 @@ print(stock.isin)
 # print(funds.equityStyle())
 # print(funds.equityStyleBoxHistory())
 # print(funds.esgData())
-# print(funds.factorProfile())
+# #print(funds.factorProfile())
 # print(funds.feeLevel())
 # #print(funds.fees())
 # print(funds.financialMetrics())
@@ -111,18 +124,19 @@ print(stock.isin)
 # #print(funds.fundsCumulativePerformance())
 # #print(funds.fundsQuarterlyPerformance())
 # print(funds.graphData())
-# print(funds.historicalData())
-# print(funds.historicalExpenses())
+#print(funds.historicalData())
+# #print(funds.historicalExpenses())
 # print(funds.holdings())
-# #print(funds.indexAnnualPerformance())
-# #print(funds.indexCumulativePerformance())
-# print(funds.investmentStrategy())
+#print(funds.indexAnnualPerformance())
+#print(funds.indexCumulativePerformance())
+#print(funds.investmentStrategy())
 # print(funds.marketCapitalization())
 # print(funds.maturitySchedule())
 # print(funds.maxDrawDown())
 # print(funds.morningstarAnalyst())
 # print(funds.multiLevelFixedIncomeData())
-#print(funds.nav(start_date = start_date, end_date=end_date))
+# df = pd.DataFrame(funds.nav(start_date = start_date, end_date=end_date))
+# print(df)
 # #print(funds.objectiveInvestment())
 # print(funds.otherFee())
 # print(funds.ownershipZone())
