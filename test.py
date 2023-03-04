@@ -3,21 +3,22 @@ from mstarpy import Funds, search_field, Stock
 from mstarpy.security import Security
 import datetime
 import pandas as pd
-from mstarpy.search import search_funds, search_filter,filter_universe, search_stock
+from mstarpy.search import search_funds, search_filter,filter_universe, search_stock, token_investment_strategy, token_chart, token_fund_information
 from mstarpy.utils import FILTER_FUND, FILTER_STOCK
 
 
+
+print(token_investment_strategy())
 #print(search_filter(asset_type="stock"))
 #print(filter_universe(["SectorId", "debtEquityRatio"]))
 
-response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], 
-                         exchange='PARIS', filters={"PERatio" : ("<", '10'), "GBRReturnM12" : (">", 20), 
-                                                    "debtEquityRatio" : (0, 5), "SectorId" : ["IG000BA008", "IG000BA006"] })
 
-df = pd.DataFrame(response)
+# response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], 
+#                          exchange='PARIS', filters={"PERatio" : ("<", '10'), "GBRReturnM12" : (">", 20), 
+#                                                     "debtEquityRatio" : (0, 5), "SectorId" : ["IG000BA008", "IG000BA006"] })
+# df = pd.DataFrame(response)
 
-print(df.head())
-
+# print(df.head())
 
 #print(FILTER)
 #print('AdministratorCompanyId' in FILTER)

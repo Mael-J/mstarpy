@@ -1,10 +1,10 @@
 Search with filters
-===============
+====================
 
 You can use filters to search funds and stocks more precisely with methods `search_funds` and `search_stock`.
 
 Choose filters
-------------
+----------------
 
 You can find the possible filters with the methods `search_filter`
 
@@ -38,7 +38,7 @@ for stocks:
 
 
 Find filters values
-------------------
+--------------------
 
 Once, you know what filters you want you use the method `filter_universe` to show the possible values of each filter.
 

@@ -1,5 +1,5 @@
 mstarpy
-=======
+==========
 
 .. toctree::
    :maxdepth: 4
