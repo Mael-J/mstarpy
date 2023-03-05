@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import io
 
 def readme():
-    with io.open('README.md', encoding='utf-8') as f:
+    with io.open('README.rst', encoding='utf-8') as f:
         return f.read()
 
 def requirements(filename):
