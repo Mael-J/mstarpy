@@ -2,4 +2,4 @@ from .funds import Funds
 from .stock import Stock
 from .search import filter_universe, search_field, search_filter, search_funds, search_stock
 
-__version__ = "0.0.6"
+__version__ = "1.0.1"
