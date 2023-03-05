@@ -440,7 +440,7 @@ def token_investment_strategy(proxies={}):
   all_text = response.text
   if all_text.find("token") ==-1:
     return None
-  start_flag ='"0P0000T416",0,'
-  end_flag = 'www.morningstar.com.au'
-  token_start = all_text[all_text.find(start_flag)+len(start_flag)+1:]
-  return token_start[:token_start.find(end_flag)-3]
+  start_flag =',"'
+  end_flag = '"www.morningstar.com.au"'
+  token_end = all_text[:all_text.find(end_flag)-3]
+  return token_end[token_end.rfind(start_flag)+2:]
