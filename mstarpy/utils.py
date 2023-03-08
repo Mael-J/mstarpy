@@ -62,6 +62,13 @@ EXCHANGE = {
                     "id": "E0EXG$XHEL"
                         },
 
+                "HONG-KONG" : {
+                    "name": "exchanges_HONG_KONG",
+                    "id": "E0EXG$XHKG"
+                        },
+
+                        
+
             "ICELAND" : {
                     "name": "exchanges_equity_omx_exchange_iceland",
                     "id": "E0EXG$XICE"
@@ -170,6 +177,11 @@ EXCHANGE = {
             "WIENER_BOERSE" : {
                     "name": "exchanges_equity_wiener_boerse",
                     "id": "E0EXG$XWBO"
+                        },
+
+        "WORLDWIDE_EQUITY" : {
+                    "name": "exchanges_worldwide_equity",
+                    "id": "E0WWE$$ALL"
                         },
             }
 

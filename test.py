@@ -8,7 +8,7 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK
 
 
 
-print(token_investment_strategy())
+
 #print(search_filter(asset_type="stock"))
 #print(filter_universe(["SectorId", "debtEquityRatio"]))
 
@@ -42,11 +42,11 @@ print(token_investment_strategy())
 
 # print(filter_universe(['StarRatingM2556', 'LargestRegion','SustainabilityRank' ],proxies=proxies))
 
-# stock = Stock("0P0001MKUF")
+stock = Stock("360 DigiTech Inc")
 
-# print(stock.name)
-# print(stock.asset_type)
-# print(stock.isin)
+print(stock.name)
+print(stock.asset_type)
+print(stock.isin)
 
 # print(stock.analysisData())
 # print(stock.analysisReport())
@@ -85,7 +85,7 @@ print(token_investment_strategy())
 
 
 
-# funds = Funds("VAN0108AU", country='au')
+# funds = Funds("LU1085283973")
 # print(funds.code)
 # print(funds.isin)
 # print(funds.name)
