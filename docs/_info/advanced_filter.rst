@@ -1,10 +1,10 @@
 Search with filters
-====================
+===================
 
 You can use filters to search funds and stocks more precisely with methods `search_funds` and `search_stock`.
 
 Choose filters
-----------------
+--------------
 
 You can find the possible filters with the methods `search_filter`
 
@@ -38,7 +38,7 @@ for stocks:
 
 
 Find filters values
---------------------
+-------------------
 
 Once, you know what filters you want you use the method `filter_universe` to show the possible values of each filter.
 
@@ -55,7 +55,7 @@ You have two types of filters values, either qualitative or quantitative. By exa
 
 
 Filter funds
-------------------
+------------
 
 Let say we want to find funds that invest mainly in the consumer defensive sector. We can use filters like in this example:
 
@@ -104,7 +104,7 @@ In the previous examples, we saw how to search for securities with a qualitative
 
 
 Filter stocks
-------------------
+-------------
 
 We want to find stocks with a 12 months return superior to 20%. The value of filter is a 2 length tuple. the first element is the sign superior ">", the second element the 12 months return of 20.
 

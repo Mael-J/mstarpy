@@ -1,5 +1,5 @@
 Introduction
-===============
+============
 
 MStarpy is a Python Package to extract data from `morningstar.com <https://www.morningstar.com/>`_.
 

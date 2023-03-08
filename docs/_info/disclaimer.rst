@@ -1,5 +1,5 @@
 Disclaimer
-===============
+==========
 
 MStarpy is not affiliated to `morningstar.com <https://www.morningstar.com/>`_ or any other companies.
 

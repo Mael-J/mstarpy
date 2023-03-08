@@ -1,5 +1,5 @@
 Introduction
-===============
+============
 
 MStarpy is a Python Package to extract data from `morningstar.com <https://www.morningstar.com/>`_.
 
@@ -8,10 +8,10 @@ MStarpy provides stock and fund public data to retail and professional investors
 The project is **open-source** and anyone can contribute on `github <https://github.com/Mael-J/mstarpy>`_.
 
 Getting Started
-=================
+===============
 
 Installation
---------------
+------------
 
 You can install it **via pip** on the terminal by typing:
 
@@ -30,7 +30,7 @@ First commands
 ----------------
 
 Look for funds with `search_funds`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can look for funds by using the method `search_funds`. In the following example, we will look for 40 funds in the US market with the term "technology" in their name. We want to get the name, the ID and the 12 months return. We transform the result in a pandas DataFrame to make it more clear.
 
@@ -55,7 +55,7 @@ You can look for funds by using the method `search_funds`. In the following exam
 
 
 Look for fields with `search_field`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can find the field you need for the `search_funds` and `search_stock` methods using `search_field`. In the following example, we get all fields.
 
@@ -139,7 +139,7 @@ You can find the historical Nav and total return of the fund.
 
 
 Look for stock with `search_stock`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can look for stocks by using the method `search_stock`. In the following example, we will look for 20 stocks on the Paris Stock Exchange with the term "AB" in their name. We want to get the name, the ID and the Sector. We transform the result in a pandas DataFrame to make it more clear.
 
@@ -176,7 +176,7 @@ Tips : You can get different exchange by looking at the variable EXCHANGE in mst
 
 
 Analysis of stocks
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 Once, you know what stock you want to analyse, you can load it with the class `Stock` and then access all the methods to get data.
 
@@ -231,17 +231,17 @@ You can show the financial statements such as the balance sheet.
      
 
 More commands
---------------
+-------------
 
 You can find all the methods of the classes `Funds` and `Stocks` in the part Indices and tables of this documentation.
 
 Search with filters
-====================
+===================
 
 You can use filters to search funds and stocks more precisely with methods `search_funds` and `search_stock`.
 
 Choose filters
-----------------
+--------------
 
 You can find the possible filters with the methods `search_filter`
 
@@ -275,7 +275,7 @@ for stocks:
 
 
 Find filters values
---------------------
+-------------------
 
 Once, you know what filters you want you use the method `filter_universe` to show the possible values of each filter.
 
@@ -292,7 +292,7 @@ You have two types of filters values, either qualitative or quantitative. By exa
 
 
 Filter funds
-------------------
+------------
 
 Let say we want to find funds that invest mainly in the consumer defensive sector. We can use filters like in this example:
 
@@ -341,7 +341,7 @@ In the previous examples, we saw how to search for securities with a qualitative
 
 
 Filter stocks
-------------------
+-------------
 
 We want to find stocks with a 12 months return superior to 20%. The value of filter is a 2 length tuple. the first element is the sign superior ">", the second element the 12 months return of 20.
 
@@ -432,21 +432,21 @@ Now we know how to use filters, we can combine them to find a precise securities
     4            Soditech SA       0P00009WQ2         97.45     4.49
 
 MStarpy in the world
-======================
+====================
 
 Albertine.io
---------------
+------------
 
 The site `albertine.io <https://albertine.io/#/funds>`_ uses MStarpy to compare funds. You can create PDF reports and extract data in Excel format.
 
 
 Contribution
---------------
+------------
 
 The project is **open-source** and you can contribute on `github <https://github.com/Mael-J/mstarpy>`_.
 
 Disclaimer
-===============
+==========
 
 MStarpy is not affiliated to `morningstar.com <https://www.morningstar.com/>`_ or any other companies.
 

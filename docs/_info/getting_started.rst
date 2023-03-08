@@ -1,8 +1,8 @@
 Getting Started
-=================
+===============
 
 Installation
---------------
+------------
 
 You can install it **via pip** on the terminal by typing:
 
@@ -18,10 +18,10 @@ You can also install it **via git** on the terminal bu using :
 
 
 First commands
-----------------
+--------------
 
 Look for funds with `search_funds`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can look for funds by using the method `search_funds`. In the following example, we will look for 40 funds in the US market with the term "technology" in their name. We want to get the name, the ID and the 12 months return. We transform the result in a pandas DataFrame to make it more clear.
 
@@ -46,7 +46,7 @@ You can look for funds by using the method `search_funds`. In the following exam
 
 
 Look for fields with `search_field`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can find the field you need for the `search_funds` and `search_stock` methods using `search_field`. In the following example, we get all fields.
 
@@ -130,7 +130,7 @@ You can find the historical Nav and total return of the fund.
 
 
 Look for stock with `search_stock`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can look for stocks by using the method `search_stock`. In the following example, we will look for 20 stocks on the Paris Stock Exchange with the term "AB" in their name. We want to get the name, the ID and the Sector. We transform the result in a pandas DataFrame to make it more clear.
 
@@ -167,7 +167,7 @@ Tips : You can get different exchange by looking at the variable EXCHANGE in mst
 
 
 Analysis of stocks
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 Once, you know what stock you want to analyse, you can load it with the class `Stock` and then access all the methods to get data.
 
@@ -222,7 +222,7 @@ You can show the financial statements such as the balance sheet.
      
 
 More commands
---------------
+-------------
 
 
 You can find all the methods of the classes `Funds` and `Stocks` in the part Indices and tables of this documentation.
