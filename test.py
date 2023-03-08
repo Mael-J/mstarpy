@@ -4,10 +4,12 @@ from mstarpy.security import Security
 import datetime
 import pandas as pd
 from mstarpy.search import search_funds, search_filter,filter_universe, search_stock, token_investment_strategy, token_chart, token_fund_information
-from mstarpy.utils import FILTER_FUND, FILTER_STOCK
+from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 
 
+    
 
+print(list(EXCHANGE))
 
 #print(search_filter(asset_type="stock"))
 #print(filter_universe(["SectorId", "debtEquityRatio"]))
@@ -42,11 +44,11 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK
 
 # print(filter_universe(['StarRatingM2556', 'LargestRegion','SustainabilityRank' ],proxies=proxies))
 
-stock = Stock("360 DigiTech Inc")
+# stock = Stock("360 DigiTech Inc")
 
-print(stock.name)
-print(stock.asset_type)
-print(stock.isin)
+# print(stock.name)
+# print(stock.asset_type)
+# print(stock.isin)
 
 # print(stock.analysisData())
 # print(stock.analysisReport())

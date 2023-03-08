@@ -153,7 +153,7 @@ You can look for stocks by using the method `search_stock`. In the following exa
     3  Abionyx Pharma Ordinary Shares       0P00015JGM          Healthcare
     4                       Abivax SA       0P00016673          Healthcare
 
-Tips : You can get different exchange by looking at the variable EXCHANGE in mstarpy.utils
+Tips : You can get different exchange by looking at the variable EXCHANGE in mstarpy.utils. 'WORLDWIDE_EQUITY' allows you to search in all exchanges.
 
 .. code-block:: python
     
@@ -163,7 +163,7 @@ Tips : You can get different exchange by looking at the variable EXCHANGE in mst
 
 .. code-block:: python
 
-    ['NYSE', 'NASDAQ', 'LSE', 'AMSTERDAM', 'ATHENS', 'BOLSA_DE_VALORES', 'BOMBAY', 'BORSA_ITALIANA', 'BRUSSELS', 'COPENHAGEN', 'HELSINKI', 'ICELAND', 'INDIA', 'IPSX', 'IRELAND', 'ISTANBUL', 'LISBON', 'LUXEMBOURG', 'OSLO_BORS', 'PARIS', 'RIGA', 'SHANGAI', 'SHENZHEN', 'SINGAPORE', 'STOCKHOLM', 'SWISS', 'TAIWAN', 'TALLIN', 'THAILAND', 'TOKYO', 'VILNIUS', 'WARSAW', 'WIENER_BOERSE']
+    ['NYSE', 'NASDAQ', 'LSE', 'AMSTERDAM', 'ATHENS', 'BOLSA_DE_VALORES', 'BOMBAY', 'BORSA_ITALIANA', 'BRUSSELS', 'COPENHAGEN', 'HELSINKI', 'HONG-KONG', 'ICELAND', 'INDIA', 'IPSX', 'IRELAND', 'ISTANBUL', 'LISBON', 'LUXEMBOURG', 'OSLO_BORS', 'PARIS', 'RIGA', 'SHANGAI', 'SHENZHEN', 'SINGAPORE', 'STOCKHOLM', 'SWISS', 'TAIWAN', 'TALLIN', 'THAILAND', 'TOKYO', 'VILNIUS', 'WARSAW', 'WIENER_BOERSE', 'WORLDWIDE_EQUITY']
 
 
 Analysis of stocks
