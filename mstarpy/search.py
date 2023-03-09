@@ -1,6 +1,6 @@
 import requests
 import json
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
 import re
 
 from .utils import random_user_agent

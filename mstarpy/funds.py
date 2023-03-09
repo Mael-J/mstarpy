@@ -1,4 +1,4 @@
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
 import datetime
 import json
 import pandas as pd
