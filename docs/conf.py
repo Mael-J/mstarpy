@@ -38,7 +38,6 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'recommonmark',
-    'beautifulsoup4'
 
 ]
 
