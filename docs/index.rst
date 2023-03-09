@@ -10,7 +10,6 @@ Welcome to MStarpy's documentation!
    _info/advanced_filter.rst
    _info/mstarpy_project.rst
    _info/disclaimer.rst
-   modules.rst
 
 
 Indices and tables

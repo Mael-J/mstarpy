@@ -10,7 +10,7 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
     
 
 print(list(EXCHANGE))
-
+print(search_stock("a",field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='HONG-KONG'))
 #print(search_filter(asset_type="stock"))
 #print(filter_universe(["SectorId", "debtEquityRatio"]))
 
