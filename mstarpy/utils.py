@@ -66,9 +66,6 @@ EXCHANGE = {
                     "name": "exchanges_HONG_KONG",
                     "id": "E0EXG$XHKG"
                         },
-
-                        
-
             "ICELAND" : {
                     "name": "exchanges_equity_omx_exchange_iceland",
                     "id": "E0EXG$XICE"
