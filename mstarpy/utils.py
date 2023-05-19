@@ -331,9 +331,11 @@ FILTER_FUND = [
     'QuantitativeRating',
     'ReturnProfilePreservation',
     'ShareClassTypeId',
+    'starRating',
     'SustainabilityRank',
     'UmbrellaCompanyId',
     'Yield_M12',
+
         ]
 
 FILTER_STOCK = [  
