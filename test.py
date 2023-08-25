@@ -21,7 +21,7 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 filter_value = filter_universe(["starRating"])
 print(filter_value)
 #filters={"starRating" : (">", 2)}
-print(search_funds("",["Name","starRating"],filters={"starRating" : (">",3)}))
+print(search_funds("myria",["Name","starRating"],filters={"starRating" : (">",2)}))
 
 #print(search_filter(asset_type="stock"))
 #print(filter_universe(["SectorId", "debtEquityRatio"]))
