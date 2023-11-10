@@ -9,6 +9,9 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 
     
 
+
+print(Funds("F00000QGHT").sustainability())
+#print(Funds("myria").investmentLookup())
 # print(list(EXCHANGE))
 # #print(search_stock("a",field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='HONG-KONG'))
 # ms = Stock("MSFT", exchange="NASDAQ")
@@ -18,10 +21,10 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 # print(df)
 # df.to_excel('test.xlsx', index = False)
 
-filter_value = filter_universe(["starRating"])
-print(filter_value)
+# filter_value = filter_universe(["starRating"])
+# print(filter_value)
 #filters={"starRating" : (">", 2)}
-print(search_funds("myria",["Name","starRating"],filters={"starRating" : (">",2)}))
+# print(search_funds("myria",["Name","starRating"],filters={"starRating" : (">",2)}))
 
 #print(search_filter(asset_type="stock"))
 #print(filter_universe(["SectorId", "debtEquityRatio"]))
