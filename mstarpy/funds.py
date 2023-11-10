@@ -453,7 +453,7 @@ class Funds(Security):
 
     def feeLevel(self):
         """        
-        This function retrieves the fees of the fund.
+        This function retrieves the fees of the fund compare to its category.
 
         Returns:
             dict fees
@@ -463,6 +463,20 @@ class Funds(Security):
 
         """
         return self.GetData("price/feeLevel")
+    
+    def feeMifid(self,currency="EUR"):
+        """        
+        This function retrieves the fees of the fund.
+
+        Returns:
+            dict fees
+
+        Examples:
+            >>> Funds("myria", "fr").feeMifid()
+
+        """
+        return self.ltData("Mifid",currency=currency)
+
 
     def fees(self):
         """        
@@ -747,6 +761,19 @@ class Funds(Security):
                     }
         return self.GetData("morningstarTake/investmentStrategy",headers=headers)
         
+    def investmentLookup(self,currency="EUR"):
+        """        
+        This function gives details about fund investment.
+
+        Returns:
+            dict fund investment
+
+        Examples:
+            >>> Funds("myria", "fr").investmentLookup()
+
+        """
+        return self.ltData("investmentTypeLookup",currency=currency)
+    
     def marketCapitalization(self):
         """
         This function retrieves the marketCapitalization breakdown of the funds, category and index.
@@ -1163,6 +1190,19 @@ class Funds(Security):
 
         """
         return self.GetData("portfolio/v2/sector")
+    
+    def snapshot(self,currency="EUR"):
+        """        
+        This function returns a snapshot of the fund and asset manager.
+
+        Returns:
+            dict snapshot fund and asset manager
+
+        Examples:
+            >>> Funds("myria", "fr").snapshot()
+
+        """
+        return self.ltData("MFsnapshot",currency=currency)
 
     def starRatingFundAsc(self):
         """
@@ -1192,6 +1232,19 @@ class Funds(Security):
         
         return self.GetData("parent/mstarRating/StarRatingFundDesc")
 
+    def sustainability(self,currency="EUR"):
+        """        
+        This function retrieves the sustainability data of the fund.
+
+        Returns:
+            dict sustanability data
+
+        Examples:
+            >>> Funds("myria", "fr").sustainability()
+
+        """
+        return self.ltData("sustainability",currency=currency)
+    
     def taxes(self):
         """
         This function retrieves the other fee of the etf
