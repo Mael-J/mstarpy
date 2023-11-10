@@ -129,6 +129,8 @@ class Security:
         Args:
             field (str) : endpoint of the request
             params (dict) : parameter for the request
+            headers (dict) : headers of the request
+            url_suffixe (str) : suffie of the url
 
         Raises:
             TypeError raised whenever type of paramater are invalid
@@ -172,6 +174,52 @@ class Security:
 
         return json.loads(response.content.decode()) 
     
+    def ltData(self,field,currency="EUR"):
+        """
+        Generic function to use MorningStar lt api.
+
+        Args:
+            field (str) : viewId in the params
+            currency (str) : currency in 3 letters
+
+        Raises:
+            TypeError raised whenever type of paramater are invalid
+
+        Returns:
+            dict with data
+
+        Examples:
+            >>> Security("rmagx", "us").ltData("price/feeLevel")
+
+        """
+        if not isinstance(field, str):
+            raise TypeError('field parameter should be a string')
+        
+        #url of API
+        url = f"""https://lt.morningstar.com/api/rest.svc/klr5zyak8x/security_details/{self.code}"""
+
+        params = {
+            "viewId": field,
+            "currencyId":currency,
+            "itype" :"msid",
+            "languageId": "en",
+            "responseViewFormat":"json",
+        }
+        response = requests.get(url,params=params,proxies=self.proxies)
+
+
+        not_200_response(url,response)
+
+        #responseis a list
+        response_list = json.loads(response.content.decode()) 
+        if response_list:
+            return response_list[0]
+        else:
+            return {}
+
+
+
+
 
     def TimeSeries(self,field,start_date,end_date,frequency="daily"):
         """
