@@ -8,9 +8,16 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 
 
     
+code = "FOUSA00LIX"
+fund = Funds(code,country="us")
+print(fund.name)
 
+print(fund.carbonMetrics())
+start_date = datetime.date(2018,1,1)
+end_date = datetime.date.today()
+history = fund.nav(start_date,end_date)
+print(history)
 
-print(Funds("F00000QGHT").sustainability())
 #print(Funds("myria").investmentLookup())
 # print(list(EXCHANGE))
 # #print(search_stock("a",field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='HONG-KONG'))

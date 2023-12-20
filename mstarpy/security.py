@@ -278,7 +278,7 @@ class Security:
         #bearer token
         bearer_token = token_chart()
         #url for nav
-        url =f"https://www.us-api.morningstar.com/QS-markets/chartservice/v2/timeseries?query={self.code}:{queryField}&frequency={frequency_row[frequency]}&startDate={start_date.strftime('%Y-%m-%d')}&endDate={end_date.strftime('%Y-%m-%d')}&trackMarketData=3.6.3&instid=MSERP"
+        url =f"https://www.us-api.morningstar.com/QS-markets/chartservice/v2/timeseries?query={self.code}:{queryField}&frequency={frequency_row[frequency]}&startDate={start_date.strftime('%Y-%m-%d')}&endDate={end_date.strftime('%Y-%m-%d')}&trackMarketData=3.6.3&instid=DOTCOM"
         #header with bearer token
         headers = {
                     'user-agent' : random_user_agent(), 
