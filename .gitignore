@@ -29,3 +29,6 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+
+# Editor
+.vscode/
