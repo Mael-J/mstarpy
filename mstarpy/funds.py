@@ -108,6 +108,51 @@ class Funds(Security):
         return self.GetData("parent/analystRating/topfundsUpDown")
 
 
+
+    def keyStats(self):
+        """
+        This function retrieves the key status information of the funds, index, category or the annual rank of the funds.
+
+        Returns:
+            dict annual performance or rank
+
+        Raises:
+            ValueError : raised whenever parameter cat is not category, funds, index, or rank
+
+        Examples:
+            >>> Funds("myria", "fr").key_stats()
+
+        """
+        #headers random agent
+        headers = {'user-agent' : random_user_agent()}
+        #page 1 - performance
+        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}"
+        
+        response = requests.get(url, headers=headers, proxies=self.proxies)
+        not_200_response(url,response)
+        soup = BeautifulSoup(response.text, 'html.parser')
+       
+        table_rows = soup.find(id="overviewQuickstatsDiv").find_all('tr')
+        details = []
+        for row in table_rows:
+            key, value, date_stamp = None, None, None
+            for cell in row.find_all("td"):
+                if cell.has_attr("class"):
+                    if "line" in cell["class"]:
+                        if "heading" in cell["class"]:
+                            key = cell.get_text(separator = "\n", strip = True)
+                            if "\n" in key:
+                                key, date_stamp = key.split("\n")
+                        if "text" in cell["class"]:
+                            value = cell.text
+            if key and value and date_stamp:
+                details.append({key: value, "date": date_stamp})
+            elif key and value:
+                details.append({key: value})
+
+        return details
+
+
     def AnnualPerformance(self, cat):
         """
         This function retrieves the annual performance of the funds, index, category or the annual rank of the funds.

@@ -172,7 +172,7 @@ class Security:
 
         not_200_response(url,response)
 
-        return json.loads(response.content.decode()) 
+        return response.json()
     
     def ltData(self,field,currency="EUR"):
         """
@@ -211,7 +211,7 @@ class Security:
         not_200_response(url,response)
 
         #responseis a list
-        response_list = json.loads(response.content.decode()) 
+        response_list = response.json() 
         if response_list:
             return response_list[0]
         else:
@@ -289,7 +289,7 @@ class Security:
         #manage response
         not_200_response(url,response)
         #result
-        result =json.loads(response.content.decode())
+        result = response.json()
         #return empty list if we don't get data
         if not result:
             return []

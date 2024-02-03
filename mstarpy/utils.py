@@ -599,7 +599,7 @@ SITE = {
         'ug' : {'iso3' : 'UGA', 'site' : ''},
         'ua' : {'iso3' : 'UKR', 'site' : ''},
         'ae' : {'iso3' : 'ARE', 'site' : ''},
-        'gb' : {'iso3' : 'GBR', 'site' : ''},
+        'gb' : {'iso3' : 'GBR', 'site' : 'https://www.morningstar.co.uk/uk/'},
         'um' : {'iso3' : 'UMI', 'site' : ''},
         'us' : {'iso3' : 'USA', 'site' : 'https://www.morningstar.com/'},
         'uy' : {'iso3' : 'URY', 'site' : ''},

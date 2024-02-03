@@ -102,7 +102,7 @@ def general_search(params, proxies={}):
 
   not_200_response(url, response)
     
-  return json.loads(response.content.decode())
+  return response.json()
 
 
 def search_field(pattern = ''):
