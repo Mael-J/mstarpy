@@ -1,6 +1,4 @@
-
 import random
-
 
 APIKEY = 'lstzFDEOhfFNMLikKa0am9mgEKLBl49T'
 

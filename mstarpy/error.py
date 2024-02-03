@@ -1,6 +1,3 @@
-
-
-
 def not_200_response(url,response):
     """
     This function raise a ConnectionError if the status code a requests is not 200.
