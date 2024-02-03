@@ -9,7 +9,8 @@ from .error import not_200_response
 
 def filter_universe(field=FILTER_FUND, proxies={}):
     """
-    This function will use the screener of morningstar.co.uk to find the possible filters and their values.
+    This function will use the screener of morningstar.co.uk 
+    to find the possible filters and their values.
 
     Args:
 
@@ -17,7 +18,11 @@ def filter_universe(field=FILTER_FUND, proxies={}):
 
     Returns:
       dict of filter
-        {'LargestRegion': ['', 'RE_AfricaDeveloped', 'RE_AfricaEmerging', 'RE_Asia4TigersEmerging', 'RE_Asiaex4TigersEmerging', 'RE_Australasia', 'RE_Canada', 'RE_CentralandEasternEurope', 'RE_CentralandLatinAmericaEmerging', 'RE_Japan', 'RE_UnitedKingdom', 'RE_UnitedStates', 'RE_WesternEuropeEuro', 'RE_WesternEuropeNonEuroexUK'], 'SustainabilityRank': ['1', '2', '3', '4', '5']}
+        {'LargestRegion': ['', 'RE_AfricaDeveloped', 'RE_AfricaEmerging', 
+        'RE_Asia4TigersEmerging', 'RE_Asiaex4TigersEmerging', 'RE_Australasia', 
+        'RE_Canada', 'RE_CentralandEasternEurope', 'RE_CentralandLatinAmericaEmerging', 
+        'RE_Japan', 'RE_UnitedKingdom', 'RE_UnitedStates', 'RE_WesternEuropeEuro', 
+        'RE_WesternEuropeNonEuroexUK'], 'SustainabilityRank': ['1', '2', '3', '4', '5']}
 
     Examples:
       >>> filter_universe(['LargestRegion','SustainabilityRank'])
@@ -62,11 +67,13 @@ def filter_universe(field=FILTER_FUND, proxies={}):
 
 def general_search(params, proxies={}):
     """
-    This function will use the screener of morningstar.co.uk to find informations about funds or classification
+    This function will use the screener of morningstar.co.uk
+    to find informations about funds or classification
 
     Args:
       params (dict) : paramaters of the request
-      proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+      proxies (dict) : set the proxy if needed,
+      example : {"http": "http://host:port","https": "https://host:port"}
 
     Returns:
       list of information
@@ -130,8 +137,8 @@ def search_field(pattern=""):
 
 def search_filter(pattern="", asset_type="fund"):
     """
-    This function retrieves the possible filters for the parameter filters of the function search_funds
-
+    This function retrieves the possible filters for 
+    the parameter filters of the function search_funds
 
     Args:
     pattern (str) : text contained in the filter
@@ -178,22 +185,40 @@ def search_funds(
     term, field, country="", pageSize=10, currency="EUR", filters={}, proxies={}
 ):
     """
-    This function will use the screener of morningstar.co.uk to find funds which include the term.
+    This function will use the screener of morningstar.co.uk
+    to find funds which include the term.
 
     Args:
-      term (str): text to find a funds can be a the name, part of a name or the isin of the funds
+      term (str): text to find a funds can be a the name, 
+      part of a name or the isin of the funds
       field (str | list) : field to find
       country (str) : text for code ISO 3166-1 alpha-2 of country
       pageSize (int): number of funds to return
       currency (str) : currency in 3 letters
-      filters (dict) : filter funds, use the method filter_universe to find the different possible filter keys and values
-      proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+      filters (dict) : filter funds, use the method filter_universe 
+      to find the different possible filter keys and values
+      proxies (dict) : set the proxy if needed , example : 
+      {"http": "http://host:port","https": "https://host:port"}
 
     Returns:
       list of dict with fund information
-        [{'SecId': 'F00000270E', 'TenforeId': '52.8.FR0010342600', 'LegalName': '21 Gestion Active'}, {'SecId': 'F000013BGI', 'TenforeId': '52.8.MT7000022612', 'LegalName': '24 Capital Management SICAV plc - 24 Global Currency Fund Share Class A USD Accumulation'}, {'SecId': 'F00000PZHI', 'TenforeId': '52.8.FR0011443225', 'LegalName': '29 Haussmann Actions Europe C'}, {'SecId': 'F0GBR06QS1', 'TenforeId': '52.8.FR0007057427', 'LegalName': '29 Haussmann Actions Europe D'}, {'SecId': 'F0000101BL', 'TenforeId': '52.8.FR0013266590', 'LegalName': '29 Haussmann Actions Europe
-        I'}, {'SecId': 'F00000JW7U', 'TenforeId': '52.8.LU0532306957', 'LegalName': '3F Generation Acc'}, {'SecId': 'F00000UDVR', 'TenforeId': '52.8.FR0011911189', 'LegalName': 'AAM Family Values E1'}, {'SecId': 'F00000UDVS', 'TenforeId': '52.8.FR0011911197', 'LegalName': 'AAM Family Values
-        I'}, {'SecId': 'F0GBR04RG5', 'TenforeId': '52.8.FR0007022025', 'LegalName': 'AAZ Capitalisation'}, {'SecId': 'F000000ITD', 'TenforeId': '52.8.FR0010361600', 'LegalName': 'AAZ Prestige Or'}]
+        [{'SecId': 'F00000270E', 'TenforeId': '52.8.FR0010342600',
+        'LegalName': '21 Gestion Active'}, {'SecId': 'F000013BGI',
+        'TenforeId': '52.8.MT7000022612', 'LegalName':'24 Capital Management SICAV plc - 
+        24 Global Currency Fund Share Class A USD Accumulation'}, 
+        {'SecId': 'F00000PZHI', 'TenforeId': '52.8.FR0011443225', 
+        'LegalName': '29 Haussmann Actions Europe C'}, {'SecId': 'F0GBR06QS1', 
+        'TenforeId': '52.8.FR0007057427', 'LegalName': '29 Haussmann Actions Europe D'}, 
+        {'SecId': 'F0000101BL', 'TenforeId': '52.8.FR0013266590', 'LegalName': 
+        '29 Haussmann Actions Europe
+        I'}, {'SecId': 'F00000JW7U', 'TenforeId': '52.8.LU0532306957', 
+        'LegalName': '3F Generation Acc'}, {'SecId': 'F00000UDVR', 
+        'TenforeId': '52.8.FR0011911189', 'LegalName': 'AAM Family Values E1'}, 
+        {'SecId': 'F00000UDVS', 'TenforeId': '52.8.FR0011911197', 'LegalName': 'AAM Family Values
+        I'}, {'SecId': 'F0GBR04RG5', 'TenforeId': '52.8.FR0007022025', 'LegalName': 
+        'AAZ Capitalisation'}, 
+        {'SecId': 'F000000ITD', 'TenforeId': '52.8.FR0010361600', 
+        'LegalName': 'AAZ Prestige Or'}]
 
     Examples:
       >>> search_funds("Myria",['SecId','TenforeId','LegalName'],country="fr", pageSize=25)
@@ -207,7 +232,7 @@ def search_funds(
     if not isinstance(country, str):
         raise TypeError("country parameter should be a string")
 
-    if country and not country.lower() in SITE.keys():
+    if country and country.lower() not in SITE:
         raise ValueError(
             f'country parameter can only take one of the values: {", ".join(SITE.keys())}'
         )
@@ -240,7 +265,8 @@ def search_funds(
     for f in filters:
         if f not in FILTER_FUND:
             print(
-                f"{f} is not a valid filter and will be ignored. You can find the possible filters with the method search_filter()."
+                f"""{f} is not a valid filter and will be ignored. You can find the
+                possible filters with the method search_filter()."""
             )
         else:
             # if list, IN condition
@@ -277,7 +303,7 @@ def search_funds(
     if result["rows"]:
         return result["rows"]
     else:
-        print("0 fund found whith the term %s" % (term))
+        print(f"0 fund found whith the term {term}")
         return {}
 
 
@@ -285,7 +311,8 @@ def search_stock(
     term, field, exchange, pageSize=10, currency="EUR", filters={}, proxies={}
 ):
     """
-    This function will use the screener of morningstar.co.uk to find stocks which include the term.
+    This function will use the screener of morningstar.co.uk to find stocks which 
+    include the term.
 
     Args:
       term (str): text to find a funds can be a the name, part of a name or the isin of the funds
@@ -293,13 +320,21 @@ def search_stock(
       exchange (str) : stock echange closed list (.utils EXCHANGE)
       pageSize (int): number of funds to return
       currency (str) : currency in 3 letters
-      filters (dict) : filter funds, use the method filter_universe to find the different possible filter keys and values
-      proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+      filters (dict) : filter funds, use the method filter_universe 
+      to find the different possible filter keys and values
+      proxies (dict) : set the proxy if needed , example : 
+      {"http": "http://host:port","https": "https://host:port"}
 
     Returns:
       list of dict with stocks information
-        [{'SecId': '0P0001OMLZ', 'TenforeId': '126.1.VCXB', 'LegalName': '10X Capital Venture Acquisition Corp III Ordinary Shares
-        - Class A'}, {'SecId': '0P0001O9WE', 'TenforeId': '126.1.VCXB/U', 'LegalName': '10X Capital Venture Acquisition Corp III Units (1 Ord Share Class A & 1/2 War)'}, {'SecId': '0P000184MI', 'TenforeId': '126.1.COE', 'LegalName': '51Talk无忧英语 ADR'}, {'SecId': '0P0001NAQE', 'TenforeId': '126.1.AKA', 'LegalName': 'a.k.a. Brands Holding Corp'}]
+        [{'SecId': '0P0001OMLZ', 'TenforeId': '126.1.VCXB', 'LegalName': 
+        '10X Capital Venture Acquisition Corp III Ordinary Shares
+        - Class A'}, {'SecId': '0P0001O9WE', 'TenforeId': '126.1.VCXB/U', 
+        'LegalName': '10X Capital Venture Acquisition Corp III Units 
+        (1 Ord Share Class A & 1/2 War)'}, {'SecId': '0P000184MI', 
+        'TenforeId': '126.1.COE', 'LegalName': '51Talk无忧英语 ADR'}, 
+        {'SecId': '0P0001NAQE', 'TenforeId': '126.1.AKA', 'LegalName': 
+        'a.k.a. Brands Holding Corp'}]
 
     Examples:
       >>> search_stock("visa",['SecId','TenforeId','LegalName'],exchange="NYSE", pageSize=25)
@@ -313,9 +348,9 @@ def search_stock(
     if not isinstance(exchange, str):
         raise TypeError("exchange parameter should be a string")
 
-    if not exchange.upper() in EXCHANGE.keys():
+    if not exchange.upper() in EXCHANGE:
         raise ValueError(
-            f'exchange parameter can only take one of the values : {", ".join(EXCHANGE.keys())}'
+            f'exchange parameter can only take one of the values : {", ".join(EXCHANGE)}'
         )
 
     if not isinstance(pageSize, int):
@@ -342,7 +377,8 @@ def search_stock(
     for f in filters:
         if f not in FILTER_STOCK:
             print(
-                f"{f} is not a valid filter and will be ignored. You can find the possible filters with the method search_filter()."
+                f"""{f} is not a valid filter and will be ignored.
+                You can find the possible filters with the method search_filter()."""
             )
         else:
             # if list, IN condition
@@ -379,7 +415,7 @@ def search_stock(
     if result["rows"]:
         return result["rows"]
     else:
-        print("0 stock found whith the term %s" % (term))
+        print(f"0 stock found whith the term {term}")
         return {}
 
 
@@ -388,7 +424,8 @@ def token_chart(proxies={}):
     This function will scrape the Bearer Token needed to access MS API chart data
 
     Args:
-    proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+    proxies (dict) : set the proxy if needed ,
+    example : {"http": "http://host:port","https": "https://host:port"}
 
     Returns:
     str bearer token
@@ -417,7 +454,8 @@ def token_fund_information(proxies={}):
     This function will scrape the Bearer Token needed to access MS API funds information
 
     Args:
-    proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+    proxies (dict) : set the proxy if needed , example :
+    {"http": "http://host:port","https": "https://host:port"}
 
     Returns:
     str bearer token
@@ -430,11 +468,11 @@ def token_fund_information(proxies={}):
 
     headers = {"user-agent": random_user_agent()}
 
-    response = requests.get(url, headers=headers, proxies=proxies)
+    response = requests.get(url, headers=headers, proxies=proxies, timeout=120)
     soup = BeautifulSoup(response.text, "html.parser")
     script = soup.find_all("script", {"type": "text/javascript"})
     bearerToken = (
-        str(script).split("tokenMaaS:")[-1].split("}")[0].replace('"', "").strip()
+        str(script).rsplit("tokenMaaS:",maxsplit=1)[-1].split("}")[0].replace('"', "").strip()
     )
     return bearerToken
 
@@ -444,7 +482,8 @@ def token_investment_strategy(proxies={}):
     This function will scrape the Bearer Token needed to access the investment strategy
 
     Args:
-    proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+    proxies (dict) : set the proxy if needed , example :
+    {"http": "http://host:port","https": "https://host:port"}
 
     Returns:
     str bearer token
@@ -457,7 +496,7 @@ def token_investment_strategy(proxies={}):
 
     headers = {"user-agent": random_user_agent()}
 
-    response = requests.get(url, headers=headers, proxies=proxies)
+    response = requests.get(url, headers=headers, proxies=proxies, timeout=120)
 
     all_text = response.text
     if all_text.find("token") == -1:

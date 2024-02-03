@@ -1,6 +1,9 @@
+""" class funds """
+
+import re
 from bs4 import BeautifulSoup
 import pandas as pd
-import re
+
 import requests
 
 from .error import no_site_error, not_200_response
