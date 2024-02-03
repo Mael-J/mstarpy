@@ -989,7 +989,8 @@ class Funds(Security):
 
         if secondary not in secondary_choice:
             raise ValueError(
-                f'secondary parameter can only take one of the values: {", ".join(secondary_choice)}'
+                f"""secondary parameter can only take one of the values 
+                : {", ".join(secondary_choice)}"""
             )
 
         if primary == "creditQuality" and secondary == "creditQuality.weight":
@@ -1211,7 +1212,8 @@ class Funds(Security):
         index_row = {"benchmark": 0, "category": 1}
         if index not in index_row:
             raise ValueError(
-                f"index parameter must take one of the following value : { ', '.join(index_row.keys())}"
+                f"""index parameter must take one of the following value
+                : { ', '.join(index_row.keys())}"""
             )
 
             # headers random agent
