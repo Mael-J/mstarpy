@@ -808,7 +808,8 @@ class Funds(Security):
         }
         if holdingType not in holdingType_to_holdingPage:
             raise ValueError(
-                f'parameter holdingType must take one of the following value : {", ".join(holdingType_to_holdingPage.keys())}  '
+                f"""parameter holdingType must take one of the following value
+                : {", ".join(holdingType_to_holdingPage.keys())}"""
             )
 
         if holdingType == "all":
@@ -884,7 +885,8 @@ class Funds(Security):
 
     def marketCapitalization(self):
         """
-        This function retrieves the marketCapitalization breakdown of the funds, category and index.
+        This function retrieves the marketCapitalization breakdown of the funds,
+        category and index.
 
         Returns:
             dict market capitalization
@@ -981,7 +983,8 @@ class Funds(Security):
 
         if primary not in primary_choice:
             raise ValueError(
-                f'primary parameter can only take one of the values: {", ".join(primary_choice)}'
+                f"""primary parameter can only take one of the 
+                values : {", ".join(primary_choice)}"""
             )
 
         if secondary not in secondary_choice:
@@ -1011,7 +1014,8 @@ class Funds(Security):
         Returns:
             list of dict with nav
 
-            >>> Funds("RMAGX", "us").nav(datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today())
+            >>> Funds("RMAGX", "us").nav(datetime.datetime.today() 
+            - datetime.timedelta(30),datetime.datetime.today())
 
         Raises:
             TypeError: raised whenever the parameter type is not the type expected
@@ -1068,7 +1072,8 @@ class Funds(Security):
         Examples:
             >>> Funds("American Century Foc Dynmc Gr ETF").otherFee()
 
-            {'expenseWaiver': False, 'expenseReimbursement': None, 'expirationDate': None, 'expenseWaivers': None}
+            {'expenseWaiver': False, 'expenseReimbursement': None, 
+            'expirationDate': None, 'expenseWaivers': None}
 
         """
         return self.GetData("price/otherFee")
@@ -1242,7 +1247,8 @@ class Funds(Security):
 
     def regionalSectorIncludeCountries(self):
         """
-        This function retrieves the breakdown of the funds, category and index by region and country
+        This function retrieves the breakdown of the funds,
+        category and index by region and country
 
         Returns:
             dict regional breakdown
@@ -1255,7 +1261,8 @@ class Funds(Security):
 
     def riskReturnScatterplot(self):
         """
-        This function retrieves the return and standard deviation of the funds and category
+        This function retrieves the return and standard
+        deviation of the funds and category
 
         Returns:
             dict risk return
@@ -1268,7 +1275,8 @@ class Funds(Security):
 
     def riskReturnSummary(self):
         """
-        This function retrieves the return and risk summary of the funds compare to the category
+        This function retrieves the return and risk summary 
+        of the funds compare to the category
 
         Returns:
             dict risk return
@@ -1282,7 +1290,8 @@ class Funds(Security):
 
     def riskVolatility(self):
         """
-        This function retrieves the alpha, beta, R², volatility and Sharpe ratio of the funds, category and index.
+        This function retrieves the alpha, beta, R², 
+        volatility and Sharpe ratio of the funds, category and index.
 
         Returns:
             dict econometrics
@@ -1336,7 +1345,8 @@ class Funds(Security):
 
     def starRatingFundAsc(self):
         """
-        This function retrieves the MorningStar rating of the funds of the company by ascending order
+        This function retrieves the MorningStar rating of the funds
+        of the company by ascending order
 
         Returns:
             dict rating
@@ -1350,7 +1360,8 @@ class Funds(Security):
 
     def starRatingFundDesc(self):
         """
-        This function retrieves the MorningStar rating of the funds of the company by descending order
+        This function retrieves the MorningStar rating of the funds
+        of the company by descending order
 
         Returns:
             dict rating
