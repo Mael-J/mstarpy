@@ -8,8 +8,9 @@ MStarpy provides stock and fund public data to retail and professional investors
 The project is **open-source** and anyone can contribute on `github <https://github.com/Mael-J/mstarpy>`_.
 
 
-[![GitHub release](https://img.shields.io/github/v/release/Mael-J/mstarpy.svg?maxAge=3600)](https://github.com/Mael-J/mstarpy./releases)
-
+.. image:: https://img.shields.io/github/v/release/Mael-J/mstarpy.svg?maxAge=3600
+    :target: https://github.com/Mael-J/mstarpy./releases
+    :alt: GitHub release
 Getting Started
 ===============
 
