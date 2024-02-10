@@ -1,3 +1,5 @@
+# flake8: noqa
+
 """ mstarpy init """
 from .funds import Funds
 from .stock import Stock
