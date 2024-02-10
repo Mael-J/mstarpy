@@ -18,6 +18,7 @@ setup(
     name="mstarpy",
     packages=find_packages(),
     version="1.0.4",
+    python_requires='>=3.10',
     license='MIT License',
     author="Maël Jourdain",
     author_email='mael.jourdain@gmail.com',

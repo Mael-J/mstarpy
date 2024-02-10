@@ -1,6 +1,9 @@
+""" class funds """
+
+import re
 from bs4 import BeautifulSoup
 import pandas as pd
-import re
+
 import requests
 
 from .error import no_site_error, not_200_response
@@ -8,7 +11,6 @@ from .search import search_funds, token_investment_strategy
 from .utils import random_user_agent
 
 from .security import Security
-
 
 
 class Funds(Security):
@@ -20,7 +22,8 @@ class Funds(Security):
         country (str) : text for code ISO 3166-1 alpha-2 of country, should be '' for etf
         pageSize (int): number of funds to return
         itemRange (int) : index of funds to return (must be inferior to PageSize)
-        proxies = (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+        proxies = (dict) : set the proxy if needed ,
+        example : {"http": "http://host:port","https": "https://host:port"}
 
     Examples:
         >>> Funds('0P0000712R', "ca", 9, 0)
@@ -32,14 +35,28 @@ class Funds(Security):
 
     """
 
-    def __init__(self, term = None, country: str = "", pageSize : int =1, itemRange: int = 0, filters: dict = {}, proxies: dict = {}):
-        
-        super().__init__(term=term,asset_type='fund',country=country,pageSize=pageSize,itemRange=itemRange,filters=filters,proxies=proxies)
-        
-        
+    def __init__(
+        self,
+        term=None,
+        country: str = "",
+        pageSize: int = 1,
+        itemRange: int = 0,
+        filters: dict = {},
+        proxies: dict = {},
+    ):
+
+        super().__init__(
+            term=term,
+            asset_type="fund",
+            country=country,
+            pageSize=pageSize,
+            itemRange=itemRange,
+            filters=filters,
+            proxies=proxies,
+        )
 
     def allocationMap(self):
-        """    
+        """
         This function retrieves the asset allocation of the funds, index and category.
 
         Returns:
@@ -53,14 +70,15 @@ class Funds(Security):
 
     def allocationWeighting(self):
         """
-        This function retrieves the Growth/Blend/Value and market capitalizaton allocation size of the funds.
+        This function retrieves the Growth/Blend/Value and
+        market capitalizaton allocation size of the funds.
 
         Returns:
             dict with allocation
 
         Examples:
             >>> Funds("myria", "fr").allocationWeighting()
-        
+
         """
         return self.GetData("process/weighting")
 
@@ -74,7 +92,6 @@ class Funds(Security):
             >>> Funds("RMAGX", "us").analystRating()
 
         """
-        
 
         return self.GetData("parent/analystRating")
 
@@ -86,11 +103,10 @@ class Funds(Security):
             dict with ratings
 
             >>> Funds("RMAGX", "us").analystRatingTopFunds()
-            
-        """
-        
-        return self.GetData("parent/analystRating/topfunds")
 
+        """
+
+        return self.GetData("parent/analystRating/topfunds")
 
     def analystRatingTopFundsUpDown(self):
         """
@@ -100,37 +116,37 @@ class Funds(Security):
             dict with ratings
 
             >>> Funds("RMAGX", "us").analystRatingTopFundsUpDown()
-            
+
         """
 
         return self.GetData("parent/analystRating/topfundsUpDown")
 
-
-
     def keyStats(self):
         """
-        This function retrieves the key status information of the funds, index, category or the annual rank of the funds.
+        This function retrieves the key status information of the funds,
+        index, category or the annual rank of the funds.
 
         Returns:
             dict annual performance or rank
 
         Raises:
-            ValueError : raised whenever parameter cat is not category, funds, index, or rank
+            ValueError : raised whenever parameter cat is not category,
+            funds, index, or rank
 
         Examples:
             >>> Funds("myria", "fr").key_stats()
 
         """
-        #headers random agent
-        headers = {'user-agent' : random_user_agent()}
-        #page 1 - performance
+        # headers random agent
+        headers = {"user-agent": random_user_agent()}
+        # page 1 - performance
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}"
-        
+
         response = requests.get(url, headers=headers, proxies=self.proxies)
-        not_200_response(url,response)
-        soup = BeautifulSoup(response.text, 'html.parser')
-       
-        table_rows = soup.find(id="overviewQuickstatsDiv").find_all('tr')
+        not_200_response(url, response)
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        table_rows = soup.find(id="overviewQuickstatsDiv").find_all("tr")
         details = []
         for row in table_rows:
             key, value, date_stamp = None, None, None
@@ -138,7 +154,7 @@ class Funds(Security):
                 if cell.has_attr("class"):
                     if "line" in cell["class"]:
                         if "heading" in cell["class"]:
-                            key = cell.get_text(separator = "\n", strip = True)
+                            key = cell.get_text(separator="\n", strip=True)
                             if "\n" in key:
                                 key, date_stamp = key.split("\n")
                         if "text" in cell["class"]:
@@ -150,13 +166,13 @@ class Funds(Security):
 
         return details
 
-
     def AnnualPerformance(self, cat):
         """
-        This function retrieves the annual performance of the funds, index, category or the annual rank of the funds.
+        This function retrieves the annual performance of the funds,
+        index, category or the annual rank of the funds.
 
         Args:
-            cat (str) : possible values are category, funds, index, rank    
+            cat (str) : possible values are category, funds, index, rank
         Returns:
             dict annual performance or rank
 
@@ -170,41 +186,49 @@ class Funds(Security):
             >>> Funds("myria", "fr").AnnualPerformance("rank")
 
         """
-        no_site_error(self.code,self.name,self.country,self.site)
+        no_site_error(self.code, self.name, self.country, self.site)
 
-        cat_row = {'funds' : 0,'category' : 1, 'index' : 2, 'rank' : 3}
+        cat_row = {"funds": 0, "category": 1, "index": 2, "rank": 3}
         if cat not in cat_row:
-            raise ValueError(f"cat parameter must take one of the following value : { ', '.join(cat_row.keys())}")
+            raise ValueError(
+                f"cat parameter must take one of the following value : { ', '.join(cat_row.keys())}"
+            )
 
         result = {}
-        #headers random agent
-        headers = {'user-agent' : random_user_agent()}
-        #page 1 - performance
+        # headers random agent
+        headers = {"user-agent": random_user_agent()}
+        # page 1 - performance
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=1"
-        
-        response = requests.get(url, headers=headers, proxies=self.proxies)
-        not_200_response(url,response)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        #label are dates
-        regex = re.compile('.*heading number')
-        label_list = soup.find(id='returnsCalenderYearDiv').find_all('td', {"class": regex})
-        #funds performance, category performance, index performance, rank in category
-        regex = re.compile('.*value number')
-        #values
-        value_list = soup.find(id='returnsCalenderYearDiv').find_all('td', {"class": regex})
 
-        regex = re.compile('-|\/')
-        #first col is nothing
+        response = requests.get(url, headers=headers, proxies=self.proxies)
+        not_200_response(url, response)
+        soup = BeautifulSoup(response.text, "html.parser")
+        # label are dates
+        regex = re.compile(".*heading number")
+        label_list = soup.find(id="returnsCalenderYearDiv").find_all(
+            "td", {"class": regex}
+        )
+        # funds performance, category performance, index performance, rank in category
+        regex = re.compile(".*value number")
+        # values
+        value_list = soup.find(id="returnsCalenderYearDiv").find_all(
+            "td", {"class": regex}
+        )
+
+        regex = re.compile("-|\/")
+        # first col is nothing
         for i in range(1, len(label_list)):
             label = label_list[i].text
-            #if today
+            # if today
 
             if regex.search(label):
-                label = 'current'
-            #add category to label
+                label = "current"
+            # add category to label
             if label:
-                
-                result[f'{cat}_annual_performance_{label}'] = value_list[i+(cat_row[cat])*(len(label_list)-1)-1].text
+
+                result[f"{cat}_annual_performance_{label}"] = value_list[
+                    i + (cat_row[cat]) * (len(label_list) - 1) - 1
+                ].text
 
         return result
 
@@ -251,7 +275,7 @@ class Funds(Security):
     def categoryAnnualPerformance(self):
         """
         This function retrieves the annual performance of the category.
-  
+
         Returns:
             dict annual performance of the category
 
@@ -260,12 +284,13 @@ class Funds(Security):
             >>> Funds("myria", "fr").categoryAnnualPerformance()
 
         """
-        return self.AnnualPerformance('category')
+
+        return self.AnnualPerformance("category")
 
     def categoryCumulativePerformance(self):
         """
         This function retrieves the cumulative performance of the category.
-  
+
         Returns:
             dict cumulative performance of the category
 
@@ -273,13 +298,13 @@ class Funds(Security):
             >>> Funds("myria", "fr").categoryCumulativePerformance()
 
         """
-        
-        return self.CumulativePerformance('category')
+
+        return self.CumulativePerformance("category")
 
     def contact(self):
         """
         This function retrieves information about the asset manager.
-  
+
         Returns:
             dict contact
 
@@ -287,23 +312,27 @@ class Funds(Security):
             >>> Funds("myria", "fr").contact()
 
         """
-        no_site_error(self.code,self.name,self.country,self.site)
+        no_site_error(self.code, self.name, self.country, self.site)
         result = {}
-        #headers random agent
-        headers = {'user-agent' : random_user_agent()}
-        #page 1 - performance
-        #page 4 - info about found
+        # headers random agent
+        headers = {"user-agent": random_user_agent()}
+        # page 1 - performance
+        # page 4 - info about found
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=4"
-        response = requests.get(url, headers=headers,proxies=self.proxies)
-        not_200_response(url,response)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        #label
-        label_list = soup.find(id='managementManagementDiv').find_all('td', {"class": "col1 label"})
-        #value
-        value_list = soup.find(id='managementManagementDiv').find_all('td', {"class": "col2 value number"})
+        response = requests.get(url, headers=headers, proxies=self.proxies)
+        not_200_response(url, response)
+        soup = BeautifulSoup(response.text, "html.parser")
+        # label
+        label_list = soup.find(id="managementManagementDiv").find_all(
+            "td", {"class": "col1 label"}
+        )
+        # value
+        value_list = soup.find(id="managementManagementDiv").find_all(
+            "td", {"class": "col2 value number"}
+        )
         for i in range(0, len(value_list)):
             label = label_list[i].text
-            
+
             result[label] = value_list[i].text
 
         return result
@@ -311,7 +340,7 @@ class Funds(Security):
     def costIllustration(self):
         """
         This function retrieves the cost of the funds.
-  
+
         Returns:
             dict cost of funds
 
@@ -324,7 +353,7 @@ class Funds(Security):
     def couponRange(self):
         """
         This function retrieves the coupon of the funds, index and category.
-  
+
         Returns:
             dict coupon
 
@@ -334,11 +363,10 @@ class Funds(Security):
         """
         return self.GetData("process/couponRange")
 
-
     def creditQuality(self):
         """
         This function retrieves the credit notation of the funds, index and category.
-  
+
         Returns:
             dict credit notation
 
@@ -348,9 +376,10 @@ class Funds(Security):
         """
         return self.GetData("portfolio/creditQuality")
 
-    def dataPoint(self, field, currency ='EUR'):
+    def dataPoint(self, field, currency="EUR"):
         """
-        This function retrieves infos about funds such as name, performance, risk metrics...
+        This function retrieves infos about funds such as name,
+        performance, risk metrics...
 
         Args:
         field (str or list) : field to find
@@ -364,15 +393,17 @@ class Funds(Security):
             >>> Funds("myria", "fr").dataPoint('SharpeM36')
 
         """
-        return search_funds(self.code, field,self.country,10,currency, proxies=self.proxies)
+        return search_funds(
+            self.code, field, self.country, 10, currency, proxies=self.proxies
+        )
 
-    def distribution(self, period = "annual"):
+    def distribution(self, period="annual"):
         """
         This function retrieves the coupon distributed by the funds.
 
         Args:
             period (str) : annual or latest
-        
+
         Raises:
             ValueError whenever the pariod parameter is not annual or latest
 
@@ -381,17 +412,17 @@ class Funds(Security):
 
         Example:
             >>> Funds("rmagx", "us").distribution("annual")
-            
-        """
 
+        """
 
         period_choice = ["annual", "latest"]
         if period not in period_choice:
-            raise ValueError(f'period parameter can only take one of the values: {", ".join(period_choice)}')
+            raise ValueError(
+                f"""period parameter can only take one of
+                             the values: {", ".join(period_choice)}"""
+            )
 
         return self.GetData(f"distribution/{period}")
-
-
 
     def CumulativePerformance(self, cat):
         """
@@ -409,36 +440,45 @@ class Funds(Security):
             >>> Funds("myria", "fr").CumulativePerformance("category")
 
         """
-        no_site_error(self.code,self.name,self.country,self.site)
-        cat_row = {'funds' : 2,'category' : 3, 'index' : 4}
+        no_site_error(self.code, self.name, self.country, self.site)
+        cat_row = {"funds": 2, "category": 3, "index": 4}
         if cat not in cat_row:
-            raise ValueError(f"cat parameter must take one of the following value : { ', '.join(cat_row.keys())}")
+            raise ValueError(
+                f"""cat parameter must take
+                             one of the following value : { ', '.join(cat_row.keys())}"""
+            )
         result = {}
 
-        #headers random agent
-        headers = {'user-agent' : random_user_agent()}
-        #page 1 - performance
+        # headers random agent
+        headers = {"user-agent": random_user_agent()}
+        # page 1 - performance
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=1"
-        
-        response = requests.get(url, headers=headers, proxies=self.proxies)
-        not_200_response(url,response)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        cumulative_performance_date = soup.find(id='returnsTrailingDiv').find('td', {"class": "titleBarNote"}).text
-        result['cumulative_performance_date'] = cumulative_performance_date 
-        #days
-        regex = re.compile('.*label')
-        label_list = soup.find(id='returnsTrailingDiv').find_all('td', {"class": regex})
 
-        #cumulative performance cat
-        regex = re.compile(f'.*col{str(cat_row[cat])} value number')
-        value_list = soup.find(id='returnsTrailingDiv').find_all('td', {"class": regex})
-        #loop on label
+        response = requests.get(url, headers=headers, proxies=self.proxies)
+        not_200_response(url, response)
+        soup = BeautifulSoup(response.text, "html.parser")
+        cumulative_performance_date = (
+            soup.find(id="returnsTrailingDiv")
+            .find("td", {"class": "titleBarNote"})
+            .text
+        )
+        result["cumulative_performance_date"] = cumulative_performance_date
+        # days
+        regex = re.compile(".*label")
+        label_list = soup.find(id="returnsTrailingDiv").find_all("td", {"class": regex})
+
+        # cumulative performance cat
+        regex = re.compile(f".*col{str(cat_row[cat])} value number")
+        value_list = soup.find(id="returnsTrailingDiv").find_all("td", {"class": regex})
+        # loop on label
         for i in range(0, len(label_list)):
-            #label
+            # label
             label = label_list[i].text
-            #perf funds
-            result[f'{cat}_cumulative_performance_{label}'] = re.sub('[^0-9,-\.]','',value_list[i].text)
-            
+            # perf funds
+            result[f"{cat}_cumulative_performance_{label}"] = re.sub(
+                "[^0-9,-\.]", "", value_list[i].text
+            )
+
         return result
 
     def equityStyle(self):
@@ -453,7 +493,7 @@ class Funds(Security):
 
         """
         return self.GetData("process/stockStyle/v2")
-    
+
     def equityStyleBoxHistory(self):
         """
         This function retrieves the equity style history of the funds
@@ -495,7 +535,7 @@ class Funds(Security):
         return self.GetData("factorProfile")
 
     def feeLevel(self):
-        """        
+        """
         This function retrieves the fees of the fund compare to its category.
 
         Returns:
@@ -506,9 +546,9 @@ class Funds(Security):
 
         """
         return self.GetData("price/feeLevel")
-    
-    def feeMifid(self,currency="EUR"):
-        """        
+
+    def feeMifid(self, currency="EUR"):
+        """
         This function retrieves the fees of the fund.
 
         Returns:
@@ -518,11 +558,10 @@ class Funds(Security):
             >>> Funds("myria", "fr").feeMifid()
 
         """
-        return self.ltData("Mifid",currency=currency)
-
+        return self.ltData("Mifid", currency=currency)
 
     def fees(self):
-        """        
+        """
         This function retrieves the fees of the fund (by scraping pages);
 
         Returns:
@@ -532,28 +571,34 @@ class Funds(Security):
             >>> Funds("myria", "fr").fees()
 
         """
-        no_site_error(self.code,self.name,self.country,self.site)
+        no_site_error(self.code, self.name, self.country, self.site)
         result = {}
-        #headers random agent
-        headers = {'user-agent' : random_user_agent()}
+        # headers random agent
+        headers = {"user-agent": random_user_agent()}
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=5"
         response = requests.get(url, headers=headers, proxies=self.proxies)
-        not_200_response(url,response)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        if soup.find(id='managementFeesDiv') == None:
+        not_200_response(url, response)
+        soup = BeautifulSoup(response.text, "html.parser")
+        if soup.find(id="managementFeesDiv") == None:
             return {}
-        #label
-        label_list =soup.find(id='managementFeesDiv').find_all('td', {"class": "label"})
-        #value
-        value_list = soup.find(id='managementFeesDiv').find_all('td', {"class": "value number"}) + soup.find(id='managementFeesDiv').find_all('td', {"class": "value number jdpa"})
+        # label
+        label_list = soup.find(id="managementFeesDiv").find_all(
+            "td", {"class": "label"}
+        )
+        # value
+        value_list = soup.find(id="managementFeesDiv").find_all(
+            "td", {"class": "value number"}
+        ) + soup.find(id="managementFeesDiv").find_all(
+            "td", {"class": "value number jdpa"}
+        )
         for i in range(0, len(value_list)):
             label = label_list[i].text
-            result[label] = re.sub('(\\n +)|(\\n)','',value_list[i].text)
+            result[label] = re.sub("(\\n +)|(\\n)", "", value_list[i].text)
 
         return result
 
     def financialMetrics(self):
-        """        
+        """
         This function retrieves the final metrics of the funds and category.
 
         Returns:
@@ -565,9 +610,8 @@ class Funds(Security):
         """
         return self.GetData("process/financialMetrics")
 
-
     def fixedIncomeStyle(self):
-        """        
+        """
         This function retrieves the fixed income style of the funds and category.
 
         Returns:
@@ -581,7 +625,7 @@ class Funds(Security):
         return self.GetData("process/fixedIncomeStyle")
 
     def fixedincomeStyleBoxHistory(self):
-        """        
+        """
         This function retrieves the fixed income style history of the funds.
 
         Returns:
@@ -594,20 +638,20 @@ class Funds(Security):
         return self.GetData("process/fixedincomeStyleBoxHistory")
 
     def fundsAnnualPerformance(self):
-        """        
+        """
         This function retrieves the annual performance of the funds.
 
         Returns:
-            dict funds annual performance 
+            dict funds annual performance
 
         Examples:
             >>> Funds("myria", "fr").fundsAnnualPerformance()
 
         """
-        return self.AnnualPerformance('funds')
+        return self.AnnualPerformance("funds")
 
     def fundsAnnualRank(self):
-        """        
+        """
         This function retrieves the annual rank of the funds in percentile.
 
         Returns:
@@ -617,10 +661,10 @@ class Funds(Security):
             >>> Funds("myria", "fr").fundsAnnualRank()
 
         """
-        return self.AnnualPerformance('rank')
+        return self.AnnualPerformance("rank")
 
     def fundsCumulativePerformance(self):
-        """        
+        """
         This function retrieves the cumulative performance of the funds.
 
         Returns:
@@ -630,10 +674,10 @@ class Funds(Security):
             >>> Funds("myria", "fr").fundsCumulativePerformance()
 
         """
-        return self.CumulativePerformance('funds')
+        return self.CumulativePerformance("funds")
 
     def fundsQuarterlyPerformance(self):
-        """        
+        """
         This function retrieves the quarterly performance of the funds.
 
         Returns:
@@ -643,48 +687,62 @@ class Funds(Security):
             >>> Funds("myria", "fr").fundsCumulativePerformance()
 
         """
-        no_site_error(self.code,self.name,self.country,self.site)
+        no_site_error(self.code, self.name, self.country, self.site)
         result = {}
-        #headers random agent
-        headers = {'user-agent' : random_user_agent()}
-        #page 1 - performance
+        # headers random agent
+        headers = {"user-agent": random_user_agent()}
+        # page 1 - performance
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=1"
-        
-        response = requests.get(url, headers=headers, proxies=self.proxies)
-        not_200_response(url,response)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        quarterly_performance_date = soup.find(id='returnsTrailingDiv').find('td', {"class": "titleBarNote"}).text
-        result['quarterly_performance_date'] = quarterly_performance_date 
 
-        #quarter label
-        regex = re.compile('.*heading number')
-        quarter_list = soup.find(id='returnsQuarterlyDiv').find_all('td', {"class": regex})
-        #year label
-        regex = re.compile('.*label')
-        year_list =soup.find(id='returnsQuarterlyDiv').find_all('td', {"class": regex})
-        #1st Quarter 
-        regex = re.compile('.*col2 value number')
-        quarter_1_list = soup.find(id='returnsQuarterlyDiv').find_all('td', {"class": regex})
-        #2nd Quarter
-        regex = re.compile('.*col3 value number')
-        quarter_2_list = soup.find(id='returnsQuarterlyDiv').find_all('td', {"class": regex})
-        #3rd Quarter
-        regex = re.compile('.*col4 value number')
-        quarter_3_list = soup.find(id='returnsQuarterlyDiv').find_all('td', {"class": regex})
-        #4th Quarter
-        regex = re.compile('.*col5 value number')
-        quarter_4_list = soup.find(id='returnsQuarterlyDiv').find_all('td', {"class": regex})
-        #loop on year
+        response = requests.get(url, headers=headers, proxies=self.proxies)
+        not_200_response(url, response)
+        soup = BeautifulSoup(response.text, "html.parser")
+        quarterly_performance_date = (
+            soup.find(id="returnsTrailingDiv")
+            .find("td", {"class": "titleBarNote"})
+            .text
+        )
+        result["quarterly_performance_date"] = quarterly_performance_date
+
+        # quarter label
+        regex = re.compile(".*heading number")
+        quarter_list = soup.find(id="returnsQuarterlyDiv").find_all(
+            "td", {"class": regex}
+        )
+        # year label
+        regex = re.compile(".*label")
+        year_list = soup.find(id="returnsQuarterlyDiv").find_all("td", {"class": regex})
+        # 1st Quarter
+        regex = re.compile(".*col2 value number")
+        quarter_1_list = soup.find(id="returnsQuarterlyDiv").find_all(
+            "td", {"class": regex}
+        )
+        # 2nd Quarter
+        regex = re.compile(".*col3 value number")
+        quarter_2_list = soup.find(id="returnsQuarterlyDiv").find_all(
+            "td", {"class": regex}
+        )
+        # 3rd Quarter
+        regex = re.compile(".*col4 value number")
+        quarter_3_list = soup.find(id="returnsQuarterlyDiv").find_all(
+            "td", {"class": regex}
+        )
+        # 4th Quarter
+        regex = re.compile(".*col5 value number")
+        quarter_4_list = soup.find(id="returnsQuarterlyDiv").find_all(
+            "td", {"class": regex}
+        )
+        # loop on year
         for i in range(0, len(year_list)):
-            label = 'performance_%s_' % (year_list[i].text)
-            result[label + 'quarter_1'] = quarter_1_list[i].text
-            result[label + 'quarter_2'] = quarter_2_list[i].text
-            result[label + 'quarter_3'] = quarter_3_list[i].text
-            result[label + 'quarter_4'] = quarter_4_list[i].text
+            label = "performance_%s_" % (year_list[i].text)
+            result[label + "quarter_1"] = quarter_1_list[i].text
+            result[label + "quarter_2"] = quarter_2_list[i].text
+            result[label + "quarter_3"] = quarter_3_list[i].text
+            result[label + "quarter_4"] = quarter_4_list[i].text
         return result
 
     def graphData(self):
-        """        
+        """
         This function retrieves historical data of the funds.
 
         Returns:
@@ -692,7 +750,7 @@ class Funds(Security):
 
         Examples:
             >>> Funds("myria", "fr").graphData()
-   
+
         """
 
         return self.GetData("parent/graphData")
@@ -708,12 +766,10 @@ class Funds(Security):
             >>> Funds("myria", "fr").historicalData()
 
         """
-        return self.GetData("performance/v3", url_suffixe='')
-
-
+        return self.GetData("performance/v3", url_suffixe="")
 
     def historicalExpenses(self):
-        """        
+        """
         This function retrieves historical expenses of the funds.
 
         Returns:
@@ -723,12 +779,12 @@ class Funds(Security):
             >>> Funds("rmagx", "us").historicalExpenses()
 
         """
-        if self.asset_type == 'etf':
+        if self.asset_type == "etf":
             return {}
         return self.GetData("price/historicalExpenses")
 
-    def holdings(self, holdingType: str = 'all'):
-        """        
+    def holdings(self, holdingType: str = "all"):
+        """
         This function retrieves holdings of the funds.
 
         Args:
@@ -747,20 +803,33 @@ class Funds(Security):
             >>> Funds("myria", "fr").holdings("other")
 
         """
-        holdingType_to_holdingPage = {"all" : "all", "bond" : "boldHoldingPage","equity" : "equityHoldingPage", "other": "otherHoldingPage"}
+        holdingType_to_holdingPage = {
+            "all": "all",
+            "bond": "boldHoldingPage",
+            "equity": "equityHoldingPage",
+            "other": "otherHoldingPage",
+        }
         if holdingType not in holdingType_to_holdingPage:
-            raise ValueError(f'parameter holdingType must take one of the following value : {", ".join(holdingType_to_holdingPage.keys())}  ')
-    
+            raise ValueError(
+                f"""parameter holdingType must take one of the following value
+                : {", ".join(holdingType_to_holdingPage.keys())}"""
+            )
+
         if holdingType == "all":
-            return pd.DataFrame(self.position()["equityHoldingPage"]["holdingList"] + 
-            self.position()["boldHoldingPage"]["holdingList"] + self.position()["otherHoldingPage"]["holdingList"] )
+            return pd.DataFrame(
+                self.position()["equityHoldingPage"]["holdingList"]
+                + self.position()["boldHoldingPage"]["holdingList"]
+                + self.position()["otherHoldingPage"]["holdingList"]
+            )
         else:
-           return pd.DataFrame(self.position()[holdingType_to_holdingPage[holdingType]]["holdingList"])
+            return pd.DataFrame(
+                self.position()[holdingType_to_holdingPage[holdingType]]["holdingList"]
+            )
 
     def indexAnnualPerformance(self):
         """
         This function retrieves the annual performance of the index.
-  
+
         Returns:
             dict annual performance of the index
 
@@ -769,12 +838,12 @@ class Funds(Security):
             >>> Funds("myria", "fr").indexAnnualPerformance()
 
         """
-        return self.AnnualPerformance('index')
+        return self.AnnualPerformance("index")
 
     def indexCumulativePerformance(self):
         """
         This function retrieves the cumulative performance of the index.
-  
+
         Returns:
             dict cumulative performance of the index
 
@@ -783,13 +852,13 @@ class Funds(Security):
             >>> Funds("myria", "fr").indexCumulativePerformance()
 
         """
-        
-        return self.CumulativePerformance('index')
+
+        return self.CumulativePerformance("index")
 
     def investmentStrategy(self):
         """
         This function retrieves the investment strategy.
-  
+
         Returns:
             dict investment strategy
 
@@ -798,14 +867,14 @@ class Funds(Security):
 
         """
         bearer_token = token_investment_strategy()
-        #header with bearer token
+        # header with bearer token
         headers = {
-                    'authorization': f'Bearer {bearer_token}',
-                    }
-        return self.GetData("morningstarTake/investmentStrategy",headers=headers)
-        
-    def investmentLookup(self,currency="EUR"):
-        """        
+            "authorization": f"Bearer {bearer_token}",
+        }
+        return self.GetData("morningstarTake/investmentStrategy", headers=headers)
+
+    def investmentLookup(self, currency="EUR"):
+        """
         This function gives details about fund investment.
 
         Returns:
@@ -815,12 +884,13 @@ class Funds(Security):
             >>> Funds("myria", "fr").investmentLookup()
 
         """
-        return self.ltData("investmentTypeLookup",currency=currency)
-    
+        return self.ltData("investmentTypeLookup", currency=currency)
+
     def marketCapitalization(self):
         """
-        This function retrieves the marketCapitalization breakdown of the funds, category and index.
-  
+        This function retrieves the marketCapitalization breakdown of the funds,
+        category and index.
+
         Returns:
             dict market capitalization
 
@@ -830,11 +900,10 @@ class Funds(Security):
         """
         return self.GetData("process/marketCap")
 
-
     def maturitySchedule(self):
         """
         This function retrieves the maturity breakdown of the funds and category.
-  
+
         Returns:
             dict maturity
 
@@ -844,11 +913,10 @@ class Funds(Security):
         """
         return self.GetData("process/maturitySchedule")
 
-
-    def maxDrawDown(self, year = 3):
+    def maxDrawDown(self, year=3):
         """
         This function retrieves the max drawdown of the funds, index and category.
-  
+
         Args:
             year (int) : period of calculation in year
 
@@ -864,26 +932,29 @@ class Funds(Security):
         """
 
         if not isinstance(year, int):
-            raise TypeError('year parameter should be an integer')
+            raise TypeError("year parameter should be an integer")
 
-
-        return self.GetData("performance/marketVolatilityMeasure", params = {"year": year})
+        return self.GetData(
+            "performance/marketVolatilityMeasure", params={"year": year}
+        )
 
     def morningstarAnalyst(self):
         """
         This function retrieves the raiting of MorningStar analyst.
-  
+
         Returns:
             dict rating
 
         Examples:
             >>> Funds("rmagx", "us").morningstarAnalyst()
-   
+
         """
 
         return self.GetData("morningstarAnalyst")
 
-    def multiLevelFixedIncomeData(self, primary = "superEffectiveDuration", secondary = "superSector.weight"):
+    def multiLevelFixedIncomeData(
+        self, primary="superEffectiveDuration", secondary="superSector.weight"
+    ):
         """
         This function retrieves the exposures of fixed income
 
@@ -902,21 +973,40 @@ class Funds(Security):
 
         """
 
-        primary_choice = ["superEffectiveDuration","superYieldToWorst", "creditQuality"]
-        secondary_choice = ["superSector.weight", "region.weight", "creditQuality.weight"]
+        primary_choice = [
+            "superEffectiveDuration",
+            "superYieldToWorst",
+            "creditQuality",
+        ]
+        secondary_choice = [
+            "superSector.weight",
+            "region.weight",
+            "creditQuality.weight",
+        ]
 
         if primary not in primary_choice:
-            raise ValueError(f'primary parameter can only take one of the values: {", ".join(primary_choice)}')
-        
+            raise ValueError(
+                f"""primary parameter can only take one of the 
+                values : {", ".join(primary_choice)}"""
+            )
+
         if secondary not in secondary_choice:
-            raise ValueError(f'secondary parameter can only take one of the values: {", ".join(secondary_choice)}')
+            raise ValueError(
+                f"""secondary parameter can only take one of the values 
+                : {", ".join(secondary_choice)}"""
+            )
 
         if primary == "creditQuality" and secondary == "creditQuality.weight":
-            raise ValueError(f'primary and secondary parameters cannot be both credit quality')
+            raise ValueError(
+                f"primary and secondary parameters cannot be both credit quality"
+            )
 
-        return self.GetData("multiLevelFixedIncomeData", params = {"primary": primary,"secondary": secondary})
+        return self.GetData(
+            "multiLevelFixedIncomeData",
+            params={"primary": primary, "secondary": secondary},
+        )
 
-    def nav(self,start_date,end_date,frequency="daily"):
+    def nav(self, start_date, end_date, frequency="daily"):
         """
         This function retrieves the NAV of the funds
 
@@ -928,7 +1018,8 @@ class Funds(Security):
         Returns:
             list of dict with nav
 
-            >>> Funds("RMAGX", "us").nav(datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today())
+            >>> Funds("RMAGX", "us").nav(datetime.datetime.today() 
+            - datetime.timedelta(30),datetime.datetime.today())
 
         Raises:
             TypeError: raised whenever the parameter type is not the type expected
@@ -936,15 +1027,15 @@ class Funds(Security):
 
         """
 
-        return self.TimeSeries(["nav","totalReturn"],
-                                start_date=start_date,end_date=end_date,frequency=frequency)
-            
-        
-
-
+        return self.TimeSeries(
+            ["nav", "totalReturn"],
+            start_date=start_date,
+            end_date=end_date,
+            frequency=frequency,
+        )
 
     def objectiveInvestment(self):
-        """        
+        """
         This function retrieves the objective of investment of the fund (by scraping pages);
 
         Returns:
@@ -954,22 +1045,26 @@ class Funds(Security):
             >>> Funds("myria", "fr").objectiveInvestment()
 
         """
-        
-        no_site_error(self.code,self.name,self.country,self.site)
-        #headers random agent
-        headers = {'user-agent' : random_user_agent()}
-        #Page 1 - overview
-        #url page overview
-        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}"
-        #get HTML page overview
-        response = requests.get(url, headers=headers, proxies=self.proxies)
-        #if page not found
 
-        not_200_response(url,response)
-        #html page as soup
-        soup = BeautifulSoup(response.text, 'html.parser')
-        #investment objective funds
-        return soup.find(id='overviewObjectiveDiv').find('td', {"class": "value text"}).text
+        no_site_error(self.code, self.name, self.country, self.site)
+        # headers random agent
+        headers = {"user-agent": random_user_agent()}
+        # Page 1 - overview
+        # url page overview
+        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}"
+        # get HTML page overview
+        response = requests.get(url, headers=headers, proxies=self.proxies)
+        # if page not found
+
+        not_200_response(url, response)
+        # html page as soup
+        soup = BeautifulSoup(response.text, "html.parser")
+        # investment objective funds
+        return (
+            soup.find(id="overviewObjectiveDiv")
+            .find("td", {"class": "value text"})
+            .text
+        )
 
     def otherFee(self):
         """
@@ -980,15 +1075,15 @@ class Funds(Security):
 
         Examples:
             >>> Funds("American Century Foc Dynmc Gr ETF").otherFee()
-            
-            {'expenseWaiver': False, 'expenseReimbursement': None, 'expirationDate': None, 'expenseWaivers': None}
-                    
+
+            {'expenseWaiver': False, 'expenseReimbursement': None, 
+            'expirationDate': None, 'expenseWaivers': None}
+
         """
         return self.GetData("price/otherFee")
 
-
     def ownershipZone(self):
-        """        
+        """
         This function retrieves ownershipZone of the funds, index and category.
 
         Returns:
@@ -1002,10 +1097,9 @@ class Funds(Security):
         return self.GetData("process/ownershipZone")
 
     def parentMstarRating(self):
-
         """
         This function retrieves the raiting of parent by MorningStar analyst.
-  
+
         Returns:
             list of dict rating
 
@@ -1019,7 +1113,7 @@ class Funds(Security):
     def parentSummary(self):
         """
         This function retrieves info about the parent.
-  
+
         Returns:
             dict parent info
 
@@ -1032,7 +1126,7 @@ class Funds(Security):
     def people(self):
         """
         This function retrieves info about people who works in the company.
-  
+
         Returns:
             dict people info
 
@@ -1045,21 +1139,23 @@ class Funds(Security):
     def position(self):
         """
         This function retrieves the hodings of the funds.
-  
+
         Returns:
             dict holdings
 
         Examples:
             >>> Funds("myria", "fr").position()
-  
+
         """
 
-        return self.GetData("portfolio/holding/v2", params = {"premiumNum" : 10000, "freeNum" : 10000})
+        return self.GetData(
+            "portfolio/holding/v2", params={"premiumNum": 10000, "freeNum": 10000}
+        )
 
     def proxyVotingManagement(self):
         """
         This function retrieves the vote of management.
-  
+
         Returns:
             dict vote
 
@@ -1068,12 +1164,11 @@ class Funds(Security):
 
         """
         return self.GetData("people/proxyVoting/management")
-    
 
     def proxyVotingShareHolder(self):
         """
         This function retrieves the vote of shareholders.
-  
+
         Returns:
             dict vote
 
@@ -1086,7 +1181,7 @@ class Funds(Security):
     def productInvolvement(self):
         """
         This function retrieves the involvement of the funds
-  
+
         Returns:
             dict involvement
 
@@ -1097,13 +1192,12 @@ class Funds(Security):
 
         return self.GetData("esg/productInvolvement")
 
-
     def referenceIndex(self, index):
         """
         This function retrieves the name of the category or the benchmark
 
         Args:
-            index (str) : possible values are benchmark, category     
+            index (str) : possible values are benchmark, category
 
         Returns:
             str category or benchmark
@@ -1116,32 +1210,37 @@ class Funds(Security):
             >>> Funds("myria", "fr").referenceIndex("benchmark")
 
         """
-        no_site_error(self.code,self.name,self.country,self.site)
+        no_site_error(self.code, self.name, self.country, self.site)
 
-        index_row = {'benchmark' : 0,'category' : 1}
+        index_row = {"benchmark": 0, "category": 1}
         if index not in index_row:
-            raise ValueError(f"index parameter must take one of the following value : { ', '.join(index_row.keys())}")
+            raise ValueError(
+                f"""index parameter must take one of the following value
+                : { ', '.join(index_row.keys())}"""
+            )
 
-                #headers random agent
-        headers = {'user-agent' : random_user_agent()}
-        #Page 1 - overview
-        #url page overview
+            # headers random agent
+        headers = {"user-agent": random_user_agent()}
+        # Page 1 - overview
+        # url page overview
         url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}"
-        #get HTML page overview
+        # get HTML page overview
         response = requests.get(url, headers=headers, proxies=self.proxies)
-        #if page not found
-        
-        not_200_response(url,response)
+        # if page not found
 
-        #html page as soup
-        soup = BeautifulSoup(response.text, 'html.parser')
-        benchmark_soup = soup.find(id='overviewBenchmarkDiv2Cols').find_all('td', {"class": "value text"})
+        not_200_response(url, response)
+
+        # html page as soup
+        soup = BeautifulSoup(response.text, "html.parser")
+        benchmark_soup = soup.find(id="overviewBenchmarkDiv2Cols").find_all(
+            "td", {"class": "value text"}
+        )
         return benchmark_soup[index_row[index]].text
 
     def regionalSector(self):
         """
         This function retrieves the breakdown of the funds, category and index by region
-  
+
         Returns:
             dict regional breakdown
 
@@ -1153,8 +1252,9 @@ class Funds(Security):
 
     def regionalSectorIncludeCountries(self):
         """
-        This function retrieves the breakdown of the funds, category and index by region and country
-  
+        This function retrieves the breakdown of the funds,
+        category and index by region and country
+
         Returns:
             dict regional breakdown
 
@@ -1164,12 +1264,11 @@ class Funds(Security):
         """
         return self.GetData("portfolio/regionalSectorIncludeCountries")
 
-
-
     def riskReturnScatterplot(self):
         """
-        This function retrieves the return and standard deviation of the funds and category
-  
+        This function retrieves the return and standard
+        deviation of the funds and category
+
         Returns:
             dict risk return
 
@@ -1181,8 +1280,9 @@ class Funds(Security):
 
     def riskReturnSummary(self):
         """
-        This function retrieves the return and risk summary of the funds compare to the category
-  
+        This function retrieves the return and risk summary 
+        of the funds compare to the category
+
         Returns:
             dict risk return
 
@@ -1195,7 +1295,8 @@ class Funds(Security):
 
     def riskVolatility(self):
         """
-        This function retrieves the alpha, beta, R², volatility and Sharpe ratio of the funds, category and index.
+        This function retrieves the alpha, beta, R², 
+        volatility and Sharpe ratio of the funds, category and index.
 
         Returns:
             dict econometrics
@@ -1215,16 +1316,16 @@ class Funds(Security):
 
         Examples:
             >>> Funds("myria", "fr").salesFees()
-        
+
         """
-        if self.asset_type == 'etf':
+        if self.asset_type == "etf":
             return {}
         return self.GetData("price/salesFees")
 
     def sector(self):
         """
         This function retrieves the sector breakdown of the funds, category and index
-  
+
         Returns:
             dict sector breakdown
 
@@ -1233,9 +1334,9 @@ class Funds(Security):
 
         """
         return self.GetData("portfolio/v2/sector")
-    
-    def snapshot(self,currency="EUR"):
-        """        
+
+    def snapshot(self, currency="EUR"):
+        """
         This function returns a snapshot of the fund and asset manager.
 
         Returns:
@@ -1245,26 +1346,28 @@ class Funds(Security):
             >>> Funds("myria", "fr").snapshot()
 
         """
-        return self.ltData("MFsnapshot",currency=currency)
+        return self.ltData("MFsnapshot", currency=currency)
 
     def starRatingFundAsc(self):
         """
-        This function retrieves the MorningStar rating of the funds of the company by ascending order
-  
+        This function retrieves the MorningStar rating of the funds
+        of the company by ascending order
+
         Returns:
             dict rating
 
         Examples:
             >>> Funds("myria", "fr").starRatingFundAsc()
- 
+
         """
-        
+
         return self.GetData("parent/mstarRating/StarRatingFundAsc")
 
     def starRatingFundDesc(self):
         """
-        This function retrieves the MorningStar rating of the funds of the company by descending order
-  
+        This function retrieves the MorningStar rating of the funds
+        of the company by descending order
+
         Returns:
             dict rating
 
@@ -1272,11 +1375,11 @@ class Funds(Security):
             >>> Funds("myria", "fr").starRatingFundDesc()
 
         """
-        
+
         return self.GetData("parent/mstarRating/StarRatingFundDesc")
 
-    def sustainability(self,currency="EUR"):
-        """        
+    def sustainability(self, currency="EUR"):
+        """
         This function retrieves the sustainability data of the fund.
 
         Returns:
@@ -1286,8 +1389,8 @@ class Funds(Security):
             >>> Funds("myria", "fr").sustainability()
 
         """
-        return self.ltData("sustainability",currency=currency)
-    
+        return self.ltData("sustainability", currency=currency)
+
     def taxes(self):
         """
         This function retrieves the other fee of the etf
@@ -1301,13 +1404,13 @@ class Funds(Security):
         """
         return self.GetData("price/taxes")
 
-    def trailingReturn(self, duration ='daily'):
+    def trailingReturn(self, duration="daily"):
         """
         This function retrieves the trailing return of the funds of the company.
 
         Args:
         duration (str) : frequency of return can be daily, monthly or quarterly
-        
+
         Returns:
             dict trailing return
 
@@ -1321,7 +1424,8 @@ class Funds(Security):
 
         duration_choice = ["daily", "monthly", "quarterly"]
         if duration not in duration_choice:
-            raise ValueError(f'duration parameter can only take one of the values: {", ".join(duration_choice)}')
+            raise ValueError(
+                f'duration parameter can only take one of the values: {", ".join(duration_choice)}'
+            )
 
-
-        return self.GetData("trailingReturn/v2",{"duration" : duration})
+        return self.GetData("trailingReturn/v2", {"duration": duration})
