@@ -155,7 +155,7 @@ class Security:
             else:
                 raise ValueError(f"0 {self.asset_type} found with the term {term}")
 
-    def GetData(self, field, params={}, headers={}, url_suffixe="data"):
+    def GetData(self, field, params={}, headers={}, url_suffix="data"):
         """
         Generic function to use MorningStar global api.
 
@@ -163,7 +163,7 @@ class Security:
             field (str) : endpoint of the request
             params (dict) : parameter for the request
             headers (dict) : headers of the request
-            url_suffixe (str) : suffie of the url
+            url_suffix (str) : suffixe of the url
 
         Raises:
             TypeError raised whenever type of paramater are invalid
@@ -182,14 +182,14 @@ class Security:
         if not isinstance(params, dict):
             raise TypeError("params parameter should be a dict")
 
-        if not isinstance(url_suffixe, str):
-            raise TypeError("url_suffixe parameter should be a string")
+        if not isinstance(url_suffix, str):
+            raise TypeError("url_suffix parameter should be a string")
 
         # url of API
         url = f"""https://api-global.morningstar.com/sal-service/v1/{self.asset_type}/{field}/{self.code}"""
 
-        if url_suffixe:
-            url += f"""/{url_suffixe}"""
+        if url_suffix:
+            url += f"""/{url_suffix}"""
 
         # headers
         default_headers = {
@@ -248,6 +248,43 @@ class Security:
         else:
             return {}
 
+    def RealtimeData(self, url_suffix: str) -> dict:
+        """
+        This function retrieves historical data of the specified fields
+
+        Args:
+            url_suffix (str) : suffixe of the url
+
+        Returns:
+            dict of realtime data
+
+        Examples:
+            >>> Stock("visa", "us").RealtimeData("quotes")
+
+        Raises:
+            TypeError: raised whenever the parameter type 
+            is not the type expected
+            ConnectionError : raised whenever the response is not 200 OK
+
+        """
+        # error raised if url_suffix is not a string
+        if not isinstance(url_suffix, str):
+            raise TypeError("url_suffix parameter should be a string or a list")
+        # url for realtime data
+        url = f"""https://www.morningstar.com/api/v2/stores/realtime/{url_suffix}?securities={self.code}"""
+
+        # header with user agent
+        headers = {
+                    'user-agent': random_user_agent(), 
+                    }
+        # response
+        response = requests.get(url, headers=headers, proxies=self.proxies,
+                                timeout=60)
+        # manage response
+        not_200_response(url, response)
+        # result
+        return response.json()
+    
     def TimeSeries(self, field, start_date, end_date, frequency="daily"):
         """
         This function retrieves historical data of the specified fields

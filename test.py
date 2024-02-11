@@ -8,15 +8,17 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 
 
     
-code = "FOUSA00LIX"
-fund = Funds(code,country="us")
-print(fund.name)
+# code = "FOUSA00LIX"
+# fund = Funds(code,country="us")
+# print(fund.name)
 
-print(fund.carbonMetrics())
-start_date = datetime.date(2018,1,1)
-end_date = datetime.date.today()
-history = fund.nav(start_date,end_date)
-print(history)
+# print(fund.carbonMetrics())
+# start_date = datetime.date(2018,1,1)
+# end_date = datetime.date.today()
+# history = fund.nav(start_date,end_date)
+# print(history)
+
+print(Stock("visa", exchange="nyse").tradingInformation())
 
 #print(Funds("myria").investmentLookup())
 # print(list(EXCHANGE))
