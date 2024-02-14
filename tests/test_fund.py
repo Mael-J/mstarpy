@@ -91,7 +91,7 @@ def test_fund_invetment_look_up():
     assert len(set(keys) - set(funds_details.keys())) == 0
 
 
-def test_one_fund():
+def test_fund_multiple_request_method():
     funds = Funds("LU1085283973", country="fr")
     funds.code
     funds.isin
@@ -107,7 +107,6 @@ def test_one_fund():
     funds.category()
     funds.categoryAnnualPerformance()
     funds.categoryCumulativePerformance()
-    funds.contact()
     funds.costIllustration()
     funds.couponRange()
     funds.creditQuality()
@@ -118,14 +117,12 @@ def test_one_fund():
     funds.esgData()
     funds.factorProfile()
     funds.feeLevel()
-    funds.fees()
     funds.financialMetrics()
     funds.fixedIncomeStyle()
     funds.fixedincomeStyleBoxHistory()
     funds.fundsAnnualPerformance()
     funds.fundsAnnualRank()
     funds.fundsCumulativePerformance()
-    funds.fundsQuarterlyPerformance()
     funds.graphData()
     funds.historicalData()
     funds.holdings()
@@ -137,7 +134,6 @@ def test_one_fund():
     funds.maxDrawDown()
     funds.morningstarAnalyst()
     funds.multiLevelFixedIncomeData()
-    funds.objectiveInvestment()
     funds.otherFee()
     funds.ownershipZone()
     funds.parentMstarRating()
@@ -147,7 +143,6 @@ def test_one_fund():
     funds.productInvolvement()
     funds.proxyVotingManagement()
     funds.proxyVotingShareHolder()
-    funds.referenceIndex('category')
     funds.regionalSector()
     funds.regionalSectorIncludeCountries()
     funds.riskReturnScatterplot()
@@ -161,6 +156,21 @@ def test_one_fund():
     funds.taxes()
     funds.trailingReturn()
 
+def test_fund_web_requests():
+    funds = Funds("LU1085283973", country="fr")
+    funds.annualPerformance(cat="funds")
+    time.sleep(1)
+    funds.contact()
+    time.sleep(1)
+    funds.cumulativePerformance(cat="funds")
+    time.sleep(1)
+    funds.fees() 
+    time.sleep(1)
+    funds.fundsQuarterlyPerformance()
+    time.sleep(1)
+    funds.objectiveInvestment()
+    time.sleep(1)
+    funds.referenceIndex('category')
 
 
 def test_fund_retrieve_data_point():
