@@ -18,7 +18,8 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 # history = fund.nav(start_date,end_date)
 # print(history)
 
-print(Stock("visa", exchange="nyse").tradingInformation())
+print(search_stock("",["SecId","LegalName","Name"],exchange="XPAR"))
+
 
 #print(Funds("myria").investmentLookup())
 # print(list(EXCHANGE))

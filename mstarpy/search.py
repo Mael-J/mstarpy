@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import warnings
 
 from .utils import random_user_agent
 from .utils import ASSET_TYPE, EXCHANGE, FIELDS, FILTER_FUND, FILTER_STOCK, SITE
@@ -308,7 +309,7 @@ def search_funds(
 
 
 def search_stock(
-    term, field, exchange, pageSize=10, currency="EUR", filters={}, proxies={}
+    term, field, exchange = "E0WWE$$ALL", pageSize=10, currency="EUR", filters={}, proxies={}
 ):
     """
     This function will use the screener of morningstar.co.uk to find stocks which 
@@ -348,10 +349,20 @@ def search_stock(
     if not isinstance(exchange, str):
         raise TypeError("exchange parameter should be a string")
 
-    if not exchange.upper() in EXCHANGE:
-        raise ValueError(
-            f'exchange parameter can only take one of the values : {", ".join(EXCHANGE)}'
-        )
+    #by default, we look in all exchange
+    universeIds = "E0WWE$$ALL"
+    if exchange == "E0WWE$$ALL":
+        pass
+    #if we don't find the exchange
+    elif not exchange.upper() in EXCHANGE:
+        
+        warnings.warn(f"""The exchange {exchange} is not found.
+                      Exchange parameter can only take one of the following values : {", ".join(EXCHANGE)}.
+                      The exchange was automaically set to E0WWE$$ALL to look in all exchanges.""")
+
+    #determine universeIds according to exchange
+    else:
+        universeIds = f"E0EXG${exchange}"
 
     if not isinstance(pageSize, int):
         raise TypeError("pageSize parameter should be an integer")
@@ -370,7 +381,8 @@ def search_stock(
     else:
         securityDataPoints = field
 
-    universeIds = EXCHANGE[exchange.upper()]["id"]
+    
+
 
     filter_list = []
     # loop on filter dict
