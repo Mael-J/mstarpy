@@ -18,13 +18,14 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 # history = fund.nav(start_date,end_date)
 # print(history)
 
-print(search_stock("",["SecId","LegalName","Name"],exchange="XPAR"))
+#print(search_stock("",["SecId","LegalName","Name"],exchange="XPAR"))
 
 
 #print(Funds("myria").investmentLookup())
 # print(list(EXCHANGE))
 # #print(search_stock("a",field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='HONG-KONG'))
-# ms = Stock("MSFT", exchange="NASDAQ")
+print(Stock("visa", exchange="XNYS").analysisData())
+
 
 # top_owner = ms.mutualFundConcentratedOwners(top = 100)
 # df = pd.DataFrame(top_owner["rows"])

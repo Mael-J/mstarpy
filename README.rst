@@ -152,7 +152,7 @@ You can look for stocks by using the method `search_stock`. In the following exa
     import mstarpy
     import pandas as pd
 
-    response = mstarpy.search_stock(term="AB",field=["Name", "fundShareClassId", "SectorName"], exchange='PARIS',pageSize=20)
+    response = mstarpy.search_stock(term="AB",field=["Name", "fundShareClassId", "SectorName"], exchange='XPAR',pageSize=20)
 
     df = pd.DataFrame(response)
     print(df.head())
@@ -176,8 +176,7 @@ Tips : You can get different exchange by looking at the variable EXCHANGE in mst
 
 .. code-block:: python
 
-    ['NYSE', 'NASDAQ', 'LSE', 'AMSTERDAM', 'ATHENS', 'BOLSA_DE_VALORES', 'BOMBAY', 'BORSA_ITALIANA', 'BRUSSELS', 'COPENHAGEN', 'HELSINKI', 'ICELAND', 'INDIA', 'IPSX', 'IRELAND', 'ISTANBUL', 'LISBON', 'LUXEMBOURG', 'OSLO_BORS', 'PARIS', 'RIGA', 'SHANGAI', 'SHENZHEN', 'SINGAPORE', 'STOCKHOLM', 'SWISS', 'TAIWAN', 'TALLIN', 'THAILAND', 'TOKYO', 'VILNIUS', 'WARSAW', 'WIENER_BOERSE']
-
+    ['ARCX', 'BATS', 'CHIA', 'E0WWE$$ALL', 'FINR', 'IPSX', 'IXUS', 'MABX', 'MSCO', 'MSTARFund', 'OTCM', 'USCO', 'XAMS', 'XASE', 'XASX', 'XATH', 'XBER', 'XBKK', 'XBOM', 'XBRU', 'XCNQ', 'XCSE', 'XDUB', 'XDUS', 'XETR', 'XEUR', 'XFRA', 'XHAM', 'XHAN', 'XHEL', 'XHKF', 'XHKG', 'XICE', 'XIST', 'XKOS', 'XLIS', 'XLIT', 'XLON', 'XLUX', 'XMEX', 'XMIL', 'XMUN', 'XNAS', 'XNSE', 'XNYS', 'XNZE', 'XOSE', 'XOSL', 'XOTC', 'XPAR', 'XRIS', 'XSES', 'XSHE', 'XSHG', 'XSTO', 'XSTU', 'XSWX', 'XTAI', 'XTAL', 'XTKS', 'XTSE', 'XWAR', 'XWBO']
 
 Analysis of stocks
 ~~~~~~~~~~~~~~~~~~
@@ -353,7 +352,7 @@ We want to find stocks with a 12 months return superior to 20%. The value of fil
 
     from mstarpy import search_stock
 
-    response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='PARIS', filters={"GBRReturnM12" : (">", 20)})
+    response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='XPAR', filters={"GBRReturnM12" : (">", 20)})
 
     df = pd.DataFrame(response)
 
@@ -373,7 +372,7 @@ It will work similar if we are looking for stocks with a PERatio inferior to 10.
 
     from mstarpy import search_stock
 
-    response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='PARIS', filters={"PERatio" : ("<", 10)})
+    response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='XPAR', filters={"PERatio" : ("<", 10)})
 
     df = pd.DataFrame(response)
 
@@ -395,7 +394,7 @@ We can also look like stocks with a PERatio between 10 and 20. The value of filt
 
     from mstarpy import search_stock
 
-    response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='PARIS', filters={"PERatio" : (10, 20)})
+    response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='XPAR', filters={"PERatio" : (10, 20)})
 
     df = pd.DataFrame(response)
 
@@ -418,7 +417,7 @@ Now we know how to use filters, we can combine them to find a precise securities
     from mstarpy import search_stock
 
     response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], 
-                            exchange='PARIS', filters={"PERatio" : ("<", '10'), "GBRReturnM12" : (">", 20), 
+                            exchange='XPAR', filters={"PERatio" : ("<", '10'), "GBRReturnM12" : (">", 20), 
                                                         "debtEquityRatio" : (0, 5), "SectorId" : ["IG000BA008", "IG000BA006"] })
 
     df = pd.DataFrame(response)
