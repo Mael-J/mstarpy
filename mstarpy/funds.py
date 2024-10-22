@@ -823,12 +823,7 @@ class Funds(Security):
             >>> Funds("LU0823421689").investmentStrategy()
 
         """
-        bearer_token = token_investment_strategy()
-        # header with bearer token
-        headers = {
-            "authorization": f"Bearer {bearer_token}",
-        }
-        return self.GetData("morningstarTake/investmentStrategy", headers=headers)
+        return self.GetData("morningstarTake/investmentStrategy")
 
     def investmentLookup(self, currency="EUR"):
         """
