@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import io
 
 def readme():
-    with io.open('README.rst', encoding='utf-8') as f:
+    with io.open('README.md', encoding='utf-8') as f:
         return f.read()
 
 def requirements(filename):
@@ -17,7 +17,7 @@ def requirements(filename):
 setup(
     name="mstarpy",
     packages=find_packages(),
-    version="2.0.1",
+    version="2.0.2",
     python_requires='>=3.10',
     license='MIT License',
     author="Maël Jourdain",
