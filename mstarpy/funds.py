@@ -155,9 +155,17 @@ class Funds(Security):
         # headers random agent
         headers = {"user-agent": random_user_agent()}
         # page 1 - performance
-        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=1"
-
-        response = requests.get(url, headers=headers, proxies=self.proxies)
+        url = f"{self.site}funds/snapshot/snapshot.aspx"
+        #params of the request
+        params = {
+                    "id": self.code,
+                    "tab": "1"
+                  }
+        
+        response = requests.get(url,
+                                params=params,
+                                headers=headers, 
+                                proxies=self.proxies)
         not_200_response(url, response)
         soup = BeautifulSoup(response.text, "html.parser")
         # label are dates
@@ -275,8 +283,17 @@ class Funds(Security):
         headers = {"user-agent": random_user_agent()}
         # page 1 - performance
         # page 4 - info about found
-        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=4"
-        response = requests.get(url, headers=headers, proxies=self.proxies)
+        url = f"{self.site}funds/snapshot/snapshot.aspx"
+        #params of the request
+        params = {
+                    "id": self.code,
+                    "tab": "4"
+                  }
+        
+        response = requests.get(url,
+                                params=params,
+                                headers=headers, 
+                                proxies=self.proxies)
         not_200_response(url, response)
         soup = BeautifulSoup(response.text, "html.parser")
         # label
@@ -409,9 +426,18 @@ class Funds(Security):
         # headers random agent
         headers = {"user-agent": random_user_agent()}
         # page 1 - performance
-        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=1"
+        url = f"{self.site}funds/snapshot/snapshot.aspx"
 
-        response = requests.get(url, headers=headers, proxies=self.proxies)
+        #params of the request
+        params = {
+                    "id": self.code,
+                    "tab": "1"
+                  }
+        
+        response = requests.get(url,
+                                params=params,
+                                headers=headers, 
+                                proxies=self.proxies)
         not_200_response(url, response)
         soup = BeautifulSoup(response.text, "html.parser")
         cumulative_performance_date = (
@@ -532,8 +558,17 @@ class Funds(Security):
         result = {}
         # headers random agent
         headers = {"user-agent": random_user_agent()}
-        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=5"
-        response = requests.get(url, headers=headers, proxies=self.proxies)
+        url = f"{self.site}funds/snapshot/snapshot.aspx"
+                #params of the request
+        params = {
+                    "id": self.code,
+                    "tab": "5"
+                  }
+        
+        response = requests.get(url,
+                                params=params,
+                                headers=headers, 
+                                proxies=self.proxies)
         not_200_response(url, response)
         soup = BeautifulSoup(response.text, "html.parser")
         if soup.find(id="managementFeesDiv") == None:
@@ -649,9 +684,17 @@ class Funds(Security):
         # headers random agent
         headers = {"user-agent": random_user_agent()}
         # page 1 - performance
-        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}&tab=1"
-
-        response = requests.get(url, headers=headers, proxies=self.proxies)
+        url = f"{self.site}funds/snapshot/snapshot.aspx"
+        #params of the request
+        params = {
+                    "id": self.code,
+                    "tab": "1"
+                  }
+        
+        response = requests.get(url,
+                                params=params,
+                                headers=headers, 
+                                proxies=self.proxies)
         not_200_response(url, response)
         soup = BeautifulSoup(response.text, "html.parser")
         quarterly_performance_date = (
@@ -857,9 +900,17 @@ class Funds(Security):
         # headers random agent
         headers = {"user-agent": random_user_agent()}
         # page 1 - performance
-        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}"
+        url = f"{self.site}funds/snapshot/snapshot.aspx"
 
-        response = requests.get(url, headers=headers, proxies=self.proxies)
+        #params of the request
+        params = {
+                    "id": self.code,
+                  }
+        
+        response = requests.get(url,
+                                params=params,
+                                headers=headers, 
+                                proxies=self.proxies)
         not_200_response(url, response)
         soup = BeautifulSoup(response.text, "html.parser")
 
@@ -1047,11 +1098,17 @@ class Funds(Security):
         headers = {"user-agent": random_user_agent()}
         # Page 1 - overview
         # url page overview
-        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}"
-        # get HTML page overview
-        response = requests.get(url, headers=headers, proxies=self.proxies)
+        url = f"{self.site}funds/snapshot/snapshot.aspx"
+                #params of the request
+        params = {
+                    "id": self.code,
+                  }
+        
+        response = requests.get(url,
+                                params=params,
+                                headers=headers, 
+                                proxies=self.proxies)
         # if page not found
-
         not_200_response(url, response)
         # html page as soup
         soup = BeautifulSoup(response.text, "html.parser")
@@ -1219,11 +1276,17 @@ class Funds(Security):
         headers = {"user-agent": random_user_agent()}
         # Page 1 - overview
         # url page overview
-        url = f"{self.site}funds/snapshot/snapshot.aspx?id={self.code}"
+        url = f"{self.site}funds/snapshot/snapshot.aspx"
+        #params of the request
+        params = {
+                    "id": self.code
+                }   
         # get HTML page overview
-        response = requests.get(url, headers=headers, proxies=self.proxies)
+        response = requests.get(url,
+                                params=params,
+                                headers=headers, 
+                                proxies=self.proxies)
         # if page not found
-
         not_200_response(url, response)
 
         # html page as soup
