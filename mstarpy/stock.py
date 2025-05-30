@@ -1,5 +1,5 @@
 from .security import Security
-
+import datetime
 
 class Stock(Security):
     """
@@ -28,7 +28,7 @@ class Stock(Security):
         itemRange: int = 0,
         filters: dict = {},
         proxies: dict = {},
-    ):
+    ) -> None:
 
         super().__init__(
             term=term,
@@ -40,7 +40,7 @@ class Stock(Security):
             proxies=proxies,
         )
 
-    def analysisData(self):
+    def analysisData(self) -> dict:
         """
         This function retrieves general data about the stock.
 
@@ -53,7 +53,7 @@ class Stock(Security):
         """
         return self.GetData("morningstarTake/v3", url_suffix="analysisData")
 
-    def analysisReport(self):
+    def analysisReport(self) -> dict:
         """
         This function retrieves the analysis of the stock.
 
@@ -66,7 +66,9 @@ class Stock(Security):
         """
         return self.GetData("morningstarTake/v4", url_suffix="analysisReport")
 
-    def balanceSheet(self, period="annual", reportType="original"):
+    def balanceSheet(self, 
+                     period:str="annual",
+                     reportType:str="original") -> dict:
         """
         This function retrieves the balance sheet.
 
@@ -87,7 +89,7 @@ class Stock(Security):
             "balancesheet", period=period, reportType=reportType
         )
 
-    def boardOfDirectors(self):
+    def boardOfDirectors(self) -> dict:
         """
         This function retrieves information about the board of directors.
 
@@ -100,7 +102,9 @@ class Stock(Security):
         """
         return self.GetData("insiders/boardOfDirectors")
 
-    def cashFlow(self, period="annual", reportType="original"):
+    def cashFlow(self, 
+                 period:str="annual",
+                 reportType:str="original") -> dict:
         """
         This function retrieves the cash flow.
 
@@ -119,7 +123,7 @@ class Stock(Security):
 
         return self.financialStatement("cashflow", period=period, reportType=reportType)
 
-    def dividends(self):
+    def dividends(self) -> dict:
         """
         This function retrieves the dividends of the stock.
 
@@ -132,7 +136,7 @@ class Stock(Security):
         """
         return self.GetData("dividends/v4")
 
-    def esgRisk(self):
+    def esgRisk(self) -> dict:
         """
         This function retrieves the esg risk of the stock.
 
@@ -145,7 +149,39 @@ class Stock(Security):
         """
         return self.GetData("esgRisk")
 
-    def financialHealth(self):
+
+    def keyMetricsSummary(self, 
+                          reportType:str="original") -> dict:
+        """
+        This function retrieves the key metrics summary
+
+        Args:
+            reportType (str) : possible values are original, restated
+
+        Returns:
+            dict with key metrics summary
+
+        Examples:
+            >>> Stock("visa", exchange="XNYS").keyMetricsSummary()
+
+        """
+        if not isinstance(reportType, str):
+            raise TypeError("reportType parameter should be a string")
+        
+        reportType_choice = {"original": "A", "restated": "R"}
+
+        if reportType not in reportType_choice:
+            raise ValueError(
+                f"reportType parameter must take one of the following value : { ', '.join(reportType_choice.keys())}"
+            )
+
+        params = {"reportType": reportType_choice[reportType]}
+
+        return self.GetData("keyMetrics/summary",
+                             params=params,
+                            url_suffix="")
+    
+    def financialHealth(self) -> dict:
         """
         This function retrieves the financial health of the stock.
 
@@ -156,11 +192,14 @@ class Stock(Security):
             >>> Stock("visa", exchange="XNYS").financialHealth()
 
         """
-        return self.GetData("keyStats/financialHealth", url_suffix="")
+        return self.GetData("keyMetrics/financialHealth", url_suffix="")
 
     def financialStatement(
-        self, statement="summary", period="annual", reportType="original"
-    ):
+        self, 
+        statement:str="summary",
+        period:str="annual",
+        reportType:str="original"
+    ) -> dict:
         """
         This function retrieves the financial statement.
 
@@ -229,7 +268,9 @@ class Stock(Security):
             url_suffix=f"{statement_choice[statement]}/detail",
         )
 
-    def financialSummary(self, period="annual", reportType="original"):
+    def financialSummary(self, 
+                         period:str="annual", 
+                         reportType:str="original") -> dict:
         """
         This function retrieves the financial statement summary.
 
@@ -248,7 +289,7 @@ class Stock(Security):
 
         return self.financialStatement("summary", period=period, reportType=reportType)
 
-    def freeCashFlow(self):
+    def freeCashFlow(self) -> dict:
         """
         This function retrieves the free cash flow.
 
@@ -259,9 +300,12 @@ class Stock(Security):
             >>> Stock("visa", exchange="XNYS").freeCashFlow()
 
         """
-        return self.GetData("keyStats/cashFlow", url_suffix="")
+        return self.GetData("keyMetrics/cashFlow", url_suffix="")
 
-    def historical(self, start_date, end_date, frequency="daily"):
+    def historical(self,
+                   start_date:datetime.datetime, 
+                   end_date:datetime.datetime, 
+                   frequency:str="daily") -> list:
         """
         This function retrieves the historical price, volume and divide of the stock.
 
@@ -284,7 +328,9 @@ class Stock(Security):
             frequency=frequency,
         )
 
-    def incomeStatement(self, period="annual", reportType="original"):
+    def incomeStatement(self, 
+                        period:str="annual", 
+                        reportType:str="original") -> dict:
         """
         This function retrieves the income statement.
 
@@ -305,7 +351,8 @@ class Stock(Security):
             "incomestatement", period=period, reportType=reportType
         )
 
-    def institutionBuyers(self, top=20):
+    def institutionBuyers(self,
+                          top:int=20) -> dict:
         """
         This function retrieves the institutions which buy the stock.
 
@@ -326,7 +373,8 @@ class Stock(Security):
             "ownership/v1", url_suffix=f"Buyers/institution/{top}/data"
         )
 
-    def institutionConcentratedOwners(self, top=20):
+    def institutionConcentratedOwners(self, 
+                                      top:int=20) -> dict:
         """
         This function retrieves the institutions which are concentrated on the stock.
 
@@ -347,7 +395,8 @@ class Stock(Security):
             "ownership/v1", url_suffix=f"ConcentratedOwners/institution/{top}/data"
         )
 
-    def institutionOwnership(self, top=20):
+    def institutionOwnership(self, 
+                             top:int=20) -> dict:
         """
         This function retrieves the main institutions which own the stock.
 
@@ -368,7 +417,8 @@ class Stock(Security):
             "ownership/v1", url_suffix=f"OwnershipData/institution/{top}/data"
         )
 
-    def institutionSellers(self, top=20):
+    def institutionSellers(self, 
+                           top:str=20) -> dict:
         """
         This function retrieves the institutions which sell on the stock.
 
@@ -388,7 +438,7 @@ class Stock(Security):
             "ownership/v1", url_suffix=f"Sellers/institution/{top}/data"
         )
 
-    def keyExecutives(self):
+    def keyExecutives(self) -> dict:
         """
         This function retrieves information oabout key excutives of the company.
 
@@ -401,7 +451,7 @@ class Stock(Security):
         """
         return self.GetData("insiders/keyExecutives")
 
-    def keyRatio(self):
+    def keyRatio(self) -> dict:
         """
         This function retrieves the key ratio of the stock.
 
@@ -414,7 +464,8 @@ class Stock(Security):
         """
         return self.GetData("keyratios")
 
-    def mutualFundBuyers(self, top=20):
+    def mutualFundBuyers(self,
+                         top:int=20) -> dict:
         """
         This function retrieves the mutual funds which buy the stock.
 
@@ -433,7 +484,8 @@ class Stock(Security):
 
         return self.GetData("ownership/v1", url_suffix=f"Buyers/mutualfund/{top}/data")
 
-    def mutualFundConcentratedOwners(self, top=20):
+    def mutualFundConcentratedOwners(self, 
+                                     top:int=20) -> dict:
         """
         This function retrieves the mutual funds which are concentrated on the stock.
 
@@ -454,7 +506,8 @@ class Stock(Security):
             "ownership/v1", url_suffix=f"ConcentratedOwners/mutualfund/{top}/data"
         )
 
-    def mutualFundOwnership(self, top=20):
+    def mutualFundOwnership(self, 
+                            top:int=20) -> dict:
         """
         This function retrieves the main mutual funds which own the stock.
 
@@ -475,7 +528,8 @@ class Stock(Security):
             "ownership/v1", url_suffix=f"OwnershipData/mutualfund/{top}/data"
         )
 
-    def mutualFundSellers(self, top=20):
+    def mutualFundSellers(self,
+                          top:int=20) -> dict:
         """
         This function retrieves the mutual funds which sell on the stock.
 
@@ -496,7 +550,7 @@ class Stock(Security):
             "ownership/v1", url_suffix=f"Sellers/mutualfund/{top}/data"
         )
 
-    def operatingGrowth(self):
+    def operatingGrowth(self) -> dict:
         """
         This function retrieves the operating growth of the stock.
 
@@ -509,33 +563,34 @@ class Stock(Security):
         """
         return self.GetData("keyStats/growthTable", url_suffix="")
 
-    def operatingMargin(self):
+
+    def profitability(self) -> dict:
         """
-        This function retrieves the operating margin of the stock.
+        This function retrieves the profitability of the stock.
 
         Returns:
-            dict with operating margin
+            dict with profitability ratios
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").operatingMargin()
+            >>> Stock("visa", exchange="XNYS").profitability()
 
         """
-        return self.GetData("keyStats/OperatingAndEfficiency", url_suffix="")
+        return self.GetData("keyMetrics/profitabilityAndEfficiency", url_suffix="")
 
-    def operatingPerformance(self):
+    def sustainability(self) -> dict:
         """
-        This function retrieves the operating performance the stock.
+        This function retrieves the sustainability of the stock.
 
         Returns:
-            dict with voperating performance
+            dict with sustainability
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").operatingPerformance()
+            >>> Stock("visa", exchange="XNYS").sustainability()
 
         """
-        return self.GetData("operatingPerformance/v2", url_suffix="")
-
-    def split(self):
+        return self.GetData("esgRisk/sustainability")
+    
+    def split(self) -> dict:
         """
         This function retrieves the split history of the stock.
 
@@ -546,7 +601,7 @@ class Stock(Security):
             >>> Stock("visa", exchange="XNYS").split()
 
         """
-        return self.GetData("split")
+        return self.GetData("split/v1")
 
     def tradingInformation(self) -> dict:
         """
@@ -561,7 +616,7 @@ class Stock(Security):
         """
         return self.RealtimeData("quotes")
     
-    def trailingTotalReturn(self):
+    def trailingTotalReturn(self) -> dict:
         """
         This function retrieves the performance of the stock and its index.
 
@@ -574,7 +629,7 @@ class Stock(Security):
         """
         return self.GetData("trailingTotalReturns")
 
-    def transactionHistory(self):
+    def transactionHistory(self) -> list:
         """
         This function retrieves the transaction of key people.
 
@@ -587,7 +642,7 @@ class Stock(Security):
         """
         return self.GetData("insiders/transactionHistory")
 
-    def transactionSummary(self):
+    def transactionSummary(self) -> list:
         """
         This function retrieves the summuary of transactions of key people.
 
@@ -600,7 +655,7 @@ class Stock(Security):
         """
         return self.GetData("insiders/transactionChart")
 
-    def valuation(self):
+    def valuation(self) -> dict:
         """
         This function retrieves the valution of the stock.
 
@@ -611,4 +666,5 @@ class Stock(Security):
             >>> Stock("visa", exchange="XNYS").valuation()
 
         """
-        return self.GetData("valuation", url_suffix="")
+        return self.GetData("valuation/v3", url_suffix="")
+    
