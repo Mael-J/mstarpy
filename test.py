@@ -3,10 +3,21 @@ from mstarpy import Funds, search_field, Stock
 from mstarpy.security import Security
 import datetime
 import pandas as pd
-from mstarpy.search import search_funds, search_filter,filter_universe, search_stock, token_investment_strategy, token_chart, token_fund_information
+from mstarpy.search import (
+    search_funds, 
+    search_filter,
+    filter_universe, 
+    search_stock, 
+    token_investment_strategy, 
+    token_chart, 
+    token_fund_information,
+    definition,
+    general_search
+    )
 from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 
 
+#print(Funds("RMAGX", "us").TimeSeries(["nav","totalReturn"],datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today()))
     
 # code = "FOUSA00LIX"
 # fund = Funds(code,country="us")
@@ -20,11 +31,14 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 
 #print(search_stock("",["SecId","LegalName","Name"],exchange="XPAR"))
 
+# result = Funds("myria", country="fr").feeMifid()
 
-#print(Funds("myria").investmentLookup())
 # print(list(EXCHANGE))
 # #print(search_stock("a",field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='HONG-KONG'))
-print(Stock("visa", exchange="XNYS").analysisData())
+result = Stock("visa", exchange="XNYS").valuation()
+
+print(result)
+print(type(result))
 
 
 # top_owner = ms.mutualFundConcentratedOwners(top = 100)
