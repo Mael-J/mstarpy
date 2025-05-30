@@ -17,7 +17,7 @@ def requirements(filename):
 setup(
     name="mstarpy",
     packages=find_packages(),
-    version="2.0.2",
+    version="3.0.0",
     python_requires='>=3.10',
     license='MIT License',
     author="Maël Jourdain",
