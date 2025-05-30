@@ -8,7 +8,56 @@ from .utils import ASSET_TYPE, EXCHANGE, FIELDS, FILTER_FUND, FILTER_STOCK, SITE
 from .error import not_200_response
 
 
-def filter_universe(field=FILTER_FUND, proxies={}):
+def definition(field:str|list, 
+               proxies:dict={}) -> dict:
+    """
+    This function gives the definition of financial metrics.
+    Only works from times to times, if not gives a response 202.
+
+    Args:
+      field (str | list) : field to find
+
+    Returns:
+      dict of field definition
+
+    Examples:
+      >>> definition(['considerSellingPrice','considerBuyingPrice'])
+      >>> definition('MarketCap')
+      >>> definition('sector')
+
+    """
+
+    if not isinstance(field, (str, list)):
+        raise TypeError("field parameter should be a string or a list")
+
+    if isinstance(field, list):
+        field = ",".join(field)
+
+    if not isinstance(proxies, dict):
+        raise TypeError("proxies parameter should be dict")
+
+    url = "https://www.morningstar.com/api/v2/stores/investing-definitions/by-fields"
+    #params of the request
+    params = {
+                "fields": field,
+                "longform": "true",
+                "exactMatch": "false"
+                }
+    
+    # headers
+    headers = {
+                "user-agent": random_user_agent()
+                
+                }
+    response = requests.get(url,
+                            params=params,
+                            headers=headers,
+                            proxies=proxies)
+    not_200_response(url, response)
+    return response.json()
+
+def filter_universe(field:str|list=FILTER_FUND, 
+                    proxies:dict={}) -> dict:
     """
     This function will use the screener of morningstar.co.uk 
     to find the possible filters and their values.
@@ -66,7 +115,8 @@ def filter_universe(field=FILTER_FUND, proxies={}):
     return all_filter
 
 
-def general_search(params, proxies={}):
+def general_search(params:dict, 
+                   proxies:dict={}) -> dict:
     """
     This function will use the screener of morningstar.co.uk
     to find informations about funds or classification
@@ -77,7 +127,7 @@ def general_search(params, proxies={}):
       example : {"http": "http://host:port","https": "https://host:port"}
 
     Returns:
-      list of information
+      dict of information
 
     Examples:
       >>> general_search(params = {
@@ -113,7 +163,7 @@ def general_search(params, proxies={}):
     return response.json()
 
 
-def search_field(pattern=""):
+def search_field(pattern:str="") -> list:
     """
     This function retrieves the possible fields for the function dataPoint
 
@@ -136,7 +186,8 @@ def search_field(pattern=""):
     return filtered_list
 
 
-def search_filter(pattern="", asset_type="fund"):
+def search_filter(pattern:str="",
+                  asset_type:str="fund") -> list:
     """
     This function retrieves the possible filters for 
     the parameter filters of the function search_funds
@@ -183,8 +234,14 @@ def search_filter(pattern="", asset_type="fund"):
 
 
 def search_funds(
-    term, field, country="", pageSize=10, currency="EUR", filters={}, proxies={}
-):
+    term:str, 
+    field:str|list,
+    country:str="", 
+    pageSize:int=10, 
+    currency:str="EUR", 
+    filters:dict={}, 
+    proxies:dict={}
+    ) -> list:
     """
     This function will use the screener of morningstar.co.uk
     to find funds which include the term.
@@ -309,8 +366,14 @@ def search_funds(
 
 
 def search_stock(
-    term, field, exchange = "E0WWE$$ALL", pageSize=10, currency="EUR", filters={}, proxies={}
-):
+    term:str,
+    field:str|list,
+    exchange:str="E0WWE$$ALL",
+    pageSize:int=10,
+    currency:str="EUR",
+    filters:dict={},
+    proxies:dict={}
+    ) -> list:
     """
     This function will use the screener of morningstar.co.uk to find stocks which 
     include the term.
@@ -431,7 +494,7 @@ def search_stock(
         return {}
 
 
-def token_chart(proxies={}):
+def token_chart(proxies:dict={}) -> str:
     """
     This function will scrape the Bearer Token needed to access MS API chart data
 
@@ -461,7 +524,7 @@ def token_chart(proxies={}):
     return token_start[7 : token_start.find("}") - 1]
 
 
-def token_fund_information(proxies={}):
+def token_fund_information(proxies:dict={}) -> str:
     """
     This function will scrape the Bearer Token needed to access MS API funds information
 
@@ -489,7 +552,7 @@ def token_fund_information(proxies={}):
     return bearerToken
 
 
-def token_investment_strategy(proxies={}):
+def token_investment_strategy(proxies:dict={}) -> str:
     """
     This function will scrape the Bearer Token needed to access the investment strategy
 
