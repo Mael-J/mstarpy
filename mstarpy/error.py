@@ -1,7 +1,8 @@
 """module to raise error"""
+import requests
 
-
-def not_200_response(url, response):
+def not_200_response(url:str, 
+                     response:requests.models.Response) -> None:
     """
     This function raise a ConnectionError
     if the status code a requests is not 200.
@@ -13,7 +14,10 @@ def not_200_response(url, response):
         )
 
 
-def no_site_error(code, name, country, site):
+def no_site_error(code:str,
+                  name: str,
+                  country: str, 
+                  site:str) -> None:
     """
     This function raise a ValueError if the
     selected country is "us" or a site is not selected.

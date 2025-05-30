@@ -573,7 +573,7 @@ USER_AGENTS = [
 ]
 
 
-def random_user_agent():
+def random_user_agent() -> str:
     """
     This function selects a random User-Agent from the User-Agent list, . User-Agents are used in
     order to avoid the limitations of the requests to morningstar.com. The User-Agent is
