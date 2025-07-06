@@ -3,6 +3,6 @@
 """ mstarpy init """
 from .funds import Funds
 from .stock import Stock
-from .search import filter_universe, search_field, search_filter, search_funds, search_stock
+from .search import search_field, search_filter
 
-__version__ = "3.0.0"
+__version__ = "4.0.0"

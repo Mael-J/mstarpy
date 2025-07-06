@@ -4,14 +4,10 @@ from mstarpy.security import Security
 import datetime
 import pandas as pd
 from mstarpy.search import (
-    search_funds, 
     search_filter,
-    filter_universe, 
-    search_stock, 
     token_investment_strategy, 
     token_chart, 
     token_fund_information,
-    definition,
     general_search
     )
 from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
@@ -20,8 +16,12 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 #print(Funds("RMAGX", "us").TimeSeries(["nav","totalReturn"],datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today()))
     
 # code = "FOUSA00LIX"
-# fund = Funds(code,country="us")
-# print(fund.name)
+fund = Stock("US0378331005")
+print(fund.analysisData())
+# print(fund.holdings())
+#result = general_search(params={"query": "(_ ~= 'aaggaata')"})
+#print(search_filter(pattern="",asset_type="stock", filter_type="dividends", explicit=False))
+
 
 # print(fund.carbonMetrics())
 # start_date = datetime.date(2018,1,1)
@@ -29,16 +29,13 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 # history = fund.nav(start_date,end_date)
 # print(history)
 
-#print(search_stock("",["SecId","LegalName","Name"],exchange="XPAR"))
-
 # result = Funds("myria", country="fr").feeMifid()
 
 # print(list(EXCHANGE))
-# #print(search_stock("a",field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], exchange='HONG-KONG'))
-result = Stock("visa", exchange="XNYS").valuation()
+# result = Stock("visa", exchange="XNYS").valuation()
 
-print(result)
-print(type(result))
+# print(result)
+# print(type(result))
 
 
 # top_owner = ms.mutualFundConcentratedOwners(top = 100)
@@ -49,15 +46,10 @@ print(type(result))
 # filter_value = filter_universe(["starRating"])
 # print(filter_value)
 #filters={"starRating" : (">", 2)}
-# print(search_funds("myria",["Name","starRating"],filters={"starRating" : (">",2)}))
 
 #print(search_filter(asset_type="stock"))
 #print(filter_universe(["SectorId", "debtEquityRatio"]))
 
-
-# response = search_stock(term='',field=["Name", "fundShareClassId", "GBRReturnM12", "PERatio"], 
-#                          exchange='PARIS', filters={"PERatio" : ("<", '10'), "GBRReturnM12" : (">", 20), 
-#                                                     "debtEquityRatio" : (0, 5), "SectorId" : ["IG000BA008", "IG000BA006"] })
 # df = pd.DataFrame(response)
 
 # print(df.head())
@@ -69,17 +61,12 @@ print(type(result))
 # end_date = datetime.datetime.today()
 
 #print(filter_universe('IndustryId'))
-#print(search_stock('FR0014003J32','LegalName',exchange="PARIS"))
-
-#print(search_stock('',['SecId','TenforeId','LegalName'], exchange="PARIS", pageSize=10,currency="EUR",filters={"GBRReturnM12":(0,20)}))
-
 # security = Security("visa",exchange='NYSE')
 # print(security)
 # print(security.name)
 # code = security.code
-# print(search_funds(code,["Universe", 'ExchangeId']))
+
 # print(security.asset_type)
-# print(search_filter("CategoryId"))
 # print(filter_universe("CategoryId"))
 
 # print(filter_universe(['StarRatingM2556', 'LargestRegion','SustainabilityRank' ],proxies=proxies))

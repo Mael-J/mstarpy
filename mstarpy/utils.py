@@ -249,6 +249,20 @@ FILTER_STOCK = [
     "SectorId",
 ]
 
+FILTER_TYPE = [
+        'basics',
+        'dividends',
+        'fees-and-expenses',
+        'keyword',
+        'other',
+        'performance',
+        'profitability-and-growth',
+        'purchase-requirements',
+        'ratings',
+        'risk',
+        'valuation',
+ ]
+
 
 SITE = {
     "af": {"iso3": "AFG", "site": ""},

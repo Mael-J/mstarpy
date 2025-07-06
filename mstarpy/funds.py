@@ -7,7 +7,7 @@ import requests
 import datetime
 
 from .error import no_site_error, not_200_response
-from .search import search_funds, token_investment_strategy
+from .search import screener_universe, token_investment_strategy
 from .utils import random_user_agent
 
 from .security import Security
@@ -38,20 +38,24 @@ class Funds(Security):
     def __init__(
         self,
         term=None,
-        country: str = "",
-        pageSize: int = 1,
-        itemRange: int = 0,
-        filters: dict = {},
-        proxies: dict = {},
+        country:str="",
+        pageSize:int=1,
+        itemRange:int=0,
+        filters:dict=None,
+        proxies:dict=None,
     ) -> None:
-
+        
+        fund_filter = {"investmentType" : ['FE', 'FO']}
+        if filters:
+            fund_filter = fund_filter | filters
+        
         super().__init__(
             term=term,
             asset_type="fund",
             country=country,
             pageSize=pageSize,
             itemRange=itemRange,
-            filters=filters,
+            filters=fund_filter,
             proxies=proxies,
         )
 
@@ -374,8 +378,8 @@ class Funds(Security):
             >>> Funds("myria", "fr").dataPoint('SharpeM36')
 
         """
-        return search_funds(
-            self.code, field, self.country, 10, currency, proxies=self.proxies
+        return screener_universe(
+            self.code, field, proxies=self.proxies
         )
 
     def distribution(self, 

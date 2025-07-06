@@ -8,11 +8,12 @@ class Stock(Security):
         term (str): text to find a stock, can be a name, part of a name or the isin of the stocks
         pageSize (int): number of stocks to return
         itemRange (int) : index of stocks to return (must be inferior to PageSize)
+        filters (dict) : filter, use the method search_filter()
         proxies = (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
     Examples:
         >>> Stocks('0P0000712R', 9, 0)
-        >>> Stocks('visa')
+        >>> Stocks('US0378331005')
 
     Raises:
         TypeError: raised whenever the parameter type is not the type expected
@@ -23,20 +24,22 @@ class Stock(Security):
     def __init__(
         self,
         term=None,
-        exchange: str = "",
-        pageSize: int = 1,
-        itemRange: int = 0,
-        filters: dict = {},
-        proxies: dict = {},
+        pageSize:int=1,
+        itemRange:int=0,
+        filters:dict=None,
+        proxies:dict=None,
     ) -> None:
+        
+        stock_filter = {"investmentType" : 'EQ'}
+        if filters:
+            stock_filter = stock_filter | filters
 
         super().__init__(
             term=term,
             asset_type="stock",
-            exchange=exchange,
             pageSize=pageSize,
             itemRange=itemRange,
-            filters=filters,
+            filters=stock_filter,
             proxies=proxies,
         )
 
@@ -48,7 +51,7 @@ class Stock(Security):
             dict with general data about stock
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").analysisData()
+            >>> Stock("US0378331005").analysisData()
 
         """
         return self.GetData("morningstarTake/v3", url_suffix="analysisData")
@@ -61,7 +64,7 @@ class Stock(Security):
             dict with analyst overview
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").analysisReport()
+            >>> Stock("US0378331005").analysisReport()
 
         """
         return self.GetData("morningstarTake/v4", url_suffix="analysisReport")
@@ -80,8 +83,8 @@ class Stock(Security):
             dict with balance sheet
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").balanceSheet('quarterly', 'original')
-            >>> Stock("visa", exchange="XNYS").balanceSheet('annual', 'restated')
+            >>> Stock("US0378331005").balanceSheet('quarterly', 'original')
+            >>> Stock("US0378331005").balanceSheet('annual', 'restated')
 
         """
 
@@ -116,8 +119,8 @@ class Stock(Security):
             dict with cash flow
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").cashFlow('annual', 'restated')
-            >>> Stock("visa", exchange="XNYS").cashFlow('quarterly', 'restated')
+            >>> Stock("US0378331005").cashFlow('annual', 'restated')
+            >>> Stock("US0378331005").cashFlow('quarterly', 'restated')
 
         """
 
@@ -131,7 +134,7 @@ class Stock(Security):
             dict with dividends
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").dividends()
+            >>> Stock("US0378331005").dividends()
 
         """
         return self.GetData("dividends/v4")
@@ -144,7 +147,7 @@ class Stock(Security):
             dict with esg risk
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").esgRisk()
+            >>> Stock("US0378331005").esgRisk()
 
         """
         return self.GetData("esgRisk")
@@ -162,7 +165,7 @@ class Stock(Security):
             dict with key metrics summary
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").keyMetricsSummary()
+            >>> Stock("US0378331005").keyMetricsSummary()
 
         """
         if not isinstance(reportType, str):
@@ -189,7 +192,7 @@ class Stock(Security):
             dict with financial health
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").financialHealth()
+            >>> Stock("US0378331005").financialHealth()
 
         """
         return self.GetData("keyMetrics/financialHealth", url_suffix="")
@@ -212,10 +215,10 @@ class Stock(Security):
             dict with financial statement
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").financialStatement('summary', 'quarterly', 'original')
-            >>> Stock("visa", exchange="XNYS").financialStatement('cashflow', 'annual', 'restated')
-            >>> Stock("visa", exchange="XNYS").financialStatement('balancesheet', 'annual', 'restated')
-            >>> Stock("visa", exchange="XNYS").financialStatement('incomestatement', 'annual', 'restated')
+            >>> Stock("US0378331005").financialStatement('summary', 'quarterly', 'original')
+            >>> Stock("US0378331005").financialStatement('cashflow', 'annual', 'restated')
+            >>> Stock("US0378331005").financialStatement('balancesheet', 'annual', 'restated')
+            >>> Stock("US0378331005").financialStatement('incomestatement', 'annual', 'restated')
 
         """
 
@@ -282,8 +285,8 @@ class Stock(Security):
             dict with financial statement summary
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").financialSummary('quarterly', 'original')
-            >>> Stock("visa", exchange="XNYS").financialSummary('annual', 'restated')
+            >>> Stock("US0378331005").financialSummary('quarterly', 'original')
+            >>> Stock("US0378331005").financialSummary('annual', 'restated')
 
         """
 
@@ -297,7 +300,7 @@ class Stock(Security):
             dict with free cash flow
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").freeCashFlow()
+            >>> Stock("US0378331005").freeCashFlow()
 
         """
         return self.GetData("keyMetrics/cashFlow", url_suffix="")
@@ -318,7 +321,7 @@ class Stock(Security):
             list of dict with price, volume and dividend
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").history(datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today())
+            >>> Stock("US0378331005").history(datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today())
 
         """
         return self.TimeSeries(
@@ -342,8 +345,8 @@ class Stock(Security):
             dict with income statement
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").incomeStatement('quarterly', 'original')
-            >>> Stock("visa", exchange="XNYS").incomeStatement('annual', 'restated')
+            >>> Stock("US0378331005").incomeStatement('quarterly', 'original')
+            >>> Stock("US0378331005").incomeStatement('annual', 'restated')
 
         """
 
@@ -362,7 +365,7 @@ class Stock(Security):
             dict with the buyers
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").institutionBuyers(top=50)
+            >>> Stock("US0378331005").institutionBuyers(top=50)
 
         """
 
@@ -384,7 +387,7 @@ class Stock(Security):
             dict with the concentarted owners
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").institutionConcentratedOwners(top=50)
+            >>> Stock("US0378331005").institutionConcentratedOwners(top=50)
 
         """
 
@@ -406,7 +409,7 @@ class Stock(Security):
             dict with the main owners
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").institutionOwnership(top=50)
+            >>> Stock("US0378331005").institutionOwnership(top=50)
 
         """
 
@@ -428,7 +431,7 @@ class Stock(Security):
             dict with sellers
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").institutionSellers(top=50)
+            >>> Stock("US0378331005").institutionSellers(top=50)
 
         """
         if not isinstance(top, int):
@@ -446,7 +449,7 @@ class Stock(Security):
             dict with key executives information
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").keyExecutives()
+            >>> Stock("US0378331005").keyExecutives()
 
         """
         return self.GetData("insiders/keyExecutives")
@@ -459,7 +462,7 @@ class Stock(Security):
             dict with key ratio
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").keyRatio()
+            >>> Stock("US0378331005").keyRatio()
 
         """
         return self.GetData("keyratios")
@@ -475,7 +478,7 @@ class Stock(Security):
             dict with the buyers
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").mutualFundBuyers(top=50)
+            >>> Stock("US0378331005").mutualFundBuyers(top=50)
 
         """
 
@@ -495,7 +498,7 @@ class Stock(Security):
             dict with the concentarted owners
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").mutualFundConcentratedOwners(top=50)
+            >>> Stock("US0378331005").mutualFundConcentratedOwners(top=50)
 
         """
 
@@ -517,7 +520,7 @@ class Stock(Security):
             dict with the main owners
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").mutualFundOwnership(top=50)
+            >>> Stock("US0378331005").mutualFundOwnership(top=50)
 
         """
 
@@ -539,7 +542,7 @@ class Stock(Security):
             dict with sellers
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").mutualFundSellers(top=50)
+            >>> Stock("US0378331005").mutualFundSellers(top=50)
 
         """
 
@@ -558,7 +561,7 @@ class Stock(Security):
             dict with operating growth
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").operatingGrowth()
+            >>> Stock("US0378331005").operatingGrowth()
 
         """
         return self.GetData("keyStats/growthTable", url_suffix="")
@@ -572,7 +575,7 @@ class Stock(Security):
             dict with profitability ratios
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").profitability()
+            >>> Stock("US0378331005").profitability()
 
         """
         return self.GetData("keyMetrics/profitabilityAndEfficiency", url_suffix="")
@@ -585,7 +588,7 @@ class Stock(Security):
             dict with sustainability
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").sustainability()
+            >>> Stock("US0378331005").sustainability()
 
         """
         return self.GetData("esgRisk/sustainability")
@@ -598,7 +601,7 @@ class Stock(Security):
             dict with split history
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").split()
+            >>> Stock("US0378331005").split()
 
         """
         return self.GetData("split/v1")
@@ -611,7 +614,7 @@ class Stock(Security):
         Returns:
             dict with performance
         Examples:
-            >>> Stock("visa", exchange="XNYS").tradingInformation()
+            >>> Stock("US0378331005").tradingInformation()
 
         """
         return self.RealtimeData("quotes")
@@ -624,7 +627,7 @@ class Stock(Security):
             dict with performance
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").trailingTotalReturn()
+            >>> Stock("US0378331005").trailingTotalReturn()
 
         """
         return self.GetData("trailingTotalReturns")
@@ -637,7 +640,7 @@ class Stock(Security):
             list o dict of transaction of key people
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").transactionHistory()
+            >>> Stock("US0378331005").transactionHistory()
 
         """
         return self.GetData("insiders/transactionHistory")
@@ -650,7 +653,7 @@ class Stock(Security):
             list of dict with transactions
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").transactionSummary()
+            >>> Stock("US0378331005").transactionSummary()
 
         """
         return self.GetData("insiders/transactionChart")
@@ -663,7 +666,7 @@ class Stock(Security):
             dict with valuation
 
         Examples:
-            >>> Stock("visa", exchange="XNYS").valuation()
+            >>> Stock("US0378331005").valuation()
 
         """
         return self.GetData("valuation/v3", url_suffix="")

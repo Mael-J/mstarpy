@@ -4,21 +4,14 @@ import requests
 
 from .error import not_200_response
 
-from .search import (search_funds, 
-                     search_stock, 
+from .search import (screener_universe,
                      token_chart
                      )
 from .utils import (
     APIKEY,
-    SITE, 
-    EXCHANGE,
     random_user_agent
     )
 
-
-# with Universe field, we can detect the asset class
-# done find all stock echange and create a search_equity method
-# add parameter exchange to Security class and search stocks if stock and exchange
 
 
 class Security:
@@ -27,9 +20,9 @@ class Security:
 
     Args:
         term (str): text to find a fund can be a name, part of a name or the isin of the funds
-        country (str) : text for code ISO 3166-1 alpha-2 of country, should be '' for etf
         pageSize (int): number of funds to return
         itemRange (int) : index of funds to return (must be inferior to PageSize)
+        filters (dict) : filter, use the method search_filter()
         proxies = (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
     Examples:
@@ -45,34 +38,17 @@ class Security:
     def __init__(
         self,
         term=None,
-        asset_type: str = "",
-        country: str = "",
-        exchange: str = "",
-        pageSize: int = 1,
-        itemRange: int = 0,
-        filters: dict = {},
-        proxies: dict = {},
+        asset_type:str="",
+        pageSize:int=1,
+        itemRange:int=0,
+        filters:dict=None,
+        proxies:dict=None,
     ) -> None:
         if not isinstance(term, str):
             raise TypeError("term parameter should be a string")
         if not isinstance(asset_type, str):
             raise TypeError("asset_type parameter should be a string")
 
-        if not isinstance(country, str):
-            raise TypeError("country parameter should be a string")
-
-        if country and not country.lower() in SITE.keys():
-            raise ValueError(
-                f'country parameter can only take one of the values: {", ".join(SITE.keys())}'
-            )
-
-        if not isinstance(exchange, str):
-            raise TypeError("exchange parameter should be a string")
-    
-        if exchange and not exchange.upper() in EXCHANGE.keys():
-            raise ValueError(
-                f'Exchange parameter can only take one of the values: {", ".join(EXCHANGE.keys())}'
-            )
         
         if not isinstance(pageSize, int):
             raise TypeError("pageSize parameter should be an integer")
@@ -85,72 +61,47 @@ class Security:
                 "itemRange parameter should be strictly inferior to pageSize parameter"
             )
 
-        if not isinstance(filters, dict):
+        if filters and not isinstance(filters, dict):
             raise TypeError("filters parameter should be dict")
 
-        if not isinstance(proxies, dict):
+        if proxies and not isinstance(proxies, dict):
             raise TypeError("proxies parameter should be dict")
 
         self.proxies = proxies
-
-        if country:
-            self.site = SITE[country.lower()]["site"]
-        else:
-            self.site = ""
-
-        self.country = country
-
-        self.exchange = exchange
 
         self.asset_type = "security"
 
         code_list = []
 
-        if exchange:
-            code_list = search_stock(
+
+        code_list = screener_universe(
                 term,
-                ["fundShareClassId", "SecId", "TenforeId", "LegalName", "Universe"],
-                exchange=exchange,
+                field=["isin", "name"],
                 pageSize=pageSize,
                 filters=filters,
-                proxies=self.proxies,
-            )
-        else:
-            code_list = search_funds(
-                term,
-                ["fundShareClassId", "SecId", "TenforeId", "LegalName", "Universe"],
-                country,
-                pageSize,
-                filters=filters,
-                proxies=self.proxies,
-            )
+                proxies=self.proxies,)
+
 
         if code_list:
             if itemRange < len(code_list):
-                self.code = code_list[itemRange]["fundShareClassId"]
-                self.name = code_list[itemRange]["LegalName"]
-                if "TenforeId" in code_list[itemRange]:
-                    tenforeId = code_list[itemRange]["TenforeId"]
-                    regex = re.compile("[0-9]*\.[0-9]\.")
-                    self.isin = regex.sub("", tenforeId)
-                else:
-                    self.isin = None
+                self.code = code_list[itemRange]['meta']["securityID"]
+                self.name = code_list[itemRange]['fields']["name"]['value']
+                self.isin = code_list[itemRange]['fields']["isin"]['value']
+                universe = code_list[itemRange]['meta']["universe"]
 
-                universe = code_list[itemRange]["Universe"]
-
-                if universe[:2] == "E0":
+                if universe[:2] == "EQ":
                     self.asset_type = "stock"
-                elif universe[:2] == "ET":
+                elif universe[:2] == "FE":
                     self.asset_type = "etf"
                 elif universe[:2] == "FO":
                     self.asset_type = "fund"
 
-                if universe[:2] == "E0" and asset_type in ["etf", "fund"]:
+                if universe[:2] == "EQ" and asset_type in ["etf", "fund"]:
                     raise ValueError(
                         f"The security found with the term {term} is a stock and the parameter asset_type is equal to {asset_type}, the class Stock should be used with this security."
                     )
 
-                if universe[:2] in ["FO", "ET"] and asset_type == "stock":
+                if universe[:2] in ["FO", "FE"] and asset_type == "stock":
                     if universe[:2] == "FO":
                         raise ValueError(
                             f"The security found with the term {term} is a fund and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
@@ -165,30 +116,20 @@ class Security:
                     f"Found only {len(code_list)} {self.asset_type} with the term {term}. The paramater itemRange must maximum equal to {len(code_list)-1}"
                 )
         else:
-            if country:
-                raise ValueError(
-                    f"0 {self.asset_type} found with the term {term} and country {country}"
-                )
-            elif exchange:
-                raise ValueError(
-                    f"0 {self.asset_type} found with the term {term} and exchange {exchange}"
-                )
-            else:
-                raise ValueError(f"0 {self.asset_type} found with the term {term}")
+            raise ValueError(f"0 {self.asset_type} found with the term {term}")
 
     def GetData(self, 
                 field:str, 
-                params:dict={}, 
-                headers:dict={}, 
+                params:dict=None, 
+                headers:dict=None, 
                 url_suffix:str="data") -> dict|list:
         """
-        Generic function to use MorningStar global api.
-
+        This function retrieves data from the MorningStar global API.
         Args:
             field (str) : endpoint of the request
             params (dict) : parameter for the request
             headers (dict) : headers of the request
-            url_suffix (str) : suffixe of the url
+            url_suffix (str) : suffix of the url
 
         Raises:
             TypeError raised whenever type of paramater are invalid
@@ -204,11 +145,14 @@ class Security:
         if not isinstance(field, str):
             raise TypeError("field parameter should be a string")
 
-        if not isinstance(params, dict):
+        if params and not isinstance(params, dict):
             raise TypeError("params parameter should be a dict")
 
         if not isinstance(url_suffix, str):
             raise TypeError("url_suffix parameter should be a string")
+        
+        if headers and not isinstance(headers, dict):
+            raise TypeError("headers parameter should be a dict")
 
         # url of API
         url = f"""https://api-global.morningstar.com/sal-service/v1/{self.asset_type}/{field}/{self.code}"""
@@ -220,11 +164,11 @@ class Security:
         default_headers = {
             "apikey": APIKEY,
         }
-
-        all_headers = default_headers | headers
+        if headers:
+            default_headers = default_headers | headers
 
         response = requests.get(
-            url, params=params, headers=all_headers, proxies=self.proxies
+            url, params=params, headers=default_headers, proxies=self.proxies
         )
 
         not_200_response(url, response)

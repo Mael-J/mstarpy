@@ -2,123 +2,19 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import warnings
+import pandas as pd
 
 from .utils import random_user_agent
-from .utils import ASSET_TYPE, EXCHANGE, FIELDS, FILTER_FUND, FILTER_STOCK, SITE
+from .utils import ASSET_TYPE, EXCHANGE, FIELDS, FILTER_FUND, FILTER_STOCK, FILTER_TYPE
 from .error import not_200_response
 
 
-def definition(field:str|list, 
-               proxies:dict={}) -> dict:
-    """
-    This function gives the definition of financial metrics.
-    Only works from times to times, if not gives a response 202.
-
-    Args:
-      field (str | list) : field to find
-
-    Returns:
-      dict of field definition
-
-    Examples:
-      >>> definition(['considerSellingPrice','considerBuyingPrice'])
-      >>> definition('MarketCap')
-      >>> definition('sector')
-
-    """
-
-    if not isinstance(field, (str, list)):
-        raise TypeError("field parameter should be a string or a list")
-
-    if isinstance(field, list):
-        field = ",".join(field)
-
-    if not isinstance(proxies, dict):
-        raise TypeError("proxies parameter should be dict")
-
-    url = "https://www.morningstar.com/api/v2/stores/investing-definitions/by-fields"
-    #params of the request
-    params = {
-                "fields": field,
-                "longform": "true",
-                "exactMatch": "false"
-                }
-    
-    # headers
-    headers = {
-                "user-agent": random_user_agent()
-                
-                }
-    response = requests.get(url,
-                            params=params,
-                            headers=headers,
-                            proxies=proxies)
-    not_200_response(url, response)
-    return response.json()
-
-def filter_universe(field:str|list=FILTER_FUND, 
-                    proxies:dict={}) -> dict:
-    """
-    This function will use the screener of morningstar.co.uk 
-    to find the possible filters and their values.
-
-    Args:
-
-      field (str | list) : field to find
-
-    Returns:
-      dict of filter
-        {'LargestRegion': ['', 'RE_AfricaDeveloped', 'RE_AfricaEmerging', 
-        'RE_Asia4TigersEmerging', 'RE_Asiaex4TigersEmerging', 'RE_Australasia', 
-        'RE_Canada', 'RE_CentralandEasternEurope', 'RE_CentralandLatinAmericaEmerging', 
-        'RE_Japan', 'RE_UnitedKingdom', 'RE_UnitedStates', 'RE_WesternEuropeEuro', 
-        'RE_WesternEuropeNonEuroexUK'], 'SustainabilityRank': ['1', '2', '3', '4', '5']}
-
-    Examples:
-      >>> filter_universe(['LargestRegion','SustainabilityRank'])
-      >>> filter_universe('FeeLevel')
-      >>> filter_universe(FILTER_STOCK)
-
-    """
-
-    if not isinstance(field, (str, list)):
-        raise TypeError("field parameter should be a string or a list")
-
-    if "StarRatingM255" in field:
-        raise ValueError("StarRatingM255 cannot be a field")
-
-    if isinstance(field, list):
-        filterDataPoints = "|".join(field)
-    else:
-        filterDataPoints = field
-
-    if not isinstance(proxies, dict):
-        raise TypeError("proxies parameter should be dict")
-
-    params = {
-        "outputType": "json",
-        "filterDataPoints": filterDataPoints,
-    }
-
-    result = general_search(params, proxies=proxies)
-
-    all_filter = {}
-
-    if "filters" not in result:
-        return all_filter
-    if not result["filters"]:
-        return all_filter
-
-    for r in result["filters"][0]:
-        all_filter[list(r)[0]] = r[list(r)[0]]
-
-    return all_filter
 
 
 def general_search(params:dict, 
-                   proxies:dict={}) -> dict:
+                   proxies:dict=None) -> dict:
     """
-    This function will use the screener of morningstar.co.uk
+    This function will use the screener of morningstar.com
     to find informations about funds or classification
 
     Args:
@@ -144,13 +40,14 @@ def general_search(params:dict,
 
 
     """
+
     if not isinstance(params, dict):
         raise TypeError("params parameter should be dict")
 
-    if not isinstance(proxies, dict):
+    if proxies and not isinstance(proxies, dict):
         raise TypeError("proxies parameter should be dict")
     # url
-    url = "https://tools.morningstar.co.uk/api/rest.svc/klr5zyak8x/security/screener"
+    url = "https://global.morningstar.com/api/v1/en/tools/screener/_data"
     # headers
     headers = {
         "user-agent": random_user_agent(),
@@ -163,98 +60,142 @@ def general_search(params:dict,
     return response.json()
 
 
-def search_field(pattern:str="") -> list:
+def search_field(pattern:str="",
+                 display_print=True) -> list:
     """
-    This function retrieves the possible fields for the function dataPoint
+    This function retrieves the possible fields for the screener 
 
     Args:
     pattern (str) : text contained in the field
+    display_print (bool) : if True, print the possible fields
 
     Returns:
-        list of possible fields for the method dataPoint
+        list of possible fields for the screener of securities
 
     Example:
         >>> search_field('feE')
         >>> search_field('reTurn')
 
     """
+    if not isinstance(pattern, str):
+        raise TypeError("pattern parameter should be a string")
+    
+    headers = {"user-agent": random_user_agent()}
+    
+    url = "https://global.morningstar.com/api/v1/fr/stores/data-points/fields"
 
-    regex = re.compile(f"(?i){pattern}")
-    filtered_list = list(filter(lambda field: regex.search(field), FIELDS))
-    print(f"possible fields for function dataPoint can be : {', '.join(filtered_list)}")
+    response = requests.get(url, headers=headers)
+    not_200_response(url, response)
+    if "results" not in response.json():
+        raise ValueError("No results found for the given pattern")
+    
+    result = response.json()["results"]
+    df = pd.DataFrame(result)
+    df_filtered = df.loc[df["field"].str.contains(f"(?i){pattern}",regex=True)]
+    filtered_list = df_filtered["field"].tolist()
+
+    if display_print:
+        print(f"possible fields for screener can be : {', '.join(filtered_list)}")
 
     return filtered_list
+
 
 
 def search_filter(pattern:str="",
-                  asset_type:str="fund") -> list:
+                asset_type:str="",
+                filter_type:str="",
+                explicit:bool=False) -> list:
+                  
     """
-    This function retrieves the possible filters for 
-    the parameter filters of the function search_funds
+    This function retrieves the possible filters for the parameter filters of the function screener_universe
 
     Args:
-    pattern (str) : text contained in the filter
-
+        pattern (str): text contained in the field
+        asset_type (str): type of asset, can be one of the values in ASSET_TYPE
+        filter_type (str): type of filter, can be one of the values in FILTER_TYPE
+        explicit (bool): if True, return a list of dict with fields and their metadata
     Returns:
         list of possible filters
+        Raise[{'field': 'dividendYield', 'label': 'Dividend Yield (%)', 
+        'numeric': True, 'type': 'range', 'options': 
+        {'type': [{'text': 'Forward', 'value': 'forward'}, 
+        {'text': 'Trailing', 'value': 'trailing', 'default': True}]}}]
 
+        ['stockStyleBox', 'fundEquityStyleBox', 'fundFixedIncomeStyleBox', 'fundAlternativeStyleBox']
     Example:
-        >>> search_filter('RetUrn')
-        >>> search_filter('id')
+        >>> search_filter()
+        >>> search_filter(pattern="div",asset_type="stock", filter_type="dividends", explicit=True)
 
     """
+
     if not isinstance(pattern, (str)):
         raise TypeError("pattern parameter should be a string")
-
     if not isinstance(asset_type, (str)):
         raise TypeError("asset_type parameter should be a string")
-
-    if asset_type not in ASSET_TYPE:
+    
+    if asset_type and asset_type not in ASSET_TYPE:
         raise TypeError(
             f"asset_type parameter can only take one of the values : {','.join(ASSET_TYPE)}"
         )
-
-    if asset_type == "stock":
-        filter_type = FILTER_STOCK
-    else:
-        filter_type = FILTER_FUND
-
-    regex = re.compile(f"(?i){pattern}")
-    filtered_list = list(filter(lambda field: regex.search(field), filter_type))
-    if asset_type == "stock":
-        print(
-            f"possible keys for the parameter filters of the method search_stock can be : {', '.join(filtered_list)}"
+    if not isinstance(filter_type, (str)):
+        raise TypeError("filter_type parameter should be a string")
+    
+    if filter_type and filter_type not in FILTER_TYPE:
+        raise TypeError(
+            f"filter_type parameter can only take one of the values : {','.join(FILTER_TYPE)}"
         )
-    else:
-        print(
-            f"possible keys for the parameter filters of the method seach_funds can be : {', '.join(filtered_list)}"
-        )
+    
+    headers = {"user-agent": random_user_agent()}
+    url = "https://global.morningstar.com/api/v1/fr/stores/filters"
 
-    return filtered_list
+    response = requests.get(url, headers=headers)
+    not_200_response(url, response)
 
+    result = response.json()
 
-def search_funds(
+    list_filter = ["investmentType","countriesOfSale"]
+    list_filter_explicit = []
+    for security_type in result["results"]:
+        if asset_type:
+            if security_type["id"] != f"{asset_type}-filters":
+                continue
+        security_filter_type = security_type["filters"]
+        for filters in security_filter_type:
+            if filter_type:
+                if filter_type != filters["id"]:
+                    continue
+            for child in filters["children"]:
+                if pattern:
+                    if not re.search(pattern, child["field"], re.IGNORECASE):
+                        continue
+                if child["field"] in list_filter:
+                    continue
+                list_filter.append(child["field"])
+                list_filter_explicit.append(child)
+    if explicit:
+        return list_filter_explicit
+    return list_filter
+    
+
+def screener_universe(
     term:str, 
-    field:str|list,
-    country:str="", 
-    pageSize:int=10, 
-    currency:str="EUR", 
-    filters:dict={}, 
-    proxies:dict={}
+    field:str|list="",
+    filters:dict=None,
+    pageSize:int=10,
+    page:int=1,
+    proxies:dict=None
     ) -> list:
     """
-    This function will use the screener of morningstar.co.uk
-    to find funds which include the term.
+    This function will use the screener of global.morningstar.com
+    to find funds, etf, stocks which include the term.
 
     Args:
-      term (str): text to find a funds can be a the name, 
-      part of a name or the isin of the funds
+      term (str): text to find a security can be a the name, 
+      part of a name or the isin
       field (str | list) : field to find
-      country (str) : text for code ISO 3166-1 alpha-2 of country
-      pageSize (int): number of funds to return
-      currency (str) : currency in 3 letters
-      filters (dict) : filter funds, use the method filter_universe 
-      to find the different possible filter keys and values
+      pageSize (int): number of securities to return
+      filters (dict) : filter, use the method search_filter() 
+      to find the different possible filter keys
       proxies (dict) : set the proxy if needed , example : 
       {"http": "http://host:port","https": "https://host:port"}
 
@@ -283,218 +224,90 @@ def search_funds(
       >>> search_funds("FR0011399914", 'LegalName', country="fr", pageSize=25)
 
     """
-
+    if not isinstance(term, str):
+        raise TypeError("term parameter should be a string")
+    
     if not isinstance(field, (str, list)):
         raise TypeError("field parameter should be a string or a list")
-
-    if not isinstance(country, str):
-        raise TypeError("country parameter should be a string")
-
-    if country and country.lower() not in SITE:
-        raise ValueError(
-            f'country parameter can only take one of the values: {", ".join(SITE.keys())}'
-        )
-
-    if not isinstance(pageSize, int):
-        raise TypeError("pageSize parameter should be an integer")
-
-    if not isinstance(currency, str):
-        raise TypeError("currency parameter should be a string")
-
+    
     if not isinstance(filters, dict):
         raise TypeError("filters parameter should be a dict")
+    
+    if not isinstance(pageSize, int):
+        raise TypeError("pageSize parameter should be an integer")
+    
+    if not isinstance(page, int):
+        raise TypeError("page parameter should be an integer")
 
-    if not isinstance(proxies, dict):
+    if proxies and not isinstance(proxies, dict):
         raise TypeError("proxies parameter should be dict")
-
-    if isinstance(field, list):
-        securityDataPoints = "|".join(field)
+    
+    all_fields = search_field(display_print=False)
+    if not field:
+        check_field = True
+    elif isinstance(field, str):
+        check_field = field in all_fields
+        fields = field
     else:
-        securityDataPoints = field
-    # if country find iso
-    if country:
-        iso = SITE[country.lower()]["iso3"]
-        universeIds = f"FO{iso}$$ALL"
-    else:
-        universeIds = ""
+        check_field = set(field).issubset(set(all_fields))
+        fields = ",".join(field)
 
-    filter_list = []
-    # loop on filter dict
-    for f in filters:
-        if f not in FILTER_FUND:
-            print(
-                f"""{f} is not a valid filter and will be ignored. You can find the
-                possible filters with the method search_filter()."""
-            )
-        else:
-            # if list, IN condition
-            if isinstance(filters[f], list):
-                filter_list.append(f'{f}:IN:{":".join(filters[f])}')
-            # if tuple, either, BTW, LT or GT condition
-            elif isinstance(filters[f], tuple):
-                if len(filters[f]) == 2:
-                    if isinstance(filters[f][0], (int, float)):
-                        filter_list.append(f"{f}:BTW:{filters[f][0]}:{filters[f][1]}")
-                    elif filters[f][0] == "<":
-                        filter_list.append(f"{f}:LT:{filters[f][1]}")
-                    elif filters[f][0] == ">":
-                        filter_list.append(f"{f}:GT:{filters[f][1]}")
-            # else IN condition
+    if not check_field:
+        raise ValueError(
+            f"""The field {field} is not a valid field.
+            You can find the possible fields with the method search_field().
+            Possible fields are : {', '.join(all_fields)}"""
+        )
+    
+    query_params = f"_ ~= '{term}'"
+
+    if filters:
+        list_filter =search_filter()
+        for f in filters:
+            if f not in list_filter:
+                warnings.warn(
+                    f"""{f} is not a valid filter and will be ignored.
+                    You can find the possible filters with the method search_filter()."""
+                )
             else:
-                filter_list.append(f"{f}:IN:{filters[f]}")
-
+                # if list, IN condition
+                if isinstance(filters[f], list):
+                    query_params += f""" AND {f} IN ({','.join(f"'{x}'" for x in filters[f])})"""
+                # if tuple, either, < or > condition
+                elif isinstance(filters[f], tuple):
+                    if len(filters[f]) != 2:
+                        warnings.warn(f"""{f} is not a valid filter and will be ignored.
+                                      The tuple has to be of a length of 2""")
+                    if filters[f][0] not in ['<','<=','>=', '>']:
+                         warnings.warn(f"""{f} is not a valid filter and will be ignored.
+                                       The first argument of the tuple has to be one of this value {','.join(['<','<=','>=', '>'])}""")
+                    if isinstance(filters[f][1,(int,float)]):
+                        warnings.warn(f"""{f} is not a valid filter and will be ignored.    
+                                        The second argument of the tuple has be a number.
+                                            """)
+                    query_params += f" AND {f} {filters[f][0]} {filters[f][1]}"
+                # else IN condition
+                else:
+                    query_params += f" AND {f} = '{filters[f]}'"
+        
     params = {
-        "page": 1,
-        "pageSize": pageSize,
-        "sortOrder": "LegalName asc",
-        "outputType": "json",
-        "version": 1,
-        "universeIds": universeIds,
-        "currencyId": currency,
-        "securityDataPoints": securityDataPoints,
-        "term": term,
-        "filters": "|".join(filter_list),
+        "query": query_params,
+        "fields" : fields,
+        "limit": pageSize,
+
     }
 
     result = general_search(params, proxies=proxies)
 
-    if result["rows"]:
-        return result["rows"]
-    else:
+    if not "results" in result:
         print(f"0 fund found whith the term {term}")
         return {}
-
-
-def search_stock(
-    term:str,
-    field:str|list,
-    exchange:str="E0WWE$$ALL",
-    pageSize:int=10,
-    currency:str="EUR",
-    filters:dict={},
-    proxies:dict={}
-    ) -> list:
-    """
-    This function will use the screener of morningstar.co.uk to find stocks which 
-    include the term.
-
-    Args:
-      term (str): text to find a funds can be a the name, part of a name or the isin of the funds
-      field (str | list) : field to find
-      exchange (str) : stock echange closed list (.utils EXCHANGE)
-      pageSize (int): number of funds to return
-      currency (str) : currency in 3 letters
-      filters (dict) : filter funds, use the method filter_universe 
-      to find the different possible filter keys and values
-      proxies (dict) : set the proxy if needed , example : 
-      {"http": "http://host:port","https": "https://host:port"}
-
-    Returns:
-      list of dict with stocks information
-        [{'SecId': '0P0001OMLZ', 'TenforeId': '126.1.VCXB', 'LegalName': 
-        '10X Capital Venture Acquisition Corp III Ordinary Shares
-        - Class A'}, {'SecId': '0P0001O9WE', 'TenforeId': '126.1.VCXB/U', 
-        'LegalName': '10X Capital Venture Acquisition Corp III Units 
-        (1 Ord Share Class A & 1/2 War)'}, {'SecId': '0P000184MI', 
-        'TenforeId': '126.1.COE', 'LegalName': '51Talk无忧英语 ADR'}, 
-        {'SecId': '0P0001NAQE', 'TenforeId': '126.1.AKA', 'LegalName': 
-        'a.k.a. Brands Holding Corp'}]
-
-    Examples:
-      >>> search_stock("visa",['SecId','TenforeId','LegalName'],exchange="NYSE", pageSize=25)
-      >>> search_stock("FR0000125486", 'LegalName', exchange="PARIS", pageSize=10)
-
-    """
-
-    if not isinstance(field, (str, list)):
-        raise TypeError("field parameter should be a string or a list")
-
-    if not isinstance(exchange, str):
-        raise TypeError("exchange parameter should be a string")
-
-    #by default, we look in all exchange
-    universeIds = "E0WWE$$ALL"
-    if exchange == "E0WWE$$ALL":
-        pass
-    #if we don't find the exchange
-    elif not exchange.upper() in EXCHANGE:
-        
-        warnings.warn(f"""The exchange {exchange} is not found.
-                      Exchange parameter can only take one of the following values : {", ".join(EXCHANGE)}.
-                      The exchange was automaically set to E0WWE$$ALL to look in all exchanges.""")
-
-    #determine universeIds according to exchange
-    else:
-        universeIds = f"E0EXG${exchange}"
-
-    if not isinstance(pageSize, int):
-        raise TypeError("pageSize parameter should be an integer")
-
-    if not isinstance(currency, str):
-        raise TypeError("currency parameter should be a string")
-
-    if not isinstance(filters, dict):
-        raise TypeError("filters parameter should be a dict")
-
-    if not isinstance(proxies, dict):
-        raise TypeError("proxies parameter should be dict")
-
-    if isinstance(field, list):
-        securityDataPoints = "|".join(field)
-    else:
-        securityDataPoints = field
-
     
+    return result["results"]
 
 
-    filter_list = []
-    # loop on filter dict
-    for f in filters:
-        if f not in FILTER_STOCK:
-            print(
-                f"""{f} is not a valid filter and will be ignored.
-                You can find the possible filters with the method search_filter()."""
-            )
-        else:
-            # if list, IN condition
-            if isinstance(filters[f], list):
-                filter_list.append(f'{f}:IN:{":".join(filters[f])}')
-            # if tuple, either, BTW, LT or GT condition
-            elif isinstance(filters[f], tuple):
-                if len(filters[f]) == 2:
-                    if isinstance(filters[f][0], (int, float)):
-                        filter_list.append(f"{f}:BTW:{filters[f][0]}:{filters[f][1]}")
-                    elif filters[f][0] == "<":
-                        filter_list.append(f"{f}:LT:{filters[f][1]}")
-                    elif filters[f][0] == ">":
-                        filter_list.append(f"{f}:GT:{filters[f][1]}")
-            # else IN condition
-            else:
-                filter_list.append(f"{f}:IN:{filters[f]}")
 
-    params = {
-        "page": 1,
-        "pageSize": pageSize,
-        "sortOrder": "LegalName asc",
-        "outputType": "json",
-        "version": 1,
-        "universeIds": universeIds,
-        "currencyId": currency,
-        "securityDataPoints": securityDataPoints,
-        "term": term,
-        "filters": "|".join(filter_list),
-    }
-
-    result = general_search(params, proxies=proxies)
-
-    if result["rows"]:
-        return result["rows"]
-    else:
-        print(f"0 stock found whith the term {term}")
-        return {}
-
-
-def token_chart(proxies:dict={}) -> str:
+def token_chart(proxies:dict=None) -> str:
     """
     This function will scrape the Bearer Token needed to access MS API chart data
 
@@ -507,7 +320,7 @@ def token_chart(proxies:dict={}) -> str:
 
     """
 
-    if not isinstance(proxies, dict):
+    if proxies and not isinstance(proxies, dict):
         raise TypeError("proxies parameter should be dict")
 
     url = "https://www.morningstar.com/funds/xnas/afozx/chart"
@@ -524,7 +337,7 @@ def token_chart(proxies:dict={}) -> str:
     return token_start[7 : token_start.find("}") - 1]
 
 
-def token_fund_information(proxies:dict={}) -> str:
+def token_fund_information(proxies:dict=None) -> str:
     """
     This function will scrape the Bearer Token needed to access MS API funds information
 
@@ -536,7 +349,7 @@ def token_fund_information(proxies:dict={}) -> str:
     str bearer token
 
     """
-    if not isinstance(proxies, dict):
+    if proxies and not isinstance(proxies, dict):
         raise TypeError("proxies parameter should be dict")
 
     url = "https://www.morningstar.co.uk/Common/funds/snapshot/PortfolioSAL.aspx"
@@ -552,7 +365,7 @@ def token_fund_information(proxies:dict={}) -> str:
     return bearerToken
 
 
-def token_investment_strategy(proxies:dict={}) -> str:
+def token_investment_strategy(proxies:dict=None) -> str:
     """
     This function will scrape the Bearer Token needed to access the investment strategy
 
@@ -564,7 +377,7 @@ def token_investment_strategy(proxies:dict={}) -> str:
     str bearer token
 
     """
-    if not isinstance(proxies, dict):
+    if proxies and not isinstance(proxies, dict):
         raise TypeError("proxies parameter should be dict")
 
     url = "https://www.morningstar.com.au/investments/security/ASX/VHY"
