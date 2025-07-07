@@ -27,18 +27,10 @@ def general_search(params:dict,
 
     Examples:
       >>> general_search(params = {
-                                  'page' : 1,
-                                  'pageSize' : 10,
-                                  'sortOrder' : 'LegalName asc',
-                                  'outputType' : 'json',
-                                  'version' : 1,
-                                  'universeIds' : 'FOFRA$$ALL',
-                                  'currencyId': 'EUR',
-                                  'securityDataPoints' : ['FundTNAV','GBRReturnD1'],
-                                  'term' : 'myria',
-                                  })
-
-
+                                    'query': "_ ~= 'US67066G1040'", 
+                                    'fields': 'isin,name', 
+                                    'limit': 3
+                                    })
     """
 
     if not isinstance(params, dict):
@@ -194,34 +186,27 @@ def screener_universe(
       part of a name or the isin
       field (str | list) : field to find
       pageSize (int): number of securities to return
-      filters (dict) : filter, use the method search_filter() 
-      to find the different possible filter keys
-      proxies (dict) : set the proxy if needed , example : 
-      {"http": "http://host:port","https": "https://host:port"}
+      filters (dict) : filter, use the method search_filter() to find the different possible filter keys
+      proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
     Returns:
-      list of dict with fund information
-        [{'SecId': 'F00000270E', 'TenforeId': '52.8.FR0010342600',
-        'LegalName': '21 Gestion Active'}, {'SecId': 'F000013BGI',
-        'TenforeId': '52.8.MT7000022612', 'LegalName':'24 Capital Management SICAV plc - 
-        24 Global Currency Fund Share Class A USD Accumulation'}, 
-        {'SecId': 'F00000PZHI', 'TenforeId': '52.8.FR0011443225', 
-        'LegalName': '29 Haussmann Actions Europe C'}, {'SecId': 'F0GBR06QS1', 
-        'TenforeId': '52.8.FR0007057427', 'LegalName': '29 Haussmann Actions Europe D'}, 
-        {'SecId': 'F0000101BL', 'TenforeId': '52.8.FR0013266590', 'LegalName': 
-        '29 Haussmann Actions Europe
-        I'}, {'SecId': 'F00000JW7U', 'TenforeId': '52.8.LU0532306957', 
-        'LegalName': '3F Generation Acc'}, {'SecId': 'F00000UDVR', 
-        'TenforeId': '52.8.FR0011911189', 'LegalName': 'AAM Family Values E1'}, 
-        {'SecId': 'F00000UDVS', 'TenforeId': '52.8.FR0011911197', 'LegalName': 'AAM Family Values
-        I'}, {'SecId': 'F0GBR04RG5', 'TenforeId': '52.8.FR0007022025', 'LegalName': 
-        'AAZ Capitalisation'}, 
-        {'SecId': 'F000000ITD', 'TenforeId': '52.8.FR0010361600', 
-        'LegalName': 'AAZ Prestige Or'}]
+      list of dict with secrity information
+        [{'meta': {'securityID': 'F00000MRIF', 'performanceID': '0P0000TUB0', 'fundID': 
+        'FS00008MVC', 'masterPortfolioID': '2852260', 'universe': 'FO'}, 
+        'fields': {'isin': {'value': 'FR0010921445'}, 
+        'name': {'value': 'Abeille Capital Planète'}}}, 
+        {'meta': {'securityID': 'FOUSA06JVV', 'performanceID': 
+        '0P00009W2T', 'fundID': 'FSUSA08EHM', 'masterPortfolioID': '237848', 'universe': 'FO'}, 
+        'fields': {'isin': {'value': 'FR0010234898'}, 'name': 
+        {'value': 'Candriam MM Long/Short Global C EUR'}}}, 
+        {'meta': {'securityID': 'FOUSA06JU1', 'performanceID': '0P00009W0Z', 
+        'fundID': 'FSUSA08EHM', 'masterPortfolioID': '237848', 'universe': 'FO'},
+        'fields': {'isin': {'value': 'FR0000974412'}, 'name': 
+        {'value': 'Candriam MM Long/Short Global F EUR'}}}]
 
     Examples:
-      >>> search_funds("Myria",['SecId','TenforeId','LegalName'],country="fr", pageSize=25)
-      >>> search_funds("FR0011399914", 'LegalName', country="fr", pageSize=25)
+      >>> screener_universe("myria",field=["isin", "name"],pageSize=10,page=1)
+      >>> screener_universe("US67066G1040")
 
     """
     if not isinstance(term, str):
@@ -230,7 +215,7 @@ def screener_universe(
     if not isinstance(field, (str, list)):
         raise TypeError("field parameter should be a string or a list")
     
-    if not isinstance(filters, dict):
+    if filters and not isinstance(filters, dict):
         raise TypeError("filters parameter should be a dict")
     
     if not isinstance(pageSize, int):
@@ -245,6 +230,7 @@ def screener_universe(
     all_fields = search_field(display_print=False)
     if not field:
         check_field = True
+        fields = field
     elif isinstance(field, str):
         check_field = field in all_fields
         fields = field
@@ -336,60 +322,3 @@ def token_chart(proxies:dict=None) -> str:
     token_start = all_text[all_text.find("token") :]
     return token_start[7 : token_start.find("}") - 1]
 
-
-def token_fund_information(proxies:dict=None) -> str:
-    """
-    This function will scrape the Bearer Token needed to access MS API funds information
-
-    Args:
-    proxies (dict) : set the proxy if needed , example :
-    {"http": "http://host:port","https": "https://host:port"}
-
-    Returns:
-    str bearer token
-
-    """
-    if proxies and not isinstance(proxies, dict):
-        raise TypeError("proxies parameter should be dict")
-
-    url = "https://www.morningstar.co.uk/Common/funds/snapshot/PortfolioSAL.aspx"
-
-    headers = {"user-agent": random_user_agent()}
-
-    response = requests.get(url, headers=headers, proxies=proxies, timeout=120)
-    soup = BeautifulSoup(response.text, "html.parser")
-    script = soup.find_all("script", {"type": "text/javascript"})
-    bearerToken = (
-        str(script).rsplit("tokenMaaS:",maxsplit=1)[-1].split("}")[0].replace('"', "").strip()
-    )
-    return bearerToken
-
-
-def token_investment_strategy(proxies:dict=None) -> str:
-    """
-    This function will scrape the Bearer Token needed to access the investment strategy
-
-    Args:
-    proxies (dict) : set the proxy if needed , example :
-    {"http": "http://host:port","https": "https://host:port"}
-
-    Returns:
-    str bearer token
-
-    """
-    if proxies and not isinstance(proxies, dict):
-        raise TypeError("proxies parameter should be dict")
-
-    url = "https://www.morningstar.com.au/investments/security/ASX/VHY"
-
-    headers = {"user-agent": random_user_agent()}
-
-    response = requests.get(url, headers=headers, proxies=proxies, timeout=120)
-
-    all_text = response.text
-    if all_text.find("token") == -1:
-        return None
-    start_flag = ',"'
-    end_flag = '"www.morningstar.com.au"'
-    token_end = all_text[: all_text.find(end_flag) - 3]
-    return token_end[token_end.rfind(start_flag) + 2 :]

@@ -26,8 +26,8 @@ class Security:
         proxies = (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
     Examples:
-        >>> Security('0P0000712R', "ca", 9, 0)
-        >>> Security('visa', "", 25, 2)
+        >>> Security('0P0000712R', "fund", 9, 0)
+        >>> Security('visa', "stock", 25, 2)
 
     Raises:
         TypeError: raised whenever the parameter type is not the type expected

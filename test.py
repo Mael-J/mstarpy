@@ -5,19 +5,23 @@ import datetime
 import pandas as pd
 from mstarpy.search import (
     search_filter,
-    token_investment_strategy, 
     token_chart, 
-    token_fund_information,
-    general_search
+    general_search,
+    screener_universe
     )
 from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 
 
 #print(Funds("RMAGX", "us").TimeSeries(["nav","totalReturn"],datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today()))
     
+end_date = datetime.datetime.today()
+start_date = end_date - datetime.timedelta(60)
 # code = "FOUSA00LIX"
-fund = Stock("US0378331005")
-print(fund.analysisData())
+fund = Funds("myria")
+print(fund.nav(start_date,end_date))
+
+#print(screener_universe("US67066G1040",field=["isin", "name"],pageSize=3,page=1))
+
 # print(fund.holdings())
 #result = general_search(params={"query": "(_ ~= 'aaggaata')"})
 #print(search_filter(pattern="",asset_type="stock", filter_type="dividends", explicit=False))

@@ -12,8 +12,8 @@ class Stock(Security):
         proxies = (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
     Examples:
-        >>> Stocks('0P0000712R', 9, 0)
-        >>> Stocks('US0378331005')
+        >>> Stock('0P0000712R', 9, 0)
+        >>> Stock('US0378331005')
 
     Raises:
         TypeError: raised whenever the parameter type is not the type expected
