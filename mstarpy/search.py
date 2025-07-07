@@ -1,5 +1,4 @@
 import requests
-from bs4 import BeautifulSoup
 import re
 import warnings
 import pandas as pd
