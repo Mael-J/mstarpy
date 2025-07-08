@@ -12,14 +12,17 @@ class Funds(Security):
 
     Args:
         term (str): text to find a fund, can be a name, part of a name or the isin of the funds
-        pageSize (int): number of funds to return
-        itemRange (int) : index of funds to return (must be inferior to PageSize)
-        proxies = (dict) : set the proxy if needed ,
-        example : {"http": "http://host:port","https": "https://host:port"}
+        filters (dict) : filter, use the method search_filter() to find the different possible filter keys
+        itemRange (int) : index of stocks to return (must be inferior to PageSize)
+        pageSize (int): number of securities to return
+        page (int): page to return
+        sortby (str) : sort by a field
+        ascending (bool) : True sort by ascending order, False sort by descending order
+        proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
     Examples:
-        >>> Funds('0P0000712R', pageSize=9, itemRange=0)
-        >>> Funds('bond', "uk", 25, 2)
+        >>> Funds("myria",page=2, pageSize=15,itemRange=3,sortby="name", ascending=True)
+        >>> Funds('bond', 25, 2)
 
     Raises:
         TypeError: raised whenever the parameter type is not the type expected
@@ -30,9 +33,12 @@ class Funds(Security):
     def __init__(
         self,
         term=None,
-        pageSize:int=1,
-        itemRange:int=0,
         filters:dict=None,
+        itemRange:int=0,
+        pageSize:int=10,
+        page:int=1,
+        sortby:str=None,
+        ascending:bool=True,
         proxies:dict=None,
     ) -> None:
         
@@ -43,24 +49,36 @@ class Funds(Security):
         super().__init__(
             term=term,
             asset_type="fund",
-            pageSize=pageSize,
-            itemRange=itemRange,
             filters=fund_filter,
+            itemRange=itemRange,
+            pageSize=pageSize,
+            page=page,
+            sortby=sortby,
+            ascending=ascending,
             proxies=proxies,
         )
 
-    def allocationMap(self) -> dict:
+    def allocationMap(self, 
+                       version:int=3) -> dict:
         """
         This function retrieves the asset allocation of the funds, index and category.
-
+        Args:
+            version (int) : version of the api of allocation map 2 or 3
         Returns:
             dict with allocation map
 
         Examples:
-            >>> Funds("myria", "fr").allocationMap()
+            >>> Funds("myria").allocationMap()
 
         """
-        return self.GetData("process/asset/v2")
+        if not isinstance(version,int):
+            raise TypeError("version paramater should be an integer")
+        
+        if version not in range(2,4):
+            raise ValueError("version paramater should be 2 or 3")
+
+        return self.GetData(f"process/asset/v{version}")
+    
 
     def allocationWeighting(self) -> dict:
         """
@@ -71,7 +89,7 @@ class Funds(Security):
             dict with allocation
 
         Examples:
-            >>> Funds("myria", "fr").allocationWeighting()
+            >>> Funds("myria").allocationWeighting()
 
         """
         return self.GetData("process/weighting")
@@ -83,7 +101,7 @@ class Funds(Security):
         Returns:
             list of dict with ratings
 
-            >>> Funds("RMAGX", "us").analystRating()
+            >>> Funds("myria").analystRating()
 
         """
 
@@ -96,7 +114,7 @@ class Funds(Security):
         Returns:
             dict with ratings
 
-            >>> Funds("RMAGX", "us").analystRatingTopFunds()
+            >>> Funds("myria").analystRatingTopFunds()
 
         """
 
@@ -109,7 +127,7 @@ class Funds(Security):
         Returns:
             dict with ratings
 
-            >>> Funds("RMAGX", "us").analystRatingTopFundsUpDown()
+            >>> Funds("myria").analystRatingTopFundsUpDown()
 
         """
 
@@ -123,7 +141,7 @@ class Funds(Security):
             str benchmark name
 
         Examples:
-            >>> Funds("myria", "fr").benchmark()
+            >>> Funds("myria").benchmark()
 
         """
         return self.referenceIndex("benchmark")
@@ -136,7 +154,7 @@ class Funds(Security):
             dict with carbon metrics
 
         Examples:
-            >>> Funds("myria", "fr").carbonMetrics()
+            >>> Funds("myria").carbonMetrics()
 
         """
 
@@ -150,7 +168,7 @@ class Funds(Security):
             str category name
 
         Examples:
-            >>> Funds("myria", "fr").category()
+            >>> Funds("myria").category()
 
         """
         return self.referenceIndex("category")
@@ -163,10 +181,23 @@ class Funds(Security):
             dict cost of funds
 
         Examples:
-            >>> Funds("FOUSA00E5P", "us").costIllustration()
+            >>> Funds("FOUSA00E5P").costIllustration()
 
         """
         return self.GetData("price/costIllustration")
+    
+    def costProjection(self) -> dict:
+        """
+        This function retrieves performance with the cost projection.
+
+        Returns:
+            dict performance with cost projection
+
+        Examples:
+            >>> Funds("FOUSA00E5P").costProjection()
+
+        """
+        return self.GetData("price/costProjection")
 
     def couponRange(self)  :
         """
@@ -176,7 +207,7 @@ class Funds(Security):
             dict coupon
 
         Examples:
-            >>> Funds("rmagx", "us").couponRange()
+            >>> Funds("myria").couponRange()
 
         """
         return self.GetData("process/couponRange")
@@ -189,7 +220,7 @@ class Funds(Security):
             dict credit notation
 
         Examples:
-            >>> Funds("rmagx", "us").creditQuality()
+            >>> Funds("myria").creditQuality()
 
         """
         return self.GetData("portfolio/creditQuality")
@@ -209,8 +240,8 @@ class Funds(Security):
             list of dict funds infos
 
         Example:
-            >>> Funds("myria", "fr").dataPoint(['largestSector', 'Name', 'ongoingCharge'])
-            >>> Funds("myria", "fr").dataPoint('SharpeM36')
+            >>> Funds("myria").dataPoint(['largestSector', 'Name', 'ongoingCharge'])
+            >>> Funds("myria").dataPoint('SharpeM36')
 
         """
         return screener_universe(
@@ -232,7 +263,7 @@ class Funds(Security):
             dict distribution of coupon
 
         Example:
-            >>> Funds("rmagx", "us").distribution("annual")
+            >>> Funds("myria").distribution("annual")
 
         """
 
@@ -253,7 +284,7 @@ class Funds(Security):
             dict equity style
 
         Examples:
-            >>> Funds("myria", "fr").equityStyle()
+            >>> Funds("myria").equityStyle()
 
         """
         return self.GetData("process/stockStyle/v2")
@@ -266,7 +297,7 @@ class Funds(Security):
             dict equity style history
 
         Examples:
-            >>> Funds("myria", "fr").equityStyleBoxHistory()
+            >>> Funds("myria").equityStyleBoxHistory()
 
         """
         return self.GetData("process/equityStyleBoxHistory")
@@ -279,7 +310,7 @@ class Funds(Security):
             dict ESG data
 
         Examples:
-            >>> Funds("myria", "fr").esgData()
+            >>> Funds("myria").esgData()
 
         """
 
@@ -293,7 +324,7 @@ class Funds(Security):
             dict ESG risk
 
         Examples:
-            >>> Funds("myria", "fr").esgRisk()
+            >>> Funds("myria").esgRisk()
 
         """
 
@@ -307,7 +338,7 @@ class Funds(Security):
             dict factor profile
 
         Examples:
-            >>> Funds("myria", "fr").factorProfile()
+            >>> Funds("myria").factorProfile()
 
         """
         return self.GetData("factorProfile")
@@ -320,10 +351,10 @@ class Funds(Security):
             dict fees
 
         Examples:
-            >>> Funds("rmagx", "us").feeLevel()
+            >>> Funds("myria").feeLevel()
 
         """
-        return self.GetData("price/feeLevel")
+        return self.GetData("price/feeLevel/v1")
 
     def feeMifid(self, 
                  currency:str="EUR") -> dict:
@@ -334,7 +365,7 @@ class Funds(Security):
             dict fees
 
         Examples:
-            >>> Funds("myria", "fr").feeMifid()
+            >>> Funds("myria").feeMifid()
 
         """
         return self.ltData("Mifid", currency=currency)
@@ -347,7 +378,7 @@ class Funds(Security):
             dict financial metrics
 
         Examples:
-            >>> Funds("rmagx", "us").financialMetrics()
+            >>> Funds("myria").financialMetrics()
 
         """
         return self.GetData("process/financialMetrics")
@@ -360,7 +391,7 @@ class Funds(Security):
             dict fixed income style
 
         Examples:
-            >>> Funds("rmagx", "us").fixedIncomeStyle()
+            >>> Funds("myria").fixedIncomeStyle()
 
         """
 
@@ -374,7 +405,7 @@ class Funds(Security):
             dict fixed income style
 
         Examples:
-            >>> Funds("rmagx", "us").fixedincomeStyleBoxHistory()
+            >>> Funds("myria").fixedincomeStyleBoxHistory()
 
         """
         return self.GetData("process/fixedincomeStyleBoxHistory")
@@ -387,24 +418,34 @@ class Funds(Security):
             dict historical data
 
         Examples:
-            >>> Funds("myria", "fr").graphData()
+            >>> Funds("myria").graphData()
 
         """
 
         return self.GetData("parent/graphData")
 
-    def historicalData(self) -> dict:
+    def historicalData(self, 
+                       version:int=5) -> dict:
         """
         This function retrieves the historical price of the funds, index and category
 
+        Args:
+            version (int) : version of the api of historical data from 2 to 5
+        
         Returns:
             dict with historical data
 
         Examples:
-            >>> Funds("myria", "fr").historicalData()
+            >>> Funds("myria").historicalData()
 
         """
-        return self.GetData("performance/v3", url_suffix="")
+        if not isinstance(version,int):
+            raise TypeError("version paramater should be an integer")
+        
+        if version not in range(2,6):
+            raise ValueError("version paramater should be between 2 and 5")
+
+        return self.GetData(f"performance/v{version}", url_suffix="")
 
     def historicalExpenses(self) -> dict:
         """
@@ -414,12 +455,26 @@ class Funds(Security):
             dict historical expenses
 
         Examples:
-            >>> Funds("rmagx", "us").historicalExpenses()
+            >>> Funds("myria").historicalExpenses()
 
         """
         if self.asset_type == "etf":
             return {}
         return self.GetData("price/historicalExpenses")
+    
+    def historicalRating(self) -> dict:
+        """
+        This function retrieves MorningStar historical rating of the fund.
+
+        Returns:
+            dict historical rating
+
+        Examples:
+            >>> Funds("myria").historicalRating()
+
+        """
+
+        return self.GetData("morningstarTake/historicalRating")
 
     def holdings(self, 
                  holdingType: str = "all") -> pd.DataFrame:
@@ -436,10 +491,10 @@ class Funds(Security):
             ValueError whenever the parameter is not all, bond, equity or other
 
         Examples:
-            >>> Funds("myria", "fr").holdings("all")
-            >>> Funds("myria", "fr").holdings("bond")
-            >>> Funds("myria", "fr").holdings("equity")
-            >>> Funds("myria", "fr").holdings("other")
+            >>> Funds("myria").holdings("all")
+            >>> Funds("myria").holdings("bond")
+            >>> Funds("myria").holdings("equity")
+            >>> Funds("myria").holdings("other")
 
         """
         holdingType_to_holdingPage = {
@@ -465,6 +520,33 @@ class Funds(Security):
                 self.position()[holdingType_to_holdingPage[holdingType]]["holdingList"]
             )
 
+    def investmentFee(self) -> dict:
+        """
+        This function retrieves the investment fees.
+
+        Returns:
+            dict investment fees
+
+        Examples:
+            >>> Funds("LU0823421689").investmentFee()
+
+        """
+        return self.GetData("price/investmentFee")
+    
+    def investmentLookup(self, 
+                         currency:str="EUR") -> dict:
+        """
+        This function gives details about fund investment.
+
+        Returns:
+            dict fund investment
+
+        Examples:
+            >>> Funds("myria").investmentLookup()
+
+        """
+        return self.ltData("investmentTypeLookup", currency=currency)
+
     def investmentStrategy(self) -> dict:
         """
         This function retrieves the investment strategy.
@@ -478,20 +560,6 @@ class Funds(Security):
         """
         return self.GetData("morningstarTake/investmentStrategy")
 
-    def investmentLookup(self, 
-                         currency:str="EUR") -> dict:
-        """
-        This function gives details about fund investment.
-
-        Returns:
-            dict fund investment
-
-        Examples:
-            >>> Funds("myria", "fr").investmentLookup()
-
-        """
-        return self.ltData("investmentTypeLookup", currency=currency)
-
     def marketCapitalization(self) -> dict:
         """
         This function retrieves the marketCapitalization breakdown of the funds,
@@ -501,7 +569,7 @@ class Funds(Security):
             dict market capitalization
 
         Examples:
-            >>> Funds("myria", "fr").marketCapitalization()
+            >>> Funds("myria").marketCapitalization()
 
         """
         return self.GetData("process/marketCap")
@@ -514,7 +582,7 @@ class Funds(Security):
             dict maturity
 
         Examples:
-            >>> Funds("rmagx", "us").maturitySchedule()
+            >>> Funds("myria").maturitySchedule()
 
         """
         return self.GetData("process/maturitySchedule")
@@ -534,7 +602,7 @@ class Funds(Security):
             TypeError whenever the parameter year is not an integer
 
         Examples:
-            >>> Funds("myria", "fr").maxDrawDown()
+            >>> Funds("myria").maxDrawDown()
 
         """
 
@@ -545,6 +613,36 @@ class Funds(Security):
             "performance/marketVolatilityMeasure", params={"year": year}
         )
 
+    def medaListComparables(self) -> dict:
+        """
+        This function retrieves comparable funds.
+
+        Returns:
+            dict comparable funds
+
+        Examples:
+            >>> Funds("myria").medaListComparables()
+
+        """
+
+        return self.GetData("medaListComparables")
+    
+
+
+    def metaData(self) -> dict:
+        """
+        This function retrieves meta Data about the funds.
+
+        Returns:
+            dict meta Data
+
+        Examples:
+            >>> Funds("myria").metaData()
+
+        """
+
+        return self.GetData("securityMetaData",url_suffix="")
+    
     def morningstarAnalyst(self) -> dict:
         """
         This function retrieves the raiting of MorningStar analyst.
@@ -553,11 +651,35 @@ class Funds(Security):
             dict rating
 
         Examples:
-            >>> Funds("rmagx", "us").morningstarAnalyst()
+            >>> Funds("myria").morningstarAnalyst()
 
         """
 
         return self.GetData("morningstarAnalyst")
+    
+    def morningstarOpinion(self,
+                           version:int=3) -> dict:
+        """
+        This function retrieves the opinion of MorningStar analyst.
+
+        Args:
+            version (int) : version of the api of morningstarOpinion shoulb be 2 or 3
+
+        Returns:
+            dict opinion
+
+        Examples:
+            >>> Funds("myria").morningstarOpinion()
+
+        """
+
+        if not isinstance(version,int):
+            raise TypeError("version paramater should be an integer")
+        
+        if version not in range(2,4):
+            raise ValueError("version paramater should be 2 or 3")
+
+        return self.GetData(f"morningstarTake/v{version}",url_suffix="")
 
     def multiLevelFixedIncomeData(self, 
                                   primary:str="superEffectiveDuration", 
@@ -576,7 +698,7 @@ class Funds(Security):
             ValueError whenever the primary and seconday paramater is not a value expected
 
         Examples:
-            >>> Funds("rmagx", "us").multiLevelFixedIncomeData()
+            >>> Funds("myria").multiLevelFixedIncomeData()
 
         """
 
@@ -628,7 +750,7 @@ class Funds(Security):
         Returns:
             list of dict with nav
 
-            >>> Funds("RMAGX", "us").nav(datetime.datetime.today() 
+            >>> Funds("myria").nav(datetime.datetime.today() 
             - datetime.timedelta(30),datetime.datetime.today())
 
         Raises:
@@ -668,25 +790,68 @@ class Funds(Security):
             dict ownershipZone
 
         Examples:
-            >>> Funds("myria", "fr").ownershipZone()
+            >>> Funds("myria").ownershipZone()
 
         """
 
         return self.GetData("process/ownershipZone")
 
-    def parentMstarRating(self) -> list[dict]:
+    def parentMedal(self) -> list[dict]:
         """
-        This function retrieves the raiting of parent by MorningStar analyst.
+        This function retrieves medal funds from the asset manager.
+
+        Returns:
+            list of dict rating parent medal funds
+
+        Examples:
+            >>> Funds("myria").parentMedal()
+
+        """
+
+        return self.GetData("parent/medalistRating/topfunds")
+    
+    def parentMedaListRating(self) -> list[dict]:
+        """
+        This function retrieves summary medal funds from the asset manager.
+
+        Returns:
+            list of dict rating parent funds
+
+        Examples:
+            >>> Funds("myria").parentmedaListRating()
+
+        """
+
+        return self.GetData("parent/medalistRating")
+    
+    def parentMstarRating(self,
+                          ) -> list[dict]:
+        """
+        This function retrieves the rating of asset manager funds.
 
         Returns:
             list of dict rating
 
         Examples:
-            >>> Funds("rmagx", "us").parentMstarRating()
+            >>> Funds("myria").parentMstarRating()
 
         """
 
         return self.GetData("parent/parentMstarRating")
+    
+    def parentRatingRecentChange(self) -> list[dict]:
+        """
+        This function retrieves recent change in funds rating from the asset manager.
+
+        Returns:
+            list of dict rating parent funds
+
+        Examples:
+            >>> Funds("myria").parentRatingRecentChange()
+
+        """
+
+        return self.GetData("parent/medalistRating/topfundsUpDown")
 
     def parentSummary(self) -> dict:
         """
@@ -696,7 +861,7 @@ class Funds(Security):
             dict parent info
 
         Examples:
-            >>> Funds("rmagx", "us").parentSummary()
+            >>> Funds("myria").parentSummary()
 
         """
         return self.GetData("parent/parentSummary")
@@ -709,11 +874,24 @@ class Funds(Security):
             dict people info
 
         Examples:
-            >>> Funds("rmagx", "us").people()
+            >>> Funds("myria").people()
 
         """
         return self.GetData("people")
+    
+    def performanceTable(self) -> dict:
+        """
+        This function retrieves the performance of fund, catgory and index
 
+        Returns:
+            dict performance
+
+        Examples:
+            >>> Funds("myria").performanceTable()
+
+        """
+        return self.GetData("performance/table", url_suffix="")
+    
     def position(self) -> dict:
         """
         This function retrieves the hodings of the funds.
@@ -722,7 +900,7 @@ class Funds(Security):
             dict holdings
 
         Examples:
-            >>> Funds("myria", "fr").position()
+            >>> Funds("myria").position()
 
         """
 
@@ -738,7 +916,7 @@ class Funds(Security):
             dict vote
 
         Examples:
-            >>> Funds("rmagx", "us").proxyVotingManagement()
+            >>> Funds("myria").proxyVotingManagement()
 
         """
         return self.GetData("people/proxyVoting/management")
@@ -751,7 +929,7 @@ class Funds(Security):
             dict vote
 
         Examples:
-            >>> Funds("rmagx", "us").proxyVotingShareHolder()
+            >>> Funds("myria").proxyVotingShareHolder()
 
         """
         return self.GetData("people/proxyVoting/shareHolder")
@@ -764,13 +942,37 @@ class Funds(Security):
             dict involvement
 
         Examples:
-            >>> Funds("myria", "fr").proxyVotingShareHolder()
+            >>> Funds("myria").proxyVotingShareHolder()
 
         """
 
         return self.GetData("esg/productInvolvement")
 
 
+
+    def quote(self, 
+                version:int=7) -> dict:
+        """
+        This function retrieves general information about the funds.
+
+        Args:
+            version (int) : version of the api of historical data from 2 to 7
+        
+        Returns:
+            dict with general information
+
+        Examples:
+            >>> Funds("myria").historicalData()
+
+        """
+        if not isinstance(version,int):
+            raise TypeError("version paramater should be an integer")
+        
+        if version not in range(1,8):
+            raise ValueError("version paramater should be between 2 and 7")
+
+        return self.GetData(f"quote/v{version}")
+    
     def regionalSector(self) -> dict:
         """
         This function retrieves the breakdown of the funds, category and index by region
@@ -779,7 +981,7 @@ class Funds(Security):
             dict regional breakdown
 
         Examples:
-            >>> Funds("myria", "fr").regionalSector()
+            >>> Funds("myria").regionalSector()
 
         """
         return self.GetData("portfolio/regionalSector")
@@ -793,7 +995,7 @@ class Funds(Security):
             dict regional breakdown
 
         Examples:
-            >>> Funds("myria", "fr").regionalSectorIncludeCountries()
+            >>> Funds("myria").regionalSectorIncludeCountries()
 
         """
         return self.GetData("portfolio/regionalSectorIncludeCountries")
@@ -807,7 +1009,7 @@ class Funds(Security):
             dict risk return
 
         Examples:
-            >>> Funds("rmagx", "us").riskReturnScatterplot()
+            >>> Funds("myria").riskReturnScatterplot()
 
         """
         return self.GetData("performance/riskReturnScatterplot")
@@ -821,11 +1023,24 @@ class Funds(Security):
             dict risk return
 
         Examples:
-            >>> Funds("rmagx", "us").riskReturnSummary()
+            >>> Funds("myria").riskReturnSummary()
 
         """
 
         return self.GetData("performance/riskReturnSummary")
+    
+    def riskScore(self) -> dict:
+        """
+        This function retrieves the risk score of the fund.
+
+        Returns:
+            dict risk Score
+
+        Examples:
+            >>> Funds("myria").riskScore()
+
+        """
+        return self.GetData("performance/riskScore")
 
     def riskVolatility(self) -> dict:
         """
@@ -836,7 +1051,7 @@ class Funds(Security):
             dict econometrics
 
         Examples:
-            >>> Funds("rmagx", "us").riskVolatility()
+            >>> Funds("myria").riskVolatility()
 
         """
         return self.GetData("performance/riskVolatility")
@@ -849,25 +1064,35 @@ class Funds(Security):
             dict fees
 
         Examples:
-            >>> Funds("myria", "fr").salesFees()
+            >>> Funds("myria").salesFees()
 
         """
         if self.asset_type == "etf":
             return {}
         return self.GetData("price/salesFees")
 
-    def sector(self) -> dict:
+
+    def sector(self, 
+                version:int=2) -> dict:
         """
         This function retrieves the sector breakdown of the funds, category and index
+        Args:
+            version (int) : version of the api of allocation map, 1 or 2
 
         Returns:
             dict sector breakdown
 
         Examples:
-            >>> Funds("myria", "fr").sector()
+            >>> Funds("myria").sector()
 
         """
-        return self.GetData("portfolio/v2/sector")
+        if not isinstance(version,int):
+            raise TypeError("version paramater should be an integer")
+        
+        if version not in range(1,3):
+            raise ValueError("version paramater should be 1 or 2")
+
+        return self.GetData(f"portfolio/v{version}/sector")
 
     def snapshot(self, 
                  currency:str="EUR"):
@@ -878,7 +1103,7 @@ class Funds(Security):
             dict snapshot fund and asset manager
 
         Examples:
-            >>> Funds("myria", "fr").snapshot()
+            >>> Funds("myria").snapshot()
 
         """
         return self.ltData("MFsnapshot", currency=currency)
@@ -892,7 +1117,7 @@ class Funds(Security):
             dict rating
 
         Examples:
-            >>> Funds("myria", "fr").starRatingFundAsc()
+            >>> Funds("myria").starRatingFundAsc()
 
         """
 
@@ -907,12 +1132,26 @@ class Funds(Security):
             dict rating
 
         Examples:
-            >>> Funds("myria", "fr").starRatingFundDesc()
+            >>> Funds("myria").starRatingFundDesc()
 
         """
 
         return self.GetData("parent/mstarRating/StarRatingFundDesc")
 
+
+    def strategyPreview(self) -> dict:
+        """
+        This function retrieves general information and return on funds
+
+        Returns:
+            dict returns and general information
+
+        Examples:
+            >>> Funds("myria").strategyPreview()
+
+        """
+        return self.GetData("strategyPreview")
+    
     def sustainability(self, 
                        currency:str="EUR") -> dict:
         """
@@ -922,7 +1161,7 @@ class Funds(Security):
             dict sustanability data
 
         Examples:
-            >>> Funds("myria", "fr").sustainability()
+            >>> Funds("myria").sustainability()
 
         """
         return self.ltData("sustainability", currency=currency)
@@ -940,13 +1179,16 @@ class Funds(Security):
         """
         return self.GetData("price/taxes")
 
+
     def trailingReturn(self, 
-                       duration:str="daily") -> dict:
+                       duration:str="daily", 
+                       version:int=3) -> dict:
         """
-        This function retrieves the trailing return of the funds of the company.
+                This function retrieves the trailing return of the funds of the company.
 
         Args:
         duration (str) : frequency of return can be daily, monthly or quarterly
+        version (int) : version of the api of historical data from 1 to 3
 
         Returns:
             dict trailing return
@@ -955,14 +1197,24 @@ class Funds(Security):
             ValueError whenever the parameter duration is not daily, monthly or quarterly
 
         Example:
-            >>> Funds("myria", "fr").trailingReturn("daily")
+            >>> Funds("myria").trailingReturn("daily")
 
         """
 
+        if not isinstance(duration,str):
+            raise TypeError("duration paramater should be a string")
+        
+        if not isinstance(version,int):
+            raise TypeError("version paramater should be an integer")
+        
+        if version not in range(1,4):
+            raise ValueError("version paramater should be between 1 and 3")
+        
         duration_choice = ["daily", "monthly", "quarterly"]
         if duration not in duration_choice:
             raise ValueError(
                 f'duration parameter can only take one of the values: {", ".join(duration_choice)}'
             )
 
-        return self.GetData("trailingReturn/v2", {"duration": duration})
+        return self.GetData(f"trailingReturn/v{version}", {"duration": duration})
+
