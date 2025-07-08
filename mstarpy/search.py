@@ -7,9 +7,6 @@ from .utils import random_user_agent
 from .utils import ASSET_TYPE, EXCHANGE, FIELDS, FILTER_FUND, FILTER_STOCK, FILTER_TYPE
 from .error import not_200_response
 
-
-
-
 def general_search(params:dict, 
                    proxies:dict=None) -> dict:
     """
@@ -50,6 +47,153 @@ def general_search(params:dict,
 
     return response.json()
 
+def screener_universe(
+    term:str, 
+    field:str|list="",
+    filters:dict=None,
+    pageSize:int=10,
+    page:int=1,
+    sortby:str=None,
+    ascending:bool=True,
+    proxies:dict=None
+    ) -> list:
+    """
+    This function will use the screener of global.morningstar.com
+    to find funds, etf, stocks which include the term.
+
+    Args:
+      term (str): text to find a security can be a the name, 
+      part of a name or the isin
+      field (str | list) : field to find
+      filters (dict) : filter, use the method search_filter() to find the different possible filter keys
+      pageSize (int): number of securities to return
+      page (int): page to return
+      sortby (str) : sort by a field
+      ascending (bool) : True sort by ascending order, False sort by descending order
+      proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+
+    Returns:
+      list of dict with secrity information
+        [{'meta': {'securityID': 'F00000MRIF', 'performanceID': '0P0000TUB0', 'fundID': 
+        'FS00008MVC', 'masterPortfolioID': '2852260', 'universe': 'FO'}, 
+        'fields': {'isin': {'value': 'FR0010921445'}, 
+        'name': {'value': 'Abeille Capital Planète'}}}, 
+        {'meta': {'securityID': 'FOUSA06JVV', 'performanceID': 
+        '0P00009W2T', 'fundID': 'FSUSA08EHM', 'masterPortfolioID': '237848', 'universe': 'FO'}, 
+        'fields': {'isin': {'value': 'FR0010234898'}, 'name': 
+        {'value': 'Candriam MM Long/Short Global C EUR'}}}, 
+        {'meta': {'securityID': 'FOUSA06JU1', 'performanceID': '0P00009W0Z', 
+        'fundID': 'FSUSA08EHM', 'masterPortfolioID': '237848', 'universe': 'FO'},
+        'fields': {'isin': {'value': 'FR0000974412'}, 'name': 
+        {'value': 'Candriam MM Long/Short Global F EUR'}}}]
+
+    Examples:
+      >>> screener_universe("myria",field=["isin", "name"],pageSize=10,page=1, sortby="name", ascending=False)
+      >>> screener_universe("US67066G1040")
+
+    """
+    if not isinstance(term, str):
+        raise TypeError("term parameter should be a string")
+    
+    if not isinstance(field, (str, list)):
+        raise TypeError("field parameter should be a string or a list")
+    
+    if filters and not isinstance(filters, dict):
+        raise TypeError("filters parameter should be a dict")
+    
+    if not isinstance(pageSize, int):
+        raise TypeError("pageSize parameter should be an integer")
+    
+    if not isinstance(page, int):
+        raise TypeError("page parameter should be an integer")
+        
+    if sortby and not isinstance(sortby, str):
+        raise TypeError("sortby parameter should be a string")
+    
+    if not isinstance(ascending, bool):
+        raise TypeError("ascending parameter should be a boolean")
+    
+
+    if proxies and not isinstance(proxies, dict):
+        raise TypeError("proxies parameter should be dict")
+    
+    all_fields = search_field(display_print=False)
+    if not field:
+        check_field = True
+        fields = field
+    elif isinstance(field, str):
+        check_field = field in all_fields
+        fields = field
+    else:
+        check_field = set(field).issubset(set(all_fields))
+        fields = ",".join(field)
+
+    if sortby and sortby not in all_fields:
+        raise ValueError(
+            f"""The sort field {sortby} is not a valid field.
+            You can find the possible fields with the method search_field().
+            Possible fields are : {', '.join(all_fields)}"""
+        )
+
+    if not check_field:
+        raise ValueError(
+            f"""The field {field} is not a valid field.
+            You can find the possible fields with the method search_field().
+            Possible fields are : {', '.join(all_fields)}"""
+        )
+    
+    query_params = f"_ ~= '{term}'"
+
+    if filters:
+        list_filter =search_filter()
+        for f in filters:
+            if f not in list_filter:
+                warnings.warn(
+                    f"""{f} is not a valid filter and will be ignored.
+                    You can find the possible filters with the method search_filter()."""
+                )
+            else:
+                # if list, IN condition
+                if isinstance(filters[f], list):
+                    query_params += f""" AND {f} IN ({','.join(f"'{x}'" for x in filters[f])})"""
+                # if tuple, either, < or > condition
+                elif isinstance(filters[f], tuple):
+                    if len(filters[f]) != 2:
+                        warnings.warn(f"""{f} is not a valid filter and will be ignored.
+                                      The tuple has to be of a length of 2""")
+                    if filters[f][0] not in ['<','<=','>=', '>']:
+                         warnings.warn(f"""{f} is not a valid filter and will be ignored.
+                                       The first argument of the tuple has to be one of this value {','.join(['<','<=','>=', '>'])}""")
+                    if isinstance(filters[f][1,(int,float)]):
+                        warnings.warn(f"""{f} is not a valid filter and will be ignored.    
+                                        The second argument of the tuple has be a number.
+                                            """)
+                    query_params += f" AND {f} {filters[f][0]} {filters[f][1]}"
+                # else = condition
+                else:
+                    query_params += f" AND {f} = '{filters[f]}'"
+    params = {
+        "query": query_params,
+        "fields" : fields,
+        "page" : page,
+        "limit": pageSize,
+    }   
+    if sortby:
+        if ascending == True:
+            params["sort"] = f"{sortby}:asc"
+        else:
+            params["sort"] = f"{sortby}:desc"
+
+
+    
+
+    result = general_search(params, proxies=proxies)
+
+    if not "results" in result:
+        print(f"0 fund found whith the term {term}")
+        return {}
+    
+    return result["results"]
 
 def search_field(pattern:str="",
                  display_print=True) -> list:
@@ -166,131 +310,6 @@ def search_filter(pattern:str="",
     if explicit:
         return list_filter_explicit
     return list_filter
-    
-
-def screener_universe(
-    term:str, 
-    field:str|list="",
-    filters:dict=None,
-    pageSize:int=10,
-    page:int=1,
-    proxies:dict=None
-    ) -> list:
-    """
-    This function will use the screener of global.morningstar.com
-    to find funds, etf, stocks which include the term.
-
-    Args:
-      term (str): text to find a security can be a the name, 
-      part of a name or the isin
-      field (str | list) : field to find
-      pageSize (int): number of securities to return
-      filters (dict) : filter, use the method search_filter() to find the different possible filter keys
-      proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
-
-    Returns:
-      list of dict with secrity information
-        [{'meta': {'securityID': 'F00000MRIF', 'performanceID': '0P0000TUB0', 'fundID': 
-        'FS00008MVC', 'masterPortfolioID': '2852260', 'universe': 'FO'}, 
-        'fields': {'isin': {'value': 'FR0010921445'}, 
-        'name': {'value': 'Abeille Capital Planète'}}}, 
-        {'meta': {'securityID': 'FOUSA06JVV', 'performanceID': 
-        '0P00009W2T', 'fundID': 'FSUSA08EHM', 'masterPortfolioID': '237848', 'universe': 'FO'}, 
-        'fields': {'isin': {'value': 'FR0010234898'}, 'name': 
-        {'value': 'Candriam MM Long/Short Global C EUR'}}}, 
-        {'meta': {'securityID': 'FOUSA06JU1', 'performanceID': '0P00009W0Z', 
-        'fundID': 'FSUSA08EHM', 'masterPortfolioID': '237848', 'universe': 'FO'},
-        'fields': {'isin': {'value': 'FR0000974412'}, 'name': 
-        {'value': 'Candriam MM Long/Short Global F EUR'}}}]
-
-    Examples:
-      >>> screener_universe("myria",field=["isin", "name"],pageSize=10,page=1)
-      >>> screener_universe("US67066G1040")
-
-    """
-    if not isinstance(term, str):
-        raise TypeError("term parameter should be a string")
-    
-    if not isinstance(field, (str, list)):
-        raise TypeError("field parameter should be a string or a list")
-    
-    if filters and not isinstance(filters, dict):
-        raise TypeError("filters parameter should be a dict")
-    
-    if not isinstance(pageSize, int):
-        raise TypeError("pageSize parameter should be an integer")
-    
-    if not isinstance(page, int):
-        raise TypeError("page parameter should be an integer")
-
-    if proxies and not isinstance(proxies, dict):
-        raise TypeError("proxies parameter should be dict")
-    
-    all_fields = search_field(display_print=False)
-    if not field:
-        check_field = True
-        fields = field
-    elif isinstance(field, str):
-        check_field = field in all_fields
-        fields = field
-    else:
-        check_field = set(field).issubset(set(all_fields))
-        fields = ",".join(field)
-
-    if not check_field:
-        raise ValueError(
-            f"""The field {field} is not a valid field.
-            You can find the possible fields with the method search_field().
-            Possible fields are : {', '.join(all_fields)}"""
-        )
-    
-    query_params = f"_ ~= '{term}'"
-
-    if filters:
-        list_filter =search_filter()
-        for f in filters:
-            if f not in list_filter:
-                warnings.warn(
-                    f"""{f} is not a valid filter and will be ignored.
-                    You can find the possible filters with the method search_filter()."""
-                )
-            else:
-                # if list, IN condition
-                if isinstance(filters[f], list):
-                    query_params += f""" AND {f} IN ({','.join(f"'{x}'" for x in filters[f])})"""
-                # if tuple, either, < or > condition
-                elif isinstance(filters[f], tuple):
-                    if len(filters[f]) != 2:
-                        warnings.warn(f"""{f} is not a valid filter and will be ignored.
-                                      The tuple has to be of a length of 2""")
-                    if filters[f][0] not in ['<','<=','>=', '>']:
-                         warnings.warn(f"""{f} is not a valid filter and will be ignored.
-                                       The first argument of the tuple has to be one of this value {','.join(['<','<=','>=', '>'])}""")
-                    if isinstance(filters[f][1,(int,float)]):
-                        warnings.warn(f"""{f} is not a valid filter and will be ignored.    
-                                        The second argument of the tuple has be a number.
-                                            """)
-                    query_params += f" AND {f} {filters[f][0]} {filters[f][1]}"
-                # else IN condition
-                else:
-                    query_params += f" AND {f} = '{filters[f]}'"
-        
-    params = {
-        "query": query_params,
-        "fields" : fields,
-        "limit": pageSize,
-
-    }
-
-    result = general_search(params, proxies=proxies)
-
-    if not "results" in result:
-        print(f"0 fund found whith the term {term}")
-        return {}
-    
-    return result["results"]
-
-
 
 def token_chart(proxies:dict=None) -> str:
     """

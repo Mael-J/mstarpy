@@ -6,13 +6,16 @@ class Stock(Security):
     Main class to access data about stocks, inherit from Security class
     Args:
         term (str): text to find a stock, can be a name, part of a name or the isin of the stocks
-        pageSize (int): number of stocks to return
+        filters (dict) : filter, use the method search_filter() to find the different possible filter keys
         itemRange (int) : index of stocks to return (must be inferior to PageSize)
-        filters (dict) : filter, use the method search_filter()
-        proxies = (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+        pageSize (int): number of securities to return
+        page (int): page to return
+        sortby (str) : sort by a field
+        ascending (bool) : True sort by ascending order, False sort by descending order
+        proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
     Examples:
-        >>> Stock('0P0000712R', 9, 0)
+        >>> Stock("ab",page=5, pageSize=5,itemRange=0,sortby="name", ascending=False)
         >>> Stock('US0378331005')
 
     Raises:
@@ -24,9 +27,12 @@ class Stock(Security):
     def __init__(
         self,
         term=None,
-        pageSize:int=1,
-        itemRange:int=0,
         filters:dict=None,
+        itemRange:int=0,
+        pageSize:int=10,
+        page:int=1,
+        sortby:str=None,
+        ascending:bool=True,
         proxies:dict=None,
     ) -> None:
         
@@ -37,9 +43,12 @@ class Stock(Security):
         super().__init__(
             term=term,
             asset_type="stock",
-            pageSize=pageSize,
-            itemRange=itemRange,
             filters=stock_filter,
+            itemRange=itemRange,
+            pageSize=pageSize,
+            page=page,
+            sortby=sortby,
+            ascending=ascending,
             proxies=proxies,
         )
 

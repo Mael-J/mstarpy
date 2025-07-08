@@ -17,8 +17,9 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 end_date = datetime.datetime.today()
 start_date = end_date - datetime.timedelta(60)
 # code = "FOUSA00LIX"
-fund = Funds("myria")
-print(fund.nav(start_date,end_date))
+fund = Funds("FR0010921452")
+print(fund.analystRatingTopFunds())
+#print(fund.nav(start_date,end_date))
 
 #print(screener_universe("US67066G1040",field=["isin", "name"],pageSize=3,page=1))
 

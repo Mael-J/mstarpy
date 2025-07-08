@@ -20,10 +20,14 @@ class Security:
 
     Args:
         term (str): text to find a fund can be a name, part of a name or the isin of the funds
-        pageSize (int): number of funds to return
+        asset_type (str) : security type from the inherited, can be fund, stock, etf
+        filters (dict) : filter, use the method search_filter() to find the different possible filter keys
+        pageSize (int): number of securities to return
+        page (int): page to return
+        sortby (str) : sort by a field
+        ascending (bool) : True sort by ascending order, False sort by descending order
         itemRange (int) : index of funds to return (must be inferior to PageSize)
-        filters (dict) : filter, use the method search_filter()
-        proxies = (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
+        proxies (dict) : set the proxy if needed , example : {"http": "http://host:port","https": "https://host:port"}
 
     Examples:
         >>> Security('0P0000712R', "fund", 9, 0)
@@ -39,19 +43,32 @@ class Security:
         self,
         term=None,
         asset_type:str="",
-        pageSize:int=1,
-        itemRange:int=0,
         filters:dict=None,
+        itemRange:int=0,
+        pageSize:int=10,
+        page:int=1,
+        sortby:str=None,
+        ascending:bool=True,
         proxies:dict=None,
     ) -> None:
+        
         if not isinstance(term, str):
             raise TypeError("term parameter should be a string")
+        
         if not isinstance(asset_type, str):
             raise TypeError("asset_type parameter should be a string")
 
-        
         if not isinstance(pageSize, int):
             raise TypeError("pageSize parameter should be an integer")
+        
+        if not isinstance(page, int):
+            raise TypeError("page parameter should be an integer")
+        
+        if sortby and not isinstance(sortby, str):
+            raise TypeError("sortby parameter should be a string")
+    
+        if not isinstance(ascending, bool):
+            raise TypeError("ascending parameter should be a boolean")
 
         if not isinstance(itemRange, int):
             raise TypeError("itemRange parameter should be an integer")
@@ -73,15 +90,16 @@ class Security:
 
         code_list = []
 
-
         code_list = screener_universe(
                 term,
                 field=["isin", "name"],
-                pageSize=pageSize,
                 filters=filters,
+                pageSize=pageSize, 
+                page=page,
+                sortby=sortby,
+                ascending=ascending,
                 proxies=self.proxies,)
-
-
+        
         if code_list:
             if itemRange < len(code_list):
                 self.code = code_list[itemRange]['meta']["securityID"]
@@ -89,20 +107,20 @@ class Security:
                 self.isin = code_list[itemRange]['fields']["isin"]['value']
                 universe = code_list[itemRange]['meta']["universe"]
 
-                if universe[:2] == "EQ":
+                if universe == "EQ":
                     self.asset_type = "stock"
-                elif universe[:2] == "FE":
+                elif universe == "FE":
                     self.asset_type = "etf"
-                elif universe[:2] == "FO":
+                elif universe == "FO":
                     self.asset_type = "fund"
 
-                if universe[:2] == "EQ" and asset_type in ["etf", "fund"]:
+                if universe == "EQ" and asset_type in ["etf", "fund"]:
                     raise ValueError(
                         f"The security found with the term {term} is a stock and the parameter asset_type is equal to {asset_type}, the class Stock should be used with this security."
                     )
 
-                if universe[:2] in ["FO", "FE"] and asset_type == "stock":
-                    if universe[:2] == "FO":
+                if universe in ["FO", "FE"] and asset_type == "stock":
+                    if universe == "FO":
                         raise ValueError(
                             f"The security found with the term {term} is a fund and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
                         )
@@ -138,7 +156,7 @@ class Security:
             dict with data
 
         Examples:
-            >>> Security("rmagx", "us").GetData("price/feeLevel")
+            >>> Security("rmagx").GetData("price/feeLevel")
 
         """
 
@@ -192,7 +210,7 @@ class Security:
             dict with data
 
         Examples:
-            >>> Security("rmagx", "us").ltData("price/feeLevel")
+            >>> Security("rmagx").ltData("price/feeLevel")
 
         """
         if not isinstance(field, str):
@@ -231,7 +249,7 @@ class Security:
             dict of realtime data
 
         Examples:
-            >>> Stock("visa", "us").RealtimeData("quotes")
+            >>> Security("visa").RealtimeData("quotes")
 
         Raises:
             TypeError: raised whenever the parameter type 
@@ -280,7 +298,7 @@ class Security:
             list of dict time series
 
         Examples:
-            >>> Funds("RMAGX", "us").TimeSeries(["nav","totalReturn"],datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today())
+            >>> Security("RMAGX").TimeSeries(["nav","totalReturn"],datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today())
 
         Raises:
             TypeError: raised whenever the parameter type is not the type expected
