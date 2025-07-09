@@ -136,6 +136,30 @@ class Security:
         else:
             raise ValueError(f"0 {self.asset_type} found with the term {term}")
 
+
+
+    def dataPoint(self, 
+                  field:str|list) -> list[dict]:
+        """
+        This function retrieves infos about securities such as name,
+        performance, risk metrics...
+
+        Args:
+        field (str or list) : field to find
+
+        Returns:
+            list of dict security infos
+
+        Example:
+            >>> Security("myria").dataPoint(['name', 'isin', 'priipsKidCosts'])
+            >>> Security("myria").dataPoint('standardDeviation')
+
+        """
+
+        return screener_universe(
+            self.isin, field, proxies=self.proxies
+        )
+    
     def GetData(self, 
                 field:str, 
                 params:dict=None, 
