@@ -136,18 +136,6 @@ class Funds(Security):
 
         return self.GetData("parent/analystRating/topfundsUpDown")
 
-    def benchmark(self) -> str:
-        """
-        This function retrieves the benchmark name of the funds.
-
-        Returns:
-            str benchmark name
-
-        Examples:
-            >>> Funds("myria").benchmark()
-
-        """
-        return self.referenceIndex("benchmark")
 
     def carbonMetrics(self) -> dict:
         """
@@ -162,19 +150,6 @@ class Funds(Security):
         """
 
         return self.GetData("esg/carbonMetrics")
-
-    def category(self) -> str:
-        """
-        This function retrieves the category name of the funds.
-
-        Returns:
-            str category name
-
-        Examples:
-            >>> Funds("myria").category()
-
-        """
-        return self.referenceIndex("category")
 
     def costIllustration(self) -> dict:
         """
@@ -279,6 +254,104 @@ class Funds(Security):
 
         return self.GetData(f"distribution/{period}")
 
+    def downloadDocument(self,
+                         marketId:str,
+                         documentType:str,
+                         languageId:str,
+                         folderPath:str=".") -> dict:
+        
+        """
+        This function download documents.
+
+        Args:
+            marketId (str) : country available for the document, represented using two-letter codes
+            documentType (str) : document to download
+            languageId (str) : languages available for the document, represented using two-letter codes
+            folderPath (str) : folder path where to save the file 
+        Raises:
+            TypeError raised whenever the fund is not available in the marketId
+
+        Returns:
+            dict with documents information
+
+        Examples:
+            >>> Funds("myria").getDocumentInformation("fr")
+
+        """
+
+        if not isinstance(marketId, str):
+            raise TypeError("marketId parameter should be a string")
+        
+        if not isinstance(documentType, str):
+            raise TypeError("marketId parameter should be a string")
+        
+        if not isinstance(languageId, str):
+            raise TypeError("marketId parameter should be a string")
+
+        docInfo = self.getDocumentInformation(marketId)
+
+        if "documents" not in docInfo["components"]:
+            raise FileNotFoundError(f"There are no documents available for the {self.asset_type} {self.name} ({self.code})") 
+        docFound = False
+        docType = []
+        foundLanguage = False
+        languageAvailable = []
+        if docInfo["components"]["documents"]["status"] != 200:
+            raise FileNotFoundError(f"There are no documents available for the {self.asset_type} {self.name} ({self.code}) on market {marketId}") 
+
+        for document in docInfo["components"]["documents"]["payload"]:
+            docType.append(document["name"])
+            if document["name"] == documentType:
+                docFound = True
+                docId = document["id"]
+                for documents in document["documents"]:
+                    docExtension =documents["mimeType"]
+                    docDate = documents["effectiveDate"]
+                    for language in documents["languages"]:
+                        documentLanguage = language
+                        languageAvailable.append(documentLanguage)
+                        if language == languageId:
+                            foundLanguage = True
+                            continue
+                continue
+                    
+        if docFound == False:
+            raise FileNotFoundError(f"""The document type {documentType} 
+                                  does not exist for the {self.asset_type}
+                                    {self.name} ({self.code}).
+                                    Documents type available are {', '.join(docType)}""")
+        
+        if docExtension != "application/pdf":
+            raise FileExistsError(f"""The document type {documentType} 
+                                  exists for the {self.asset_type}
+                                    {self.name} ({self.code}), but it's extension is {docExtension}.
+                                    This type of file is not yet supported  is not by MStarpy.""")
+        if foundLanguage == False:
+            warnings.warn(f"""Document language {languageId} is not found, 
+                          available language are {', '.join(languageAvailable)}.
+                          The document in {languageAvailable[-1]} is downloaded.""")
+            
+        url = f"https://global.morningstar.com/api/v1/{marketId}/investments/{self.asset_type}s/{self.code}/documents/_document"
+
+        params = { "documentId" : docId,
+                  "languageId" : documentLanguage}
+        
+        headers = {"user-agent": random_user_agent()}
+
+        response = requests.get(
+            url, params=params, headers=headers, proxies=self.proxies
+        )
+
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        fileName = f"{documentType}-{self.code}-{docDate}-{timestamp}.pdf"
+        with open(f"{folderPath}/{fileName}", "wb") as f:
+            f.write(response.content)
+
+
+        return {"status" : response.status_code, 
+                "mesage" : "File downloaded", 
+                "filename" : fileName,
+                "folder" : folderPath}
     def equityStyle(self) -> dict:
         """
         This function retrieves the equity style of the funds and category.
@@ -426,114 +499,6 @@ class Funds(Security):
         """
 
         return self.GetData("parent/graphData")
-    
-    def downloadDocument(self,
-                         marketId:str,
-                         documentType:str,
-                         languageId:str,
-                         folderPath:str=".") -> dict:
-        
-        """
-        This function download documents.
-
-        Args:
-            marketId (str) : country available for the document, represented using two-letter codes
-            documentType (str) : document to download can be factsheet, kid, prospectus, annual, semi-annual, sfdr-annex
-            languageId (str) : languages available for the document, represented using two-letter codes
-            folderPath (str) : folder path where to save the file 
-        Raises:
-            TypeError raised whenever the fund is not available in the marketId
-
-        Returns:
-            dict with documents information
-
-        Examples:
-            >>> Funds("myria").getDocumentInformation("fr")
-
-        """
-
-        if not isinstance(marketId, str):
-            raise TypeError("marketId parameter should be a string")
-        
-        if not isinstance(documentType, str):
-            raise TypeError("marketId parameter should be a string")
-        
-        if not isinstance(languageId, str):
-            raise TypeError("marketId parameter should be a string")
-        
-        documentType_dic = {"annual" : "Annual Report",
-                            "factsheet" : "Factsheet",
-                            "kid" : "PRIIP KID",
-                            "sfdr-annex" : "Periodic SFDR annex",
-                            "prospectus" : "Prospectus",
-                            "semi-annual" : "Semi-Annual Report"
-                            }
-        
-        if documentType not in (documentType_dic.keys()):
-            raise ValueError(f"parameter documenType can only takes one of the values {', '.join(documentType_dic.keys())} ")
-
-        docInfo = self.getDocumentInformation(marketId)
-
-        if "documents" not in docInfo["components"]:
-            raise FileNotFoundError(f"There are no documents available for the {self.asset_type} {self.name} ({self.code})") 
-        docFound = False
-        foundLanguage = False
-        languageAvailable = []
-        if docInfo["components"]["documents"]["status"] != 200:
-            raise FileNotFoundError(f"There are no documents available for the {self.asset_type} {self.name} ({self.code}) on market {marketId}") 
-
-        for document in docInfo["components"]["documents"]["payload"]:
-            if document["name"] == documentType_dic[documentType]:
-                docFound = True
-                docId = document["id"]
-                for documents in document["documents"]:
-                    docExtension =documents["mimeType"]
-                    docDate = documents["effectiveDate"]
-                    for language in documents["languages"]:
-                        documentLanguage = language
-                        languageAvailable.append(documentLanguage)
-                        if language == languageId:
-                            foundLanguage = True
-                            continue
-                continue
-                    
-        if docFound == False:
-            raise FileNotFoundError(f"""The {documentType_dic[documentType]} 
-                                  does not exist for the {self.asset_type}
-                                    {self.name} ({self.code}).""")
-        
-        if docExtension != "application/pdf":
-            raise FileExistsError(f"""The {documentType_dic[documentType]} 
-                                  exists for the {self.asset_type}
-                                    {self.name} ({self.code}), but it's extension is {docExtension}.
-                                    This type of file is not yet supported  is not by MStarpy.""")
-        if foundLanguage == False:
-            warnings.warn(f"""Document language {languageId} is not found, 
-                          available language are {', '.join(languageAvailable)}.
-                          The document in {languageAvailable[-1]} is downloaded.""")
-            
-        url = f"https://global.morningstar.com/api/v1/{marketId}/investments/funds/{self.code}/documents/_document"
-
-        params = { "documentId" : docId,
-                  "languageId" : documentLanguage}
-        
-        headers = {"user-agent": random_user_agent()}
-
-        response = requests.get(
-            url, params=params, headers=headers, proxies=self.proxies
-        )
-
-
-        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        fileName = f"{documentType}-{self.code}-{docDate}-{timestamp}.pdf"
-        with open(f"{folderPath}/{fileName}", "wb") as f:
-            f.write(response.content)
-
-
-        return {"status" : response.status_code, 
-                "mesage" : "File downloaded", 
-                "filename" : fileName,
-                "folder" : folderPath}
 
     def getDocumentInformation(self, 
                     marketId:str
@@ -559,11 +524,10 @@ class Funds(Security):
 
         
         # url of API
-        url = f"""https://global.morningstar.com/api/v1/{marketId}/investments/funds/{self.code}/documents"""
+        url = f"""https://global.morningstar.com/api/v1/{marketId}/investments/{self.asset_type}s/{self.code}/documents"""
 
         params = { "marketId" : marketId}
         headers = {"user-agent": random_user_agent()}
-
 
         response = requests.get(
             url, params=params, headers=headers, proxies=self.proxies
