@@ -17,11 +17,13 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
 end_date = datetime.datetime.today()
 start_date = end_date - datetime.timedelta(60)
 # code = "FOUSA00LIX"
-fund = Funds("FR0007052782")
+#fund = Funds("FR0007052782") 
+stock = Stock("US0378331005")
+print(stock.overview())
 # #print(fund.getDocumentInformation("fr"))
 #print(fund.downloadDocument("fr","PRIIP KID","en", r"C:\Users\maelj\Downloads"))
 #print(fund.nav(start_date,end_date))
-print(fund.taxes())
+#print(fund.taxes())
 
 #print(screener_universe("US67066G1040",field=["isin", "name"],pageSize=3,page=1))
 
