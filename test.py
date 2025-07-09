@@ -18,7 +18,8 @@ end_date = datetime.datetime.today()
 start_date = end_date - datetime.timedelta(60)
 # code = "FOUSA00LIX"
 fund = Funds("FR0010921452")
-print(fund.analystRatingTopFunds())
+#print(fund.getDocumentInformation("eu"))
+print(fund.downloadDocument("eu","prospectus","en", r"C:\Users\maelj\Downloads"))
 #print(fund.nav(start_date,end_date))
 
 #print(screener_universe("US67066G1040",field=["isin", "name"],pageSize=3,page=1))
