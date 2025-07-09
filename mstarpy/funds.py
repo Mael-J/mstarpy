@@ -203,29 +203,6 @@ class Funds(Security):
         """
         return self.GetData("portfolio/creditQuality")
 
-    def dataPoint(self, 
-                  field:str|list, 
-                  currency:str="EUR") -> list[dict]:
-        """
-        This function retrieves infos about funds such as name,
-        performance, risk metrics...
-
-        Args:
-        field (str or list) : field to find
-        currency (str) : currency in 3 letters
-
-        Returns:
-            list of dict funds infos
-
-        Example:
-            >>> Funds("myria").dataPoint(['largestSector', 'Name', 'ongoingCharge'])
-            >>> Funds("myria").dataPoint('SharpeM36')
-
-        """
-        return screener_universe(
-            self.code, field, proxies=self.proxies
-        )
-
     def distribution(self, 
                      period:str="annual") -> dict:
         """
