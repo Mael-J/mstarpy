@@ -135,6 +135,20 @@ class Stock(Security):
 
         return self.financialStatement("cashflow", period=period, reportType=reportType)
 
+
+    def companyProfile(self) -> dict:
+        """
+        This function retrieves the company profile
+
+        Returns:
+            dict with company information
+
+        Examples:
+            >>> Stock("US0378331005").companyProfile()
+
+        """
+        return self.GetData("companyProfile", url_suffix="")
+
     def dividends(self) -> dict:
         """
         This function retrieves the dividends of the stock.
@@ -160,38 +174,6 @@ class Stock(Security):
 
         """
         return self.GetData("esgRisk")
-
-
-    def keyMetricsSummary(self, 
-                          reportType:str="original") -> dict:
-        """
-        This function retrieves the key metrics summary
-
-        Args:
-            reportType (str) : possible values are original, restated
-
-        Returns:
-            dict with key metrics summary
-
-        Examples:
-            >>> Stock("US0378331005").keyMetricsSummary()
-
-        """
-        if not isinstance(reportType, str):
-            raise TypeError("reportType parameter should be a string")
-        
-        reportType_choice = {"original": "A", "restated": "R"}
-
-        if reportType not in reportType_choice:
-            raise ValueError(
-                f"reportType parameter must take one of the following value : { ', '.join(reportType_choice.keys())}"
-            )
-
-        params = {"reportType": reportType_choice[reportType]}
-
-        return self.GetData("keyMetrics/summary",
-                             params=params,
-                            url_suffix="")
     
     def financialHealth(self) -> dict:
         """
@@ -463,6 +445,37 @@ class Stock(Security):
         """
         return self.GetData("insiders/keyExecutives")
 
+    def keyMetricsSummary(self, 
+                          reportType:str="original") -> dict:
+        """
+        This function retrieves the key metrics summary
+
+        Args:
+            reportType (str) : possible values are original, restated
+
+        Returns:
+            dict with key metrics summary
+
+        Examples:
+            >>> Stock("US0378331005").keyMetricsSummary()
+
+        """
+        if not isinstance(reportType, str):
+            raise TypeError("reportType parameter should be a string")
+        
+        reportType_choice = {"original": "A", "restated": "R"}
+
+        if reportType not in reportType_choice:
+            raise ValueError(
+                f"reportType parameter must take one of the following value : { ', '.join(reportType_choice.keys())}"
+            )
+
+        params = {"reportType": reportType_choice[reportType]}
+
+        return self.GetData("keyMetrics/summary",
+                             params=params,
+                            url_suffix="")
+
     def keyRatio(self) -> dict:
         """
         This function retrieves the key ratio of the stock.
@@ -574,6 +587,19 @@ class Stock(Security):
 
         """
         return self.GetData("keyStats/growthTable", url_suffix="")
+    
+    def overview(self) -> dict:
+        """
+        This function retrieves stock overview.
+
+        Returns:
+            dict with stock overview
+
+        Examples:
+            >>> Stock("US0378331005").overview()
+
+        """
+        return self.GetData("equityOverview")
 
 
     def profitability(self) -> dict:
