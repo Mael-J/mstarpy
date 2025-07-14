@@ -80,7 +80,7 @@ class Funds(Security):
         if version not in range(2,4):
             raise ValueError("version paramater should be 2 or 3")
 
-        return self.GetData(f"process/asset/v{version}")
+        return self.GetData(f"process/asset/v{version}").json()
     
 
     def allocationWeighting(self) -> dict:
@@ -95,7 +95,7 @@ class Funds(Security):
             >>> Funds("myria").allocationWeighting()
 
         """
-        return self.GetData("process/weighting")
+        return self.GetData("process/weighting").json()
 
     def analystRating(self) -> list[dict]:
         """
@@ -108,7 +108,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("parent/analystRating")
+        return self.GetData("parent/analystRating").json()
 
     def analystRatingTopFunds(self) -> dict:
         """
@@ -121,7 +121,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("parent/analystRating/topfunds")
+        return self.GetData("parent/analystRating/topfunds").json()
 
     def analystRatingTopFundsUpDown(self) -> dict:
         """
@@ -134,7 +134,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("parent/analystRating/topfundsUpDown")
+        return self.GetData("parent/analystRating/topfundsUpDown").json()
 
 
     def carbonMetrics(self) -> dict:
@@ -149,7 +149,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("esg/carbonMetrics")
+        return self.GetData("esg/carbonMetrics").json()
 
     def costIllustration(self) -> dict:
         """
@@ -162,7 +162,7 @@ class Funds(Security):
             >>> Funds("FOUSA00E5P").costIllustration()
 
         """
-        return self.GetData("price/costIllustration")
+        return self.GetData("price/costIllustration").json()
     
     def costProjection(self) -> dict:
         """
@@ -175,7 +175,7 @@ class Funds(Security):
             >>> Funds("FOUSA00E5P").costProjection()
 
         """
-        return self.GetData("price/costProjection")
+        return self.GetData("price/costProjection").json()
 
     def couponRange(self)  :
         """
@@ -188,7 +188,7 @@ class Funds(Security):
             >>> Funds("myria").couponRange()
 
         """
-        return self.GetData("process/couponRange")
+        return self.GetData("process/couponRange").json()
 
     def creditQuality(self) -> dict:
         """
@@ -201,7 +201,7 @@ class Funds(Security):
             >>> Funds("myria").creditQuality()
 
         """
-        return self.GetData("portfolio/creditQuality")
+        return self.GetData("portfolio/creditQuality").json()
 
     def distribution(self, 
                      period:str="annual") -> dict:
@@ -229,7 +229,7 @@ class Funds(Security):
                              the values: {", ".join(period_choice)}"""
             )
 
-        return self.GetData(f"distribution/{period}")
+        return self.GetData(f"distribution/{period}").json()
 
     def downloadDocument(self,
                          marketId:str,
@@ -289,8 +289,10 @@ class Funds(Security):
                         languageAvailable.append(documentLanguage)
                         if language == languageId:
                             foundLanguage = True
-                            continue
-                continue
+                            break
+                    if foundLanguage == True:
+                        break
+                break
                     
         if docFound == False:
             raise FileNotFoundError(f"""The document type {documentType} 
@@ -340,7 +342,7 @@ class Funds(Security):
             >>> Funds("myria").equityStyle()
 
         """
-        return self.GetData("process/stockStyle/v2")
+        return self.GetData("process/stockStyle/v2").json()
 
     def equityStyleBoxHistory(self) -> dict:
         """
@@ -353,7 +355,7 @@ class Funds(Security):
             >>> Funds("myria").equityStyleBoxHistory()
 
         """
-        return self.GetData("process/equityStyleBoxHistory")
+        return self.GetData("process/equityStyleBoxHistory").json()
 
     def esgData(self) -> dict:
         """
@@ -367,7 +369,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("esg/v1")
+        return self.GetData("esg/v1").json()
     
     def esgRisk(self) -> dict:
         """
@@ -381,7 +383,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("esgRisk")
+        return self.GetData("esgRisk").json()
 
     def factorProfile(self) -> dict:
         """
@@ -394,7 +396,7 @@ class Funds(Security):
             >>> Funds("myria").factorProfile()
 
         """
-        return self.GetData("factorProfile")
+        return self.GetData("factorProfile").json()
 
     def feeLevel(self)  :
         """
@@ -407,7 +409,7 @@ class Funds(Security):
             >>> Funds("myria").feeLevel()
 
         """
-        return self.GetData("price/feeLevel/v1")
+        return self.GetData("price/feeLevel/v1").json()
 
     def feeMifid(self, 
                  currency:str="EUR") -> dict:
@@ -421,7 +423,7 @@ class Funds(Security):
             >>> Funds("myria").feeMifid()
 
         """
-        return self.ltData("Mifid", currency=currency)
+        return self.ltData("Mifid", currency=currency).json()
 
     def financialMetrics(self) -> dict:
         """
@@ -434,7 +436,7 @@ class Funds(Security):
             >>> Funds("myria").financialMetrics()
 
         """
-        return self.GetData("process/financialMetrics")
+        return self.GetData("process/financialMetrics").json()
 
     def fixedIncomeStyle(self) -> dict:
         """
@@ -448,7 +450,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("process/fixedIncomeStyle")
+        return self.GetData("process/fixedIncomeStyle").json()
 
     def fixedincomeStyleBoxHistory(self) -> dict:
         """
@@ -465,7 +467,7 @@ class Funds(Security):
 
     def graphData(self) -> dict:
         """
-        This function retrieves historical data of the funds.
+        This function retrieves historical Total Assets and Net Flow of the funds.
 
         Returns:
             dict historical data
@@ -475,7 +477,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("parent/graphData")
+        return self.GetData("parent/graphData").json()
 
     def getDocumentInformation(self, 
                     marketId:str
@@ -511,6 +513,7 @@ class Funds(Security):
         )
 
         response_json = response.json()
+        print(response_json)
         if "message" in response_json and response.status_code == 404:
             if response_json["message"] == 'Security Market Access Error':
                 raise ValueError(f"marketId paramater can only take one of these values {', '.join(response_json['allowedMarketIds'])} ")
@@ -553,7 +556,7 @@ class Funds(Security):
         """
         if self.asset_type == "etf":
             return {}
-        return self.GetData("price/historicalExpenses")
+        return self.GetData("price/historicalExpenses").json()
     
     def historicalRating(self) -> dict:
         """
@@ -567,7 +570,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("morningstarTake/historicalRating")
+        return self.GetData("morningstarTake/historicalRating").json()
 
     def holdings(self, 
                  holdingType: str = "all") -> pd.DataFrame:
@@ -624,7 +627,7 @@ class Funds(Security):
             >>> Funds("LU0823421689").investmentFee()
 
         """
-        return self.GetData("price/investmentFee")
+        return self.GetData("price/investmentFee").json()
     
     def investmentLookup(self, 
                          currency:str="EUR") -> dict:
@@ -651,7 +654,7 @@ class Funds(Security):
             >>> Funds("LU0823421689").investmentStrategy()
 
         """
-        return self.GetData("morningstarTake/investmentStrategy")
+        return self.GetData("morningstarTake/investmentStrategy").json()
 
     def marketCapitalization(self) -> dict:
         """
@@ -665,7 +668,7 @@ class Funds(Security):
             >>> Funds("myria").marketCapitalization()
 
         """
-        return self.GetData("process/marketCap")
+        return self.GetData("process/marketCap").json()
 
     def maturitySchedule(self) -> dict:
         """
@@ -678,7 +681,7 @@ class Funds(Security):
             >>> Funds("myria").maturitySchedule()
 
         """
-        return self.GetData("process/maturitySchedule")
+        return self.GetData("process/maturitySchedule").json()
 
     def maxDrawDown(self, 
                     year:int=3) -> dict:
@@ -704,7 +707,7 @@ class Funds(Security):
 
         return self.GetData(
             "performance/marketVolatilityMeasure", params={"year": year}
-        )
+        ).json()
 
     def medaListComparables(self) -> dict:
         """
@@ -718,7 +721,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("medaListComparables")
+        return self.GetData("medaListComparables").json()
     
 
 
@@ -734,7 +737,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("securityMetaData",url_suffix="")
+        return self.GetData("securityMetaData",url_suffix="").json()
     
     def morningstarAnalyst(self) -> dict:
         """
@@ -748,7 +751,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("morningstarAnalyst")
+        return self.GetData("morningstarAnalyst").json()
     
     def morningstarOpinion(self,
                            version:int=3) -> dict:
@@ -772,7 +775,7 @@ class Funds(Security):
         if version not in range(2,4):
             raise ValueError("version paramater should be 2 or 3")
 
-        return self.GetData(f"morningstarTake/v{version}",url_suffix="")
+        return self.GetData(f"morningstarTake/v{version}",url_suffix="").json()
 
     def multiLevelFixedIncomeData(self, 
                                   primary:str="superEffectiveDuration", 
@@ -826,7 +829,7 @@ class Funds(Security):
         return self.GetData(
             "multiLevelFixedIncomeData",
             params={"primary": primary, "secondary": secondary},
-        )
+        ).json()
 
     def nav(self, 
             start_date:datetime.datetime,
@@ -873,7 +876,7 @@ class Funds(Security):
             'expirationDate': None, 'expenseWaivers': None}
 
         """
-        return self.GetData("price/otherFee")
+        return self.GetData("price/otherFee").json()
 
     def ownershipZone(self) -> dict:
         """
@@ -887,7 +890,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("process/ownershipZone")
+        return self.GetData("process/ownershipZone").json()
 
     def parentMedal(self) -> list[dict]:
         """
@@ -901,7 +904,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("parent/medalistRating/topfunds")
+        return self.GetData("parent/medalistRating/topfunds").json()
     
     def parentMedaListRating(self) -> list[dict]:
         """
@@ -915,7 +918,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("parent/medalistRating")
+        return self.GetData("parent/medalistRating").json()
     
     def parentMstarRating(self,
                           ) -> list[dict]:
@@ -930,7 +933,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("parent/parentMstarRating")
+        return self.GetData("parent/parentMstarRating").json()
     
     def parentRatingRecentChange(self) -> list[dict]:
         """
@@ -944,7 +947,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("parent/medalistRating/topfundsUpDown")
+        return self.GetData("parent/medalistRating/topfundsUpDown").json()
 
     def parentSummary(self) -> dict:
         """
@@ -957,7 +960,7 @@ class Funds(Security):
             >>> Funds("myria").parentSummary()
 
         """
-        return self.GetData("parent/parentSummary")
+        return self.GetData("parent/parentSummary").json()
 
     def people(self) -> dict:
         """
@@ -970,7 +973,7 @@ class Funds(Security):
             >>> Funds("myria").people()
 
         """
-        return self.GetData("people")
+        return self.GetData("people").json()
     
     def performanceTable(self) -> dict:
         """
@@ -983,7 +986,7 @@ class Funds(Security):
             >>> Funds("myria").performanceTable()
 
         """
-        return self.GetData("performance/table", url_suffix="")
+        return self.GetData("performance/table", url_suffix="").json()
     
     def position(self) -> dict:
         """
@@ -999,7 +1002,7 @@ class Funds(Security):
 
         return self.GetData(
             "portfolio/holding/v2", params={"premiumNum": 10000, "freeNum": 10000}
-        )
+        ).json()
 
     def proxyVotingManagement(self) :
         """
@@ -1012,7 +1015,7 @@ class Funds(Security):
             >>> Funds("myria").proxyVotingManagement()
 
         """
-        return self.GetData("people/proxyVoting/management")
+        return self.GetData("people/proxyVoting/management").json()
 
     def proxyVotingShareHolder(self) -> dict:
         """
@@ -1025,7 +1028,7 @@ class Funds(Security):
             >>> Funds("myria").proxyVotingShareHolder()
 
         """
-        return self.GetData("people/proxyVoting/shareHolder")
+        return self.GetData("people/proxyVoting/shareHolder").json()
 
     def productInvolvement(self) -> dict:
         """
@@ -1039,7 +1042,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("esg/productInvolvement")
+        return self.GetData("esg/productInvolvement").json()
 
 
 
@@ -1064,7 +1067,7 @@ class Funds(Security):
         if version not in range(1,8):
             raise ValueError("version paramater should be between 2 and 7")
 
-        return self.GetData(f"quote/v{version}")
+        return self.GetData(f"quote/v{version}").json()
     
     def regionalSector(self) -> dict:
         """
@@ -1077,7 +1080,7 @@ class Funds(Security):
             >>> Funds("myria").regionalSector()
 
         """
-        return self.GetData("portfolio/regionalSector")
+        return self.GetData("portfolio/regionalSector").json()
 
     def regionalSectorIncludeCountries(self) -> dict:
         """
@@ -1091,7 +1094,7 @@ class Funds(Security):
             >>> Funds("myria").regionalSectorIncludeCountries()
 
         """
-        return self.GetData("portfolio/regionalSectorIncludeCountries")
+        return self.GetData("portfolio/regionalSectorIncludeCountries").json()
 
     def riskReturnScatterplot(self) -> dict:
         """
@@ -1105,7 +1108,7 @@ class Funds(Security):
             >>> Funds("myria").riskReturnScatterplot()
 
         """
-        return self.GetData("performance/riskReturnScatterplot")
+        return self.GetData("performance/riskReturnScatterplot").json()
 
     def riskReturnSummary(self) -> dict:
         """
@@ -1120,7 +1123,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("performance/riskReturnSummary")
+        return self.GetData("performance/riskReturnSummary").json()
     
     def riskScore(self) -> dict:
         """
@@ -1133,7 +1136,7 @@ class Funds(Security):
             >>> Funds("myria").riskScore()
 
         """
-        return self.GetData("performance/riskScore")
+        return self.GetData("performance/riskScore").json()
 
     def riskVolatility(self) -> dict:
         """
@@ -1147,7 +1150,7 @@ class Funds(Security):
             >>> Funds("myria").riskVolatility()
 
         """
-        return self.GetData("performance/riskVolatility")
+        return self.GetData("performance/riskVolatility").json()
 
     def salesFees(self) -> dict:
         """
@@ -1162,7 +1165,7 @@ class Funds(Security):
         """
         if self.asset_type == "etf":
             return {}
-        return self.GetData("price/salesFees")
+        return self.GetData("price/salesFees").json()
 
 
     def sector(self, 
@@ -1185,7 +1188,7 @@ class Funds(Security):
         if version not in range(1,3):
             raise ValueError("version paramater should be 1 or 2")
 
-        return self.GetData(f"portfolio/v{version}/sector")
+        return self.GetData(f"portfolio/v{version}/sector").json()
 
     def snapshot(self, 
                  currency:str="EUR"):
@@ -1214,7 +1217,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("parent/mstarRating/StarRatingFundAsc")
+        return self.GetData("parent/mstarRating/StarRatingFundAsc").json()
 
     def starRatingFundDesc(self) -> dict:
         """
@@ -1229,7 +1232,7 @@ class Funds(Security):
 
         """
 
-        return self.GetData("parent/mstarRating/StarRatingFundDesc")
+        return self.GetData("parent/mstarRating/StarRatingFundDesc").json()
 
 
     def strategyPreview(self) -> dict:
@@ -1243,7 +1246,7 @@ class Funds(Security):
             >>> Funds("myria").strategyPreview()
 
         """
-        return self.GetData("strategyPreview")
+        return self.GetData("strategyPreview").json()
     
     def sustainability(self, 
                        currency:str="EUR") -> dict:
@@ -1270,7 +1273,7 @@ class Funds(Security):
             >>> Funds("American Century Foc Dynmc Gr ETF").taxes()
 
         """
-        return self.GetData("price/taxes")
+        return self.GetData("price/taxes").json()
 
 
     def trailingReturn(self, 
@@ -1309,5 +1312,5 @@ class Funds(Security):
                 f'duration parameter can only take one of the values: {", ".join(duration_choice)}'
             )
 
-        return self.GetData(f"trailingReturn/v{version}", {"duration": duration})
+        return self.GetData(f"trailingReturn/v{version}", {"duration": duration}).json()
 

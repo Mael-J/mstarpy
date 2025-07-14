@@ -80,13 +80,18 @@ class Stock(Security):
 
     def balanceSheet(self, 
                      period:str="annual",
-                     reportType:str="original") -> dict:
+                     reportType:str="original",
+                     export:bool=False,
+                     folderPath:str="."
+                     ) -> dict:
         """
         This function retrieves the balance sheet.
 
         Args:
             period (str) : possible values are annual, quarterly
             reportType (str) : possible values are original, restated
+            export (bool) : if True, the file is downloaded in the folderPath
+            folderPath (str) : path to save the file if export is True
 
         Returns:
             dict with balance sheet
@@ -98,7 +103,11 @@ class Stock(Security):
         """
 
         return self.financialStatement(
-            "balancesheet", period=period, reportType=reportType
+            "balancesheet", 
+            period=period, 
+            reportType=reportType,
+            export=export,
+            folderPath=folderPath
         )
 
     def boardOfDirectors(self) -> dict:
@@ -112,17 +121,22 @@ class Stock(Security):
             >>> Stock("Alphabet Inc Class A").boardOfDirectors()
 
         """
-        return self.GetData("insiders/boardOfDirectors")
+        return self.GetData("insiders/boardOfDirectors").json()
 
     def cashFlow(self, 
                  period:str="annual",
-                 reportType:str="original") -> dict:
+                 reportType:str="original",
+                 export:bool=False,
+                 folderPath:str="."
+                 ) -> dict:
         """
         This function retrieves the cash flow.
 
         Args:
             period (str) : possible values are annual, quarterly
             reportType (str) : possible values are original, restated
+            export (bool) : if True, the file is downloaded in the folderPath
+            folderPath (str) : path to save the file if export is True
 
         Returns:
             dict with cash flow
@@ -133,7 +147,11 @@ class Stock(Security):
 
         """
 
-        return self.financialStatement("cashflow", period=period, reportType=reportType)
+        return self.financialStatement("cashflow", 
+                                       period=period, 
+                                       reportType=reportType,
+                                       export=export,
+                                       folderPath=folderPath)
 
 
     def companyProfile(self) -> dict:
@@ -147,7 +165,7 @@ class Stock(Security):
             >>> Stock("US0378331005").companyProfile()
 
         """
-        return self.GetData("companyProfile", url_suffix="")
+        return self.GetData("companyProfile", url_suffix="").json()
 
     def dividends(self) -> dict:
         """
@@ -160,7 +178,7 @@ class Stock(Security):
             >>> Stock("US0378331005").dividends()
 
         """
-        return self.GetData("dividends/v4")
+        return self.GetData("dividends/v4").json()
 
     def esgRisk(self) -> dict:
         """
@@ -173,7 +191,7 @@ class Stock(Security):
             >>> Stock("US0378331005").esgRisk()
 
         """
-        return self.GetData("esgRisk")
+        return self.GetData("esgRisk").json()
     
     def financialHealth(self) -> dict:
         """
@@ -186,21 +204,25 @@ class Stock(Security):
             >>> Stock("US0378331005").financialHealth()
 
         """
-        return self.GetData("keyMetrics/financialHealth", url_suffix="")
+        return self.GetData("keyMetrics/financialHealth", url_suffix="").json()
 
     def financialStatement(
         self, 
         statement:str="summary",
         period:str="annual",
-        reportType:str="original"
+        reportType:str="original",
+        export:bool=False,
+        folderPath:str="."
     ) -> dict:
         """
-        This function retrieves the financial statement.
+        This function retrieves the financial statement or downloads it as a xls file.
 
         Args:
             statement (str) : possible values are balancesheet, cashflow, incomestatement, summary
             period (str) : possible values are annual, quarterly
             reportType (str) : possible values are original, restated
+            export (bool) : if True, the file is downloaded in the folderPath
+            folderPath (str) : path to save the file if export is True
 
         Returns:
             dict with financial statement
@@ -221,6 +243,12 @@ class Stock(Security):
 
         if not isinstance(reportType, str):
             raise TypeError("reportType parameter should be a string")
+        
+        if not isinstance(export, bool):
+            raise TypeError("export parameter should be a boolean")
+        
+        if not isinstance(folderPath, str):
+            raise TypeError("folderPath parameter should be a string")
 
         statement_choice = {
             "balancesheet": "balanceSheet",
@@ -247,30 +275,52 @@ class Stock(Security):
             raise ValueError(
                 f"reportType parameter must take one of the following value : { ', '.join(reportType_choice.keys())}"
             )
+        
+
 
         params = {"reportType": reportType_choice[reportType]}
+
+        if export:
+            params["operation"] = "export"
+
         if statement == "summary":
-            return self.GetData(
+            response = self.GetData(
                 "newfinancials", params=params, url_suffix=f"{period}/summary"
             )
 
         params["dataType"] = period_choice[period]
 
-        return self.GetData(
+        response = self.GetData(
             "newfinancials",
             params=params,
             url_suffix=f"{statement_choice[statement]}/detail",
         )
 
+        if not export:
+            return response.json()
+        
+        timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        fileName = f"{statement_choice[statement]}-{self.code}-{timestamp}.xls"
+        with open(f"{folderPath}/{fileName}", "wb") as f:
+            f.write(response.content)
+
+        return {"status" : response.status_code, 
+                "mesage" : "File downloaded", 
+                "filename" : fileName,
+                "folder" : folderPath}
+
     def financialSummary(self, 
                          period:str="annual", 
-                         reportType:str="original") -> dict:
+                         reportType:str="original",
+                        ) -> dict:
         """
         This function retrieves the financial statement summary.
 
         Args:
             period (str) : possible values are annual, quarterly
             reportType (str) : possible values are original, restated
+            export (bool) : if True, the file is downloaded in the folderPath
+            folderPath (str) : path to save the file if export is True
 
         Returns:
             dict with financial statement summary
@@ -281,7 +331,9 @@ class Stock(Security):
 
         """
 
-        return self.financialStatement("summary", period=period, reportType=reportType)
+        return self.financialStatement("summary", 
+                                       period=period, 
+                                       reportType=reportType)
 
     def freeCashFlow(self) -> dict:
         """
@@ -294,14 +346,14 @@ class Stock(Security):
             >>> Stock("US0378331005").freeCashFlow()
 
         """
-        return self.GetData("keyMetrics/cashFlow", url_suffix="")
+        return self.GetData("keyMetrics/cashFlow", url_suffix="").json()
 
     def historical(self,
                    start_date:datetime.datetime, 
                    end_date:datetime.datetime, 
                    frequency:str="daily") -> list:
         """
-        This function retrieves the historical price, volume and divide of the stock.
+        This function retrieves the historical price, volume and dividends of the stock.
 
         Args:
             start_date (datetime) : start date to get history
@@ -324,13 +376,18 @@ class Stock(Security):
 
     def incomeStatement(self, 
                         period:str="annual", 
-                        reportType:str="original") -> dict:
+                        reportType:str="original",
+                        export:bool=False,
+                        folderPath:str="."
+                        ) -> dict:
         """
         This function retrieves the income statement.
 
         Args:
             period (str) : possible values are annual, quarterly
             reportType (str) : possible values are original, restated
+            export (bool) : if True, the file is downloaded in the folderPath
+            folderPath (str) : path to save the file if export is True
 
         Returns:
             dict with income statement
@@ -342,8 +399,12 @@ class Stock(Security):
         """
 
         return self.financialStatement(
-            "incomestatement", period=period, reportType=reportType
-        )
+            "incomestatement", 
+            period=period, 
+            reportType=reportType,
+            export=export,
+            folderPath=folderPath
+            )
 
     def institutionBuyers(self,
                           top:int=20) -> dict:
@@ -365,7 +426,7 @@ class Stock(Security):
 
         return self.GetData(
             "ownership/v1", url_suffix=f"Buyers/institution/{top}/data"
-        )
+        ).json()
 
     def institutionConcentratedOwners(self, 
                                       top:int=20) -> dict:
@@ -443,7 +504,7 @@ class Stock(Security):
             >>> Stock("US0378331005").keyExecutives()
 
         """
-        return self.GetData("insiders/keyExecutives")
+        return self.GetData("insiders/keyExecutives").json()
 
     def keyMetricsSummary(self, 
                           reportType:str="original") -> dict:
@@ -487,7 +548,7 @@ class Stock(Security):
             >>> Stock("US0378331005").keyRatio()
 
         """
-        return self.GetData("keyratios")
+        return self.GetData("keyratios").json()
 
     def mutualFundBuyers(self,
                          top:int=20) -> dict:
@@ -599,7 +660,7 @@ class Stock(Security):
             >>> Stock("US0378331005").overview()
 
         """
-        return self.GetData("equityOverview")
+        return self.GetData("equityOverview").json()
 
 
     def profitability(self) -> dict:
@@ -626,7 +687,7 @@ class Stock(Security):
             >>> Stock("US0378331005").sustainability()
 
         """
-        return self.GetData("esgRisk/sustainability")
+        return self.GetData("esgRisk/sustainability").json()
     
     def split(self) -> dict:
         """
@@ -639,7 +700,7 @@ class Stock(Security):
             >>> Stock("US0378331005").split()
 
         """
-        return self.GetData("split/v1")
+        return self.GetData("split/v1").json()
 
     def tradingInformation(self) -> dict:
         """
@@ -665,7 +726,7 @@ class Stock(Security):
             >>> Stock("US0378331005").trailingTotalReturn()
 
         """
-        return self.GetData("trailingTotalReturns")
+        return self.GetData("trailingTotalReturns").json()
 
     def transactionHistory(self) -> list:
         """
@@ -678,7 +739,7 @@ class Stock(Security):
             >>> Stock("US0378331005").transactionHistory()
 
         """
-        return self.GetData("insiders/transactionHistory")
+        return self.GetData("insiders/transactionHistory").json()
 
     def transactionSummary(self) -> list:
         """
@@ -691,7 +752,7 @@ class Stock(Security):
             >>> Stock("US0378331005").transactionSummary()
 
         """
-        return self.GetData("insiders/transactionChart")
+        return self.GetData("insiders/transactionChart").json()
 
     def valuation(self) -> dict:
         """
