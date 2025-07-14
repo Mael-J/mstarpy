@@ -215,7 +215,7 @@ class Security:
 
         not_200_response(url, response)
 
-        return response.json()
+        return response
 
     def ltData(self, 
                field:str, 
@@ -352,6 +352,17 @@ class Security:
 
         # dict of frequency
         frequency_row = {"daily": "d", "weekly": "w", "monthly": "m"}
+
+        if self.asset_type == "stock":
+            frequency_row = {"daily": "d", 
+                             "5min": "5", 
+                             "10min": "10", 
+                             "15min": "15", 
+                             "30min": "30",
+                             }
+        else:
+            frequency_row = {"daily": "d", "monthly": "m", "quarterly": "q"}
+
 
         # raise an error if frequency is not daily, wekly or monthly
         if frequency not in frequency_row:
