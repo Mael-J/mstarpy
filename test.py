@@ -19,12 +19,22 @@ start_date = end_date - datetime.timedelta(60)
 
 #funds = Funds("VTSAX")
 
+result = screener_universe("a", 
+                     ["name", "isin", "priceToEarnings", "sector"], 
+                     filters={"priceToEarnings[trailing]": ("<", 10),
+                              "investmentType" : "EQ",
+                              "sector": "Technology",
+                              "domicile": "FRA"},
+                     )
+
+print(result)
+
 #print(Funds("IE00B04GQT48").downloadDocument("en-gb","PRIIP KID","en"))
 # code = "FOUSA00LIX"
 #fund = Funds("FR0007052782") 
-stock = Stock("US92826C8394")
+#stock = Stock("US92826C8394")
 #print(stock.financialSummary())
-print(stock.historical(start_date, end_date))
+#print(stock.historical(start_date, end_date))
 # print(fund.nav(start_date, end_date))
 # print(stock.overview())
 # result = general_search({"name" : "technology"})

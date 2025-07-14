@@ -10,7 +10,7 @@ same information and help them in their investment process.
 The project is **open-source** and anyone can contribute on
 [GitHub](https://github.com/Mael-J/mstarpy).
 
-[![GitHub release](https://img.shields.io/github/v/release/Mael-J/mstarpy.svg?maxAge=3600)](https://github.com/Mael-J/mstarpy/releases)
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-grey?logo=buymeacoffee)](https://buymeacoffee.com/maeljourdain)
 
 # Getting Started
 
@@ -434,18 +434,13 @@ Name fundShareClassId  GBRReturnM12  PERatio
 4            Soditech SA       0P00009WQ2         97.45     4.49
 ```
 
-# MStarpy in the world
 
-## Albertine.io
-
-The site [albertine.io](https://albertine.io/#/funds) uses MStarpy to
-compare funds. You can create PDF reports and extract data in Excel
-format.
-
-## Contribution
+# Contribution
 
 The project is **open-source** and you can contribute on
 [github](https://github.com/Mael-J/mstarpy).
+
+If you would like to support my work, you can [Buy me a Coffee](https://buymeacoffee.com/maeljourdain).
 
 # Disclaimer
 
