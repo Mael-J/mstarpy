@@ -423,7 +423,7 @@ class Funds(Security):
             >>> Funds("myria").feeMifid()
 
         """
-        return self.ltData("Mifid", currency=currency).json()
+        return self.ltData("Mifid", currency=currency)
 
     def financialMetrics(self) -> dict:
         """
