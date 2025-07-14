@@ -63,7 +63,7 @@ class Stock(Security):
             >>> Stock("US0378331005").analysisData()
 
         """
-        return self.GetData("morningstarTake/v3", url_suffix="analysisData")
+        return self.GetData("morningstarTake/v3", url_suffix="analysisData").json()
 
     def analysisReport(self) -> dict:
         """
@@ -76,7 +76,7 @@ class Stock(Security):
             >>> Stock("US0378331005").analysisReport()
 
         """
-        return self.GetData("morningstarTake/v4", url_suffix="analysisReport")
+        return self.GetData("morningstarTake/v4", url_suffix="analysisReport").json()
 
     def balanceSheet(self, 
                      period:str="annual",
@@ -448,7 +448,7 @@ class Stock(Security):
 
         return self.GetData(
             "ownership/v1", url_suffix=f"ConcentratedOwners/institution/{top}/data"
-        )
+        ).json()
 
     def institutionOwnership(self, 
                              top:int=20) -> dict:
@@ -470,7 +470,7 @@ class Stock(Security):
 
         return self.GetData(
             "ownership/v1", url_suffix=f"OwnershipData/institution/{top}/data"
-        )
+        ).json()
 
     def institutionSellers(self, 
                            top:str=20) -> dict:
@@ -491,7 +491,7 @@ class Stock(Security):
 
         return self.GetData(
             "ownership/v1", url_suffix=f"Sellers/institution/{top}/data"
-        )
+        ).json()
 
     def keyExecutives(self) -> dict:
         """
@@ -535,7 +535,7 @@ class Stock(Security):
 
         return self.GetData("keyMetrics/summary",
                              params=params,
-                            url_suffix="")
+                            url_suffix="").json()
 
     def keyRatio(self) -> dict:
         """
@@ -568,7 +568,7 @@ class Stock(Security):
         if not isinstance(top, int):
             raise TypeError("top parameter should be an integer")
 
-        return self.GetData("ownership/v1", url_suffix=f"Buyers/mutualfund/{top}/data")
+        return self.GetData("ownership/v1", url_suffix=f"Buyers/mutualfund/{top}/data").json()
 
     def mutualFundConcentratedOwners(self, 
                                      top:int=20) -> dict:
@@ -590,7 +590,7 @@ class Stock(Security):
 
         return self.GetData(
             "ownership/v1", url_suffix=f"ConcentratedOwners/mutualfund/{top}/data"
-        )
+        ).json()
 
     def mutualFundOwnership(self, 
                             top:int=20) -> dict:
@@ -612,7 +612,7 @@ class Stock(Security):
 
         return self.GetData(
             "ownership/v1", url_suffix=f"OwnershipData/mutualfund/{top}/data"
-        )
+        ).json()
 
     def mutualFundSellers(self,
                           top:int=20) -> dict:
@@ -634,7 +634,7 @@ class Stock(Security):
 
         return self.GetData(
             "ownership/v1", url_suffix=f"Sellers/mutualfund/{top}/data"
-        )
+        ).json()
 
     def operatingGrowth(self) -> dict:
         """
@@ -647,7 +647,7 @@ class Stock(Security):
             >>> Stock("US0378331005").operatingGrowth()
 
         """
-        return self.GetData("keyStats/growthTable", url_suffix="")
+        return self.GetData("keyStats/growthTable", url_suffix="").json()
     
     def overview(self) -> dict:
         """
@@ -674,7 +674,7 @@ class Stock(Security):
             >>> Stock("US0378331005").profitability()
 
         """
-        return self.GetData("keyMetrics/profitabilityAndEfficiency", url_suffix="")
+        return self.GetData("keyMetrics/profitabilityAndEfficiency", url_suffix="").json()
 
     def sustainability(self) -> dict:
         """
@@ -765,5 +765,5 @@ class Stock(Security):
             >>> Stock("US0378331005").valuation()
 
         """
-        return self.GetData("valuation/v3", url_suffix="")
+        return self.GetData("valuation/v3", url_suffix="").json()
     

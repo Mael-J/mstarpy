@@ -463,7 +463,7 @@ class Funds(Security):
             >>> Funds("myria").fixedincomeStyleBoxHistory()
 
         """
-        return self.GetData("process/fixedincomeStyleBoxHistory")
+        return self.GetData("process/fixedincomeStyleBoxHistory").json()
 
     def graphData(self) -> dict:
         """
@@ -541,7 +541,7 @@ class Funds(Security):
         if version not in range(2,6):
             raise ValueError("version paramater should be between 2 and 5")
 
-        return self.GetData(f"performance/v{version}", url_suffix="")
+        return self.GetData(f"performance/v{version}", url_suffix="").json()
 
     def historicalExpenses(self) -> dict:
         """
