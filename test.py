@@ -16,13 +16,24 @@ from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
     
 end_date = datetime.datetime.today()
 start_date = end_date - datetime.timedelta(60)
+
+#funds = Funds("VTSAX")
+
+#print(Funds("IE00B04GQT48").downloadDocument("en-gb","PRIIP KID","en"))
 # code = "FOUSA00LIX"
 #fund = Funds("FR0007052782") 
-# stock = Stock("US0378331005")
+stock = Stock("US0378331005")
+print(stock.financialSummary())
+# print(stock.historical(start_date, end_date))
+# print(fund.nav(start_date, end_date))
 # print(stock.overview())
-result = general_search({"name" : "technology"})
-print(result)
-# # #print(fund.getDocumentInformation("fr"))
+# result = general_search({"name" : "technology"})
+# print(result)
+#Funds("IE00B04GQT48").downloadDocument("fr","PRIIP KID","en")
+
+
+
+
 #print(fund.downloadDocument("fr","PRIIP KID","en", r"C:\Users\maelj\Downloads"))
 #print(fund.nav(start_date,end_date))
 #print(fund.taxes())
