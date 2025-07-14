@@ -162,12 +162,14 @@ def screener_universe(
                         warnings.warn(f"""{f} is not a valid filter and will be ignored.
                                       The tuple has to be of a length of 2""")
                     if filters[f][0] not in ['<','<=','>=', '>']:
-                         warnings.warn(f"""{f} is not a valid filter and will be ignored.
+                        warnings.warn(f"""{f} is not a valid filter and will be ignored.
                                        The first argument of the tuple has to be one of this value {','.join(['<','<=','>=', '>'])}""")
-                    if isinstance(filters[f][1,(int,float)]):
+                        continue
+                    if not isinstance(filters[f][1],(int,float)):
                         warnings.warn(f"""{f} is not a valid filter and will be ignored.    
                                         The second argument of the tuple has be a number.
                                             """)
+                        continue
                     query_params += f" AND {f} {filters[f][0]} {filters[f][1]}"
                 # else = condition
                 else:
