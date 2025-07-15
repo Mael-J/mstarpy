@@ -1,6 +1,5 @@
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy_Me_a_Coffee-a59fd3?logo=buymeacoffee)](https://buymeacoffee.com/maeljourdain)
-
 [![PYPI Downloads](https://static.pepy.tech/badge/mstarpy/month)](https://pepy.tech/project/mstarpy)
 
 # Introduction
