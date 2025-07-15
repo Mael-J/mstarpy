@@ -4,15 +4,13 @@
 
 # Introduction
 
-MStarpy is a Python Package to extract data from
-[morningstar.com](https://www.morningstar.com/).
+MStarpy is an open-source Python package designed to extract and access financial data from [morningstar.com](https://www.morningstar.com/).
 
-MStarpy provides stock and fund public data to retail and professional
-investors for **free**. The main goal is to give investors access to the
-same information and help them in their investment process.
+It provides free access to public data on stocks and funds, empowering both retail and professional investors with the same high-quality information. Whether you're conducting research, building investment models, or creating dashboards, MStarpy makes it easy to integrate Morningstar data into your workflow.
 
-The project is **open-source** and anyone can contribute on
-[GitHub](https://github.com/Mael-J/mstarpy).
+Our mission is to democratize access to financial insights and support investors in making informed decisions.
+
+The project is open to contributions — join us on [GitHub](https://github.com/Mael-J/mstarpy) and help improve the future of financial transparency.
 
 
 # Getting Started
@@ -25,7 +23,7 @@ You can install it **via pip** on the terminal by typing:
 pip install mstarpy
 ```
 
-You can also install it **via git** on the terminal bu using :
+You can also install it **via git** on the terminal by using :
 
 ``` bash
 pip install git+https://github.com/Mael-J/mstarpy.git@master
@@ -41,7 +39,7 @@ import mstarpy as ms
 
 ## Fund analysis
 
-Initialize Funds to start you analysis
+Initialize Funds to start your analysis
 
 ```python
 
@@ -49,7 +47,7 @@ funds = ms.Funds("VTSAX")
 
 ```
 
-### historical nav
+### Historical nav
 
 Get historical nav and total return of the fund
 
@@ -100,7 +98,7 @@ Examples are available in this notebook:
 
 ## Stock Analysis
 
-Initialize Stock to start you analysis
+Initialize Stock to start your analysis
 
 ```python
 
@@ -194,12 +192,7 @@ Examples are available in this notebook:
 
 ## Look for securities
 
-## Look for securities
-
-You can search for securities using the screener_universe method, which leverages the logic behind Morningstar's screener:
-
-
-<a href="https://global.morningstar.com/en-gb/tools/screener/">MorningStar screener</a>
+You can search for securities using the `screener_universe` method, which leverages the logic behind Morningstar's screener : <a href="https://global.morningstar.com/en-gb/tools/screener/">MorningStar screener</a>
 
 ```python
 
@@ -260,7 +253,7 @@ MStarpy is not affiliated to
 [morningstar.com](https://www.morningstar.com/) or any other companies.
 
 The package aims to share public information about funds and stocks to
-automatize analysis. It is the result of a free, free and independent
+automatize analysis. It is the result of a free and independent
 work.
 
 MStarpy does not give any investment recommendations.
