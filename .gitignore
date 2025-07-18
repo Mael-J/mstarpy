@@ -32,3 +32,5 @@ cover/
 
 # Editor
 .vscode/
+
+docs/build/

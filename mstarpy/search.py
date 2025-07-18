@@ -4,10 +4,11 @@ import warnings
 import pandas as pd
 
 from .utils import random_user_agent
-from .utils import ASSET_TYPE, EXCHANGE, FIELDS, FILTER_FUND, FILTER_STOCK, FILTER_TYPE
+from .utils import ASSET_TYPE, FILTER_TYPE, LANGUAGE
 from .error import not_200_response
 
-def general_search(params:dict, 
+def general_search(params:dict,
+                   language:str="en-gb", 
                    proxies:dict=None) -> dict:
     """
     This function will use the screener of morningstar.com
@@ -15,6 +16,7 @@ def general_search(params:dict,
 
     Args:
       params (dict) : paramaters of the request
+      language (str) : language of the request, default is "en-gb"
       proxies (dict) : set the proxy if needed,
       example : {"http": "http://host:port","https": "https://host:port"}
 
@@ -31,11 +33,19 @@ def general_search(params:dict,
 
     if not isinstance(params, dict):
         raise TypeError("params parameter should be dict")
+    
+    if not isinstance(language, str):
+        raise TypeError("language parameter should be a string")
 
     if proxies and not isinstance(proxies, dict):
         raise TypeError("proxies parameter should be dict")
+    
+    if language not in LANGUAGE:
+        raise ValueError(
+            f"language parameter can only take one of the values : {', '.join(LANGUAGE)}"
+        )
     # url
-    url = "https://global.morningstar.com/api/v1/en-gb/tools/screener/_data"
+    url = f"https://global.morningstar.com/api/v1/{language}/tools/screener/_data"
     # headers
     headers = {
         "user-agent": random_user_agent(),
@@ -48,7 +58,8 @@ def general_search(params:dict,
     return response.json()
 
 def screener_universe(
-    term:str, 
+    term:str,
+    language:str="en-gb",
     field:str|list="",
     filters:dict=None,
     pageSize:int=10,
@@ -64,6 +75,7 @@ def screener_universe(
     Args:
       term (str): text to find a security can be a the name, 
       part of a name or the isin
+      language (str): language of the request, default is "en-gb"
       field (str | list) : field to find
       filters (dict) : filter, use the method search_filter() to find the different possible filter keys
       pageSize (int): number of securities to return
@@ -89,11 +101,14 @@ def screener_universe(
 
     Examples:
       >>> screener_universe("myria",field=["isin", "name"],pageSize=10,page=1, sortby="name", ascending=False)
-      >>> screener_universe("US67066G1040")
+      >>> screener_universe("US67066G1040", language="de")
 
     """
     if not isinstance(term, str):
         raise TypeError("term parameter should be a string")
+    
+    if not isinstance(language, str):
+        raise TypeError("language parameter should be a string")
     
     if not isinstance(field, (str, list)):
         raise TypeError("field parameter should be a string or a list")
@@ -117,6 +132,11 @@ def screener_universe(
     if proxies and not isinstance(proxies, dict):
         raise TypeError("proxies parameter should be dict")
     
+    if language not in LANGUAGE:
+        raise ValueError(
+            f"language parameter can only take one of the values : {', '.join(LANGUAGE)}"
+        )
+
     all_fields = search_field(display_print=False)
     if not field:
         check_field = True
@@ -189,7 +209,9 @@ def screener_universe(
 
     
 
-    result = general_search(params, proxies=proxies)
+    result = general_search(params, 
+                            language=language,
+                            proxies=proxies)
 
     if not "results" in result:
         print(f"0 fund found whith the term {term}")

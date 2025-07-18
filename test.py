@@ -9,7 +9,7 @@ from mstarpy.search import (
     general_search,
     screener_universe
     )
-from mstarpy.utils import FILTER_FUND, FILTER_STOCK, EXCHANGE
+from mstarpy.utils import EXCHANGE
 
 
 #print(Funds("RMAGX", "us").TimeSeries(["nav","totalReturn"],datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today()))
@@ -19,12 +19,9 @@ start_date = end_date - datetime.timedelta(60)
 
 #funds = Funds("VTSAX")
 
-result = screener_universe("a", 
+result = screener_universe("US8334451098", 
                      ["name", "isin", "priceToEarnings", "sector"], 
-                     filters={"priceToEarnings[trailing]": ("<", 10),
-                              "investmentType" : "EQ",
-                              "sector": "Technology",
-                              "domicile": "FRA"},
+                     filters={"exchange": "TAYA"},
                      )
 
 print(result)

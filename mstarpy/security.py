@@ -9,7 +9,8 @@ from .search import (screener_universe,
                      )
 from .utils import (
     APIKEY,
-    random_user_agent
+    random_user_agent,
+    LANGUAGE
     )
 
 
@@ -41,7 +42,8 @@ class Security:
 
     def __init__(
         self,
-        term=None,
+        term:str,
+        language:str="en-gb",
         asset_type:str="",
         filters:dict=None,
         itemRange:int=0,
@@ -54,6 +56,9 @@ class Security:
         
         if not isinstance(term, str):
             raise TypeError("term parameter should be a string")
+        
+        if not isinstance(language, str):
+            raise TypeError("language parameter should be a string")
         
         if not isinstance(asset_type, str):
             raise TypeError("asset_type parameter should be a string")
@@ -83,6 +88,11 @@ class Security:
 
         if proxies and not isinstance(proxies, dict):
             raise TypeError("proxies parameter should be dict")
+        
+        if language not in LANGUAGE:
+            raise ValueError(
+                f"language parameter can only take one of the values : {', '.join(LANGUAGE)}"
+            )
 
         self.proxies = proxies
 

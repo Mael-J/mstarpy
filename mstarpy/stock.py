@@ -6,6 +6,7 @@ class Stock(Security):
     Main class to access data about stocks, inherit from Security class
     Args:
         term (str): text to find a stock, can be a name, part of a name or the isin of the stocks
+        language (str): language of the data, default is "en-gb"
         filters (dict) : filter, use the method search_filter() to find the different possible filter keys
         itemRange (int) : index of stocks to return (must be inferior to PageSize)
         pageSize (int): number of securities to return
@@ -26,7 +27,8 @@ class Stock(Security):
 
     def __init__(
         self,
-        term=None,
+        term:str,
+        language:str="en-gb",
         filters:dict=None,
         itemRange:int=0,
         pageSize:int=10,

@@ -257,8 +257,9 @@
 <h2>Look for securities<a class="headerlink" href="#look-for-securities" title="Link to this heading"></a></h2>
 <p>You can search for securities using the <code class="docutils literal notranslate"><span class="pre">screener_universe</span></code> method, which leverages the logic behind Morningstar’s screener : <a href="https://global.morningstar.com/en-gb/tools/screener/">MorningStar screener</a></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
-<span class="n">ms</span><span class="o">.</span><span class="n">screener_universe</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> 
-                     <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;isin&quot;</span><span class="p">,</span> <span class="s2">&quot;priceToEarnings&quot;</span><span class="p">,</span> <span class="s2">&quot;sector&quot;</span><span class="p">],</span> 
+<span class="n">ms</span><span class="o">.</span><span class="n">screener_universe</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
+                     <span class="n">language</span> <span class="o">=</span> <span class="s2">&quot;fr&quot;</span><span class="p">,</span>
+                     <span class="n">field</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;isin&quot;</span><span class="p">,</span> <span class="s2">&quot;priceToEarnings&quot;</span><span class="p">,</span> <span class="s2">&quot;sector&quot;</span><span class="p">],</span> 
                      <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;priceToEarnings[trailing]&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
                               <span class="s2">&quot;investmentType&quot;</span> <span class="p">:</span> <span class="s2">&quot;EQ&quot;</span><span class="p">,</span>
                               <span class="s2">&quot;sector&quot;</span><span class="p">:</span> <span class="s2">&quot;Technology&quot;</span><span class="p">,</span>
