@@ -35,7 +35,7 @@ def general_search(params:dict,
     if proxies and not isinstance(proxies, dict):
         raise TypeError("proxies parameter should be dict")
     # url
-    url = "https://global.morningstar.com/api/v1/en/tools/screener/_data"
+    url = "https://global.morningstar.com/api/v1/en-gb/tools/screener/_data"
     # headers
     headers = {
         "user-agent": random_user_agent(),
