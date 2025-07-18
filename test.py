@@ -20,7 +20,8 @@ start_date = end_date - datetime.timedelta(60)
 #funds = Funds("VTSAX")
 
 result = screener_universe("SNOW", 
-                     ["name", "isin", "priceToEarnings", "sector"], 
+                           
+                     field = ["name", "isin", "priceToEarnings", "sector"], 
                      filters={"exchange": "XNYS"},
                      )
 
