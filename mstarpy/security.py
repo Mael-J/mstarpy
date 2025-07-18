@@ -94,6 +94,8 @@ class Security:
                 f"language parameter can only take one of the values : {', '.join(LANGUAGE)}"
             )
 
+
+        self.language = language
         self.proxies = proxies
 
         self.asset_type = "security"
@@ -102,6 +104,7 @@ class Security:
 
         code_list = screener_universe(
                 term,
+                language=self.language,
                 field=["isin", "name"],
                 filters=filters,
                 pageSize=pageSize, 
@@ -167,7 +170,10 @@ class Security:
         """
 
         return screener_universe(
-            self.isin, field, proxies=self.proxies
+            self.isin, 
+            language=self.language,
+            field=field, 
+            proxies=self.proxies
         )
     
     def GetData(self, 
