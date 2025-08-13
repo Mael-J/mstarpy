@@ -19,22 +19,17 @@ start_date = end_date - datetime.timedelta(60)
 
 #funds = Funds("VTSAX")
 
-result = screener_universe("SNOW", 
-                           
-                     field = ["name", "isin", "priceToEarnings", "sector"], 
-                     filters={"exchange": "XNYS"},
-                     )
 
-print(result)
 
 #print(Funds("IE00B04GQT48").downloadDocument("en-gb","PRIIP KID","en"))
 # code = "FOUSA00LIX"
 #fund = Funds("FR0007052782") 
-#stock = Stock("US92826C8394")
+stock = Stock("FR0000121014")
 #print(stock.financialSummary())
 #print(stock.historical(start_date, end_date))
 # print(fund.nav(start_date, end_date))
-# print(stock.overview())
+#print(fund.feeLevel())
+print(stock.overview())
 # result = general_search({"name" : "technology"})
 # print(result)
 #Funds("IE00B04GQT48").downloadDocument("fr","PRIIP KID","en")

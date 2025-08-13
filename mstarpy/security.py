@@ -225,8 +225,16 @@ class Security:
         if headers:
             default_headers = default_headers | headers
 
+        #parms 
+        default_params = {
+            "clientId": "MDC"
+        }
+        if params:
+            default_params = default_params | params
+
+
         response = requests.get(
-            url, params=params, headers=default_headers, proxies=self.proxies
+            url, params=default_params, headers=default_headers, proxies=self.proxies
         )
 
         not_200_response(url, response)
