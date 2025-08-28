@@ -402,7 +402,7 @@ class Security:
         # bearer token
         bearer_token = token_chart()
         # url for nav
-        url = "https://www.emea-api.morningstar.com/QS-markets/chartservice/v2/timeseries"
+        url = "https://www.us-api.morningstar.com/QS-markets/chartservice/v2/timeseries"
         # header with bearer token
         headers = {
             "user-agent": random_user_agent(),
