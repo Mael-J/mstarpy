@@ -351,7 +351,7 @@ def token_chart(proxies:dict=None) -> str:
     if proxies and not isinstance(proxies, dict):
         raise TypeError("proxies parameter should be dict")
 
-    url = "https://www.morningstar.com/funds/xnas/afozx/chart"
+    url = "https://www.emea-api.morningstar.com/token/oauth"
 
     headers = {"user-agent": random_user_agent()}
 
