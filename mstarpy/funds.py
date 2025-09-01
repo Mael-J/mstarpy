@@ -54,6 +54,7 @@ class Funds(Security):
         super().__init__(
             term=term,
             asset_type="fund",
+            language=language,
             filters=fund_filter,
             itemRange=itemRange,
             pageSize=pageSize,

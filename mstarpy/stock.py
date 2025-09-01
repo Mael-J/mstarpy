@@ -45,6 +45,7 @@ class Stock(Security):
         super().__init__(
             term=term,
             asset_type="stock",
+            language=language,
             filters=stock_filter,
             itemRange=itemRange,
             pageSize=pageSize,

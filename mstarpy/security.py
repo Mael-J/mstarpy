@@ -97,6 +97,12 @@ class Security:
 
         self.language = language
         self.proxies = proxies
+        self.filters = filters
+        self.pageSize = pageSize
+        self.page = page
+        self.sortby = sortby
+        self.ascending = ascending
+        self.itemRange = itemRange
 
         self.asset_type = "security"
 
@@ -113,6 +119,7 @@ class Security:
                 ascending=ascending,
                 proxies=self.proxies,)
         
+
         if code_list:
             if itemRange < len(code_list):
                 self.code = code_list[itemRange]['meta']["securityID"]
@@ -169,12 +176,20 @@ class Security:
 
         """
 
-        return screener_universe(
+        result =  screener_universe(
             self.isin, 
             language=self.language,
-            field=field, 
-            proxies=self.proxies
+            field=field,
+            filters=self.filters,
+            proxies=self.proxies,
+            pageSize=self.pageSize,
+            page=self.page,
+            sortby=self.sortby,
+            ascending=self.ascending,
         )
+        
+        return result[self.itemRange]['fields']
+        
     
     def GetData(self, 
                 field:str, 
