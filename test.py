@@ -25,7 +25,7 @@ start_date = end_date - datetime.timedelta(60)
 # code = "FOUSA00LIX"
 fund = Funds('IE00B0M62Q58', filters={"exchange": "XLON"}, )
 # print(fund.code)
-print(fund.dataPoint(['isin', 'previousClosePrice']))
+print(fund.regionalSector())
 #print(screener_universe("XZW0",field=["exchange"]))
 # print(search_filter())
 # stock = Stock("FR0000121014")
