@@ -240,9 +240,11 @@ class Security:
         if headers:
             default_headers = default_headers | headers
 
-        #parms 
+        #params 
         default_params = {
-            "clientId": "MDC"
+            "clientId": "MDC",
+            "version": "4.71.0"
+
         }
         if params:
             default_params = default_params | params
