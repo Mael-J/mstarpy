@@ -524,7 +524,7 @@ class Funds(Security):
         return response_json
 
     def historicalData(self, 
-                       version:int=5) -> dict:
+                       version:int=4) -> dict:
         """
         This function retrieves the historical price of the funds, index and category
 
@@ -541,7 +541,7 @@ class Funds(Security):
         if not isinstance(version,int):
             raise TypeError("version paramater should be an integer")
         
-        if version not in range(2,6):
+        if version not in range(2,5):
             raise ValueError("version paramater should be between 2 and 5")
 
         return self.GetData(f"performance/v{version}", url_suffix="").json()
@@ -1061,7 +1061,7 @@ class Funds(Security):
             dict with general information
 
         Examples:
-            >>> Funds("myria").historicalData()
+            >>> Funds("myria").quote()
 
         """
         if not isinstance(version,int):
