@@ -119,7 +119,6 @@ class Security:
                 ascending=ascending,
                 proxies=self.proxies,)
         
-
         if code_list:
             if itemRange < len(code_list):
                 self.code = code_list[itemRange]['meta']["securityID"]
@@ -133,21 +132,28 @@ class Security:
                     self.asset_type = "etf"
                 elif universe == "FO":
                     self.asset_type = "fund"
+                elif universe == "FC":
+                    self.asset_type = "cef"
 
                 if universe == "EQ" and asset_type in ["etf", "fund"]:
                     raise ValueError(
                         f"The security found with the term {term} is a stock and the parameter asset_type is equal to {asset_type}, the class Stock should be used with this security."
                     )
 
-                if universe in ["FO", "FE"] and asset_type == "stock":
+                if universe in ["FO", "FE", "FC"] and asset_type == "stock":
                     if universe == "FO":
                         raise ValueError(
-                            f"The security found with the term {term} is a fund and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
+                            f"The security found with the term {term} is a Open-end fund and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
                         )
-                    else:
+                    elif universe == "FE":
                         raise ValueError(
                             f"The security found with the term {term} is an ETF and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
                         )
+                    else:
+                        raise ValueError(
+                            f"The security found with the term {term} is a Closed-end fund and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
+                        )
+
 
             else:
                 raise ValueError(

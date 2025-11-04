@@ -47,7 +47,7 @@ class Funds(Security):
         proxies:dict=None,
     ) -> None:
         
-        fund_filter = {"investmentType" : ['FE', 'FO']}
+        fund_filter = {"investmentType" : ['FE', 'FO', 'FC']}
         if filters:
             fund_filter = fund_filter | filters
         
@@ -1099,6 +1099,16 @@ class Funds(Security):
         """
         return self.GetData("portfolio/regionalSectorIncludeCountries").json()
 
+
+    def repurchase(self) -> dict:
+        """
+        This function retrieves the repurchases 
+        date and fees for a closed fund
+        """
+        if self.asset_type != "cef":
+            return {}
+        return self.GetData("repurchase").json()
+    
     def riskReturnScatterplot(self) -> dict:
         """
         This function retrieves the return and standard

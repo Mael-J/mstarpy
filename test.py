@@ -23,9 +23,11 @@ start_date = end_date - datetime.timedelta(60)
 
 #print(Funds("IE00B04GQT48").downloadDocument("en-gb","PRIIP KID","en"))
 # code = "FOUSA00LIX"
-fund = Funds('IE00B0M62Q58', filters={"exchange": "XLON"}, )
+fund = Funds('ARKVX')
 # print(fund.code)
-print(fund.historicalData())
+print(fund.repurchase())
+
+
 #print(screener_universe("XZW0",field=["exchange"]))
 # print(search_filter())
 #stock = Stock("FR0000121014")
