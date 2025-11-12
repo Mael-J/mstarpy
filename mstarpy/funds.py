@@ -334,7 +334,8 @@ class Funds(Security):
                 "mesage" : "File downloaded", 
                 "filename" : fileName,
                 "folder" : folderPath}
-    def equityStyle(self) -> dict:
+    
+    def equityStyle(self,version:int=2) -> dict:
         """
         This function retrieves the equity style of the funds and category.
 
@@ -345,7 +346,17 @@ class Funds(Security):
             >>> Funds("myria").equityStyle()
 
         """
-        return self.GetData("process/stockStyle/v2").json()
+
+        if not isinstance(version,int):
+            raise TypeError("version paramater should be an integer")
+        
+
+        if version == 1:
+            url_str = f"process/stockStyle"
+        else:
+            url_str = f"process/stockStyle/v{version}"
+
+        return self.GetData(url_str).json()
 
     def equityStyleBoxHistory(self) -> dict:
         """
@@ -991,7 +1002,7 @@ class Funds(Security):
         """
         return self.GetData("performance/table", url_suffix="").json()
     
-    def position(self) -> dict:
+    def position(self, version:int=2) -> dict:
         """
         This function retrieves the hodings of the funds.
 
@@ -1003,8 +1014,16 @@ class Funds(Security):
 
         """
 
+        if not isinstance(version,int):
+            raise TypeError("version paramater should be an integer")
+
+        if version == 1:
+            url_str = f"portfolio/holding"
+        else:
+            url_str = f"portfolio/holding/v{version}"
+
         return self.GetData(
-            "portfolio/holding/v2", params={"premiumNum": 10000, "freeNum": 10000}
+            url_str, params={"premiumNum": 10000, "freeNum": 10000}
         ).json()
 
     def proxyVotingManagement(self) :

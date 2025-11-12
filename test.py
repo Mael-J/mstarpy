@@ -20,13 +20,33 @@ start_date = end_date - datetime.timedelta(60)
 #funds = Funds("VTSAX")
 
 
+cef_isin = "GB00BLDYK618"  # Scottish Mortgage Investment Trust
+#cef_isin = "VTSAX"
+print(f"Testing closed-end fund: {cef_isin}\n")
+cef = Funds(term=cef_isin)
+print(f"✓ Fund initialized: {cef.name}\n")
 
-#print(Funds("IE00B04GQT48").downloadDocument("en-gb","PRIIP KID","en"))
-# code = "FOUSA00LIX"
-fund = Funds('ARKVX')
-# print(fund.code)
-print(fund.repurchase())
+print("1. Testing sector() method...")
+try:
+    result = cef.sector(version=1)
+    print(f"   ✓ Success: {len(result)} items returned")
+except ConnectionError as e:
+    print(f"   ✗ FAILED: {e}")
 
+
+print("2. Testing position() method...")
+try:
+    result = cef.position(version=1)
+    print(f"   ✓ Success: {len(result)} items returned")
+except ConnectionError as e:
+    print(f"   ✗ FAILED: {e}")
+
+print("3. Testing equityStyle() method...")
+try:
+    result = cef.equityStyle(version=1)
+    print(f"   ✓ Success: {len(result)} items returned")
+except ConnectionError as e:
+    print(f"   ✗ FAILED: {e}")
 
 #print(screener_universe("XZW0",field=["exchange"]))
 # print(search_filter())
