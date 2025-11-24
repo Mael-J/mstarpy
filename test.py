@@ -48,6 +48,15 @@ try:
 except ConnectionError as e:
     print(f"   ✗ FAILED: {e}")
 
+
+print("4. Testing holdings() method...")
+try:
+    result = cef.holdings(version=1)
+    print(f"   ✓ Success: {len(result)} items returned")
+except ConnectionError as e:
+    print(f"   ✗ FAILED: {e}")
+
+
 #print(screener_universe("XZW0",field=["exchange"]))
 # print(search_filter())
 #stock = Stock("FR0000121014")

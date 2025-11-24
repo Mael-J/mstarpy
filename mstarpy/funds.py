@@ -587,7 +587,8 @@ class Funds(Security):
         return self.GetData("morningstarTake/historicalRating").json()
 
     def holdings(self, 
-                 holdingType: str = "all") -> pd.DataFrame:
+                 holdingType: str = "all",
+                 version:int = 2) -> pd.DataFrame:
         """
         This function retrieves holdings of the funds.
 
@@ -618,16 +619,19 @@ class Funds(Security):
                 f"""parameter holdingType must take one of the following values
                 : {", ".join(holdingType_to_holdingPage.keys())}"""
             )
+        
+        if not isinstance(version,int):
+            raise TypeError("version paramater should be an integer")
 
         if holdingType == "all":
             return pd.DataFrame(
-                self.position()["equityHoldingPage"]["holdingList"]
-                + self.position()["boldHoldingPage"]["holdingList"]
-                + self.position()["otherHoldingPage"]["holdingList"]
+                self.position(version=version)["equityHoldingPage"]["holdingList"]
+                + self.position(version=version)["boldHoldingPage"]["holdingList"]
+                + self.position(version=version)["otherHoldingPage"]["holdingList"]
             )
         else:
             return pd.DataFrame(
-                self.position()[holdingType_to_holdingPage[holdingType]]["holdingList"]
+                self.position(version=version)[holdingType_to_holdingPage[holdingType]]["holdingList"]
             )
 
     def investmentFee(self) -> dict:
