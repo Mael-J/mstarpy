@@ -122,8 +122,14 @@ class Security:
         if code_list:
             if itemRange < len(code_list):
                 self.code = code_list[itemRange]['meta']["securityID"]
-                self.name = code_list[itemRange]['fields']["name"]['value']
-                self.isin = code_list[itemRange]['fields']["isin"]['value']
+                if "name" in code_list[itemRange]['fields']:
+                    self.name = code_list[itemRange]['fields']["name"]['value']
+                else:
+                    self.name = self.code
+                if "isin" in code_list[itemRange]['fields']:
+                    self.isin = code_list[itemRange]['fields']["isin"]['value']
+                else:
+                    self.isin = self.code
                 universe = code_list[itemRange]['meta']["universe"]
 
                 if universe == "EQ":

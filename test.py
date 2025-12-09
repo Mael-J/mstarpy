@@ -17,44 +17,47 @@ from mstarpy.utils import EXCHANGE
 end_date = datetime.datetime.today()
 start_date = end_date - datetime.timedelta(60)
 
-#funds = Funds("VTSAX")
+funds = Funds("F00001F66S")
+print(funds.isin)
+print(funds.dataPoint(["managementExpenseRatio", "sharpeRatio", "isin"]))
 
 
-cef_isin = "GB00BLDYK618"  # Scottish Mortgage Investment Trust
-#cef_isin = "VTSAX"
-print(f"Testing closed-end fund: {cef_isin}\n")
-cef = Funds(term=cef_isin)
-print(f"✓ Fund initialized: {cef.name}\n")
 
-print("1. Testing sector() method...")
-try:
-    result = cef.sector(version=1)
-    print(f"   ✓ Success: {len(result)} items returned")
-except ConnectionError as e:
-    print(f"   ✗ FAILED: {e}")
+# cef_isin = "GB00BLDYK618"  # Scottish Mortgage Investment Trust
+# #cef_isin = "VTSAX"
+# print(f"Testing closed-end fund: {cef_isin}\n")
+# cef = Funds(term=cef_isin)
+# print(f"✓ Fund initialized: {cef.name}\n")
 
-
-print("2. Testing position() method...")
-try:
-    result = cef.position(version=1)
-    print(f"   ✓ Success: {len(result)} items returned")
-except ConnectionError as e:
-    print(f"   ✗ FAILED: {e}")
-
-print("3. Testing equityStyle() method...")
-try:
-    result = cef.equityStyle(version=1)
-    print(f"   ✓ Success: {len(result)} items returned")
-except ConnectionError as e:
-    print(f"   ✗ FAILED: {e}")
+# print("1. Testing sector() method...")
+# try:
+#     result = cef.sector(version=1)
+#     print(f"   ✓ Success: {len(result)} items returned")
+# except ConnectionError as e:
+#     print(f"   ✗ FAILED: {e}")
 
 
-print("4. Testing holdings() method...")
-try:
-    result = cef.holdings(version=1)
-    print(f"   ✓ Success: {len(result)} items returned")
-except ConnectionError as e:
-    print(f"   ✗ FAILED: {e}")
+# print("2. Testing position() method...")
+# try:
+#     result = cef.position(version=1)
+#     print(f"   ✓ Success: {len(result)} items returned")
+# except ConnectionError as e:
+#     print(f"   ✗ FAILED: {e}")
+
+# print("3. Testing equityStyle() method...")
+# try:
+#     result = cef.equityStyle(version=1)
+#     print(f"   ✓ Success: {len(result)} items returned")
+# except ConnectionError as e:
+#     print(f"   ✗ FAILED: {e}")
+
+
+# print("4. Testing holdings() method...")
+# try:
+#     result = cef.holdings(version=1)
+#     print(f"   ✓ Success: {len(result)} items returned")
+# except ConnectionError as e:
+#     print(f"   ✗ FAILED: {e}")
 
 
 #print(screener_universe("XZW0",field=["exchange"]))
