@@ -9,6 +9,7 @@ from .search import (screener_universe,
                      )
 from .utils import (
     APIKEY,
+    ASSET_TYPE,
     random_user_agent,
     LANGUAGE
     )
@@ -118,7 +119,7 @@ class Security:
                 sortby=sortby,
                 ascending=ascending,
                 proxies=self.proxies,)
-        
+
         if code_list:
             if itemRange < len(code_list):
                 self.code = code_list[itemRange]['meta']["securityID"]
@@ -132,21 +133,18 @@ class Security:
                     self.isin = self.code
                 universe = code_list[itemRange]['meta']["universe"]
 
-                if universe == "EQ":
-                    self.asset_type = "stock"
-                elif universe == "FE":
-                    self.asset_type = "etf"
-                elif universe == "FO":
-                    self.asset_type = "fund"
-                elif universe == "FC":
-                    self.asset_type = "cef"
+                if universe not in ASSET_TYPE:
+                    raise ValueError(
+                                f"universe {universe} parameter can only take one of the values : {','.join(ASSET_TYPE.keys())}"
+                            )
+                self.asset_type = ASSET_TYPE[universe]
 
                 if universe == "EQ" and asset_type in ["etf", "fund"]:
                     raise ValueError(
                         f"The security found with the term {term} is a stock and the parameter asset_type is equal to {asset_type}, the class Stock should be used with this security."
                     )
 
-                if universe in ["FO", "FE", "FC"] and asset_type == "stock":
+                if universe in ["FO", "FE", "FC", "FV", "FM"] and asset_type == "stock":
                     if universe == "FO":
                         raise ValueError(
                             f"The security found with the term {term} is a Open-end fund and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
@@ -155,10 +153,19 @@ class Security:
                         raise ValueError(
                             f"The security found with the term {term} is an ETF and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
                         )
-                    else:
+                    elif universe == "FC":
                         raise ValueError(
                             f"The security found with the term {term} is a Closed-end fund and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
                         )
+                    elif universe == "FM":
+                        raise ValueError(
+                            f"The security found with the term {term} is a Money Market Funds and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
+                        )
+                    else:
+                        raise ValueError(
+                            f"The security found with the term {term} is an Insurance and Pension Funds and the parameter asset_type is equal to {asset_type}, the class Fund should be used with this security."
+                        )
+                    
 
 
             else:

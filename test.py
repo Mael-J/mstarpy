@@ -11,16 +11,9 @@ from mstarpy.search import (
     )
 from mstarpy.utils import EXCHANGE
 
-
-#print(Funds("RMAGX", "us").TimeSeries(["nav","totalReturn"],datetime.datetime.today()- datetime.timedelta(30),datetime.datetime.today()))
-    
-end_date = datetime.datetime.today()
-start_date = end_date - datetime.timedelta(60)
-
-funds = Funds("F00001F66S")
-print(funds.isin)
-print(funds.dataPoint(["managementExpenseRatio", "sharpeRatio", "isin"]))
-
+print(screener_universe("TRRDX", field=["investmentType"]))
+# fund = Funds("VMFXX",language="en-gb")
+# print(fund.quote())
 
 
 # cef_isin = "GB00BLDYK618"  # Scottish Mortgage Investment Trust

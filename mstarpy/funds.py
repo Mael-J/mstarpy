@@ -47,7 +47,7 @@ class Funds(Security):
         proxies:dict=None,
     ) -> None:
         
-        fund_filter = {"investmentType" : ['FE', 'FO', 'FC']}
+        fund_filter = {"investmentType" : ['FE', 'FO', 'FC', 'FV','FM']}
         if filters:
             fund_filter = fund_filter | filters
         

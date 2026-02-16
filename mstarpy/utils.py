@@ -2,7 +2,16 @@ import random
 
 APIKEY = "lstzFDEOhfFNMLikKa0am9mgEKLBl49T"
 
-ASSET_TYPE = ["etf", "fund", "stock"]
+
+ASSET_TYPE = {
+    "EQ": "stock",
+    "FE": "etf",
+    "FO": "fund",
+    "FC": "cef",
+    "FV": "fund",
+    "FM": "fund",
+    }
+
 
 EXCHANGE = {
     'ARCX': 'NYSE Arca (Pacific Stock Exchange)',

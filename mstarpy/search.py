@@ -292,9 +292,9 @@ def search_filter(pattern:str="",
     if not isinstance(asset_type, (str)):
         raise TypeError("asset_type parameter should be a string")
     
-    if asset_type and asset_type not in ASSET_TYPE:
-        raise TypeError(
-            f"asset_type parameter can only take one of the values : {','.join(ASSET_TYPE)}"
+    if asset_type and asset_type not in ASSET_TYPE.values():
+        raise ValueError(
+            f"asset_type parameter can only take one of the values : {','.join(ASSET_TYPE.values())}"
         )
     if not isinstance(filter_type, (str)):
         raise TypeError("filter_type parameter should be a string")
