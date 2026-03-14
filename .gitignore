@@ -34,3 +34,4 @@ cover/
 .vscode/
 
 docs/build/
+*.xls

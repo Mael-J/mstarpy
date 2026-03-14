@@ -196,7 +196,9 @@ You can search for securities using the `screener_universe` method, which levera
 
 ```python
 
-ms.screener_universe("a",
+session = ms.MorningstarSession()
+
+session.screener_universe("a",
                      language = "fr",
                      field=["name", "isin", "priceToEarnings", "sector"], 
                      filters={"priceToEarnings[trailing]": ("<", 10),
