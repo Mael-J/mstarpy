@@ -3,10 +3,7 @@ import re
 import requests
 
 from .error import not_200_response
-
-from .search import (screener_universe,
-                     token_chart
-                     )
+from .search import MorningstarSession
 from .utils import (
     APIKEY,
     ASSET_TYPE,
@@ -16,7 +13,7 @@ from .utils import (
 
 
 
-class Security:
+class Security(MorningstarSession):
     """
     Parent class to access data about security
 
@@ -55,6 +52,7 @@ class Security:
         proxies:dict=None,
     ) -> None:
         
+
         if not isinstance(term, str):
             raise TypeError("term parameter should be a string")
         
@@ -94,8 +92,8 @@ class Security:
             raise ValueError(
                 f"language parameter can only take one of the values : {', '.join(LANGUAGE)}"
             )
-
-
+        #instantiate superclass MorningstarSession
+        super().__init__() 
         self.language = language
         self.proxies = proxies
         self.filters = filters
@@ -109,7 +107,8 @@ class Security:
 
         code_list = []
 
-        code_list = screener_universe(
+
+        code_list = self.screener_universe(
                 term,
                 language=self.language,
                 field=["isin", "name"],
@@ -195,7 +194,7 @@ class Security:
 
         """
 
-        result =  screener_universe(
+        result =  self.screener_universe(
             self.isin, 
             language=self.language,
             field=field,
@@ -436,7 +435,7 @@ class Security:
             queryField = field
 
         # bearer token
-        bearer_token = token_chart()
+        bearer_token = self.token_chart()
         # url for nav
         url = "https://www.us-api.morningstar.com/QS-markets/chartservice/v2/timeseries"
         # header with bearer token

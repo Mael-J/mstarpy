@@ -2,6 +2,6 @@
 
 from .funds import Funds
 from .stock import Stock
-from .search import search_field, search_filter, screener_universe
+from .search import MorningstarSession
 
 __version__ = "8.1.0"

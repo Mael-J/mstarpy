@@ -1,10 +1,8 @@
 """ class funds """
 import pandas as pd
 import datetime
-import requests
 import warnings
 
-from .search import screener_universe
 from .security import Security
 from .utils import random_user_agent
 
@@ -320,8 +318,8 @@ class Funds(Security):
         
         headers = {"user-agent": random_user_agent()}
 
-        response = requests.get(
-            url, params=params, headers=headers, proxies=self.proxies
+        response = self.get(
+            url, params=params, proxies=self.proxies
         )
 
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -522,8 +520,8 @@ class Funds(Security):
         params = { "marketId" : marketId}
         headers = {"user-agent": random_user_agent()}
 
-        response = requests.get(
-            url, params=params, headers=headers, proxies=self.proxies
+        response = self.get(
+            url, params=params, proxies=self.proxies
         )
 
         response_json = response.json()

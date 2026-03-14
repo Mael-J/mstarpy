@@ -1,17 +1,16 @@
-from mstarpy import Funds, search_field, Stock
+from mstarpy import Funds, Stock
 
 from mstarpy.security import Security
 import datetime
 import pandas as pd
-from mstarpy.search import (
-    search_filter,
-    token_chart, 
-    general_search,
-    screener_universe
-    )
-from mstarpy.utils import EXCHANGE
+from mstarpy.search import MorningstarSession
 
-print(screener_universe("TRRDX", field=["investmentType"]))
+
+fund = Funds("UFF Actions")
+print(fund.name)
+print(fund.holdings())
+
+
 # fund = Funds("VMFXX",language="en-gb")
 # print(fund.quote())
 
