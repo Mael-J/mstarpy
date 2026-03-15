@@ -12,7 +12,7 @@ Our mission is to democratize access to financial insights and support investors
 
 The project is open to contributions — join us on [GitHub](https://github.com/Mael-J/mstarpy) and help improve the future of financial transparency.
 
-#Prerequisites
+# Prerequisites
 
 You need to install [Google Chrome](https://www.google.com/intl/en_uk/chrome/) to query the data.
 
