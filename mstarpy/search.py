@@ -31,7 +31,7 @@ class MorningstarSession(requests.Session):
         driver = webdriver.Chrome(options=options)
 
         driver.get("https://global.morningstar.com")
-        time.sleep(os.environ.get("SELENIUM_DRIVER_WAIT_TIME", 8))
+        time.sleep(float(os.environ.get("SELENIUM_DRIVER_WAIT_TIME", 8)))
 
         cookies = driver.get_cookies()
         user_agent = driver.execute_script("return navigator.userAgent")
