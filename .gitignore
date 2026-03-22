@@ -5,6 +5,7 @@ __pycache__/
 # Sphinx documentation
 docs/_build/*
 *.pyc
+build/
 
 # Environments
 .env
@@ -32,6 +33,8 @@ cover/
 
 # Editor
 .vscode/
+.idea/
 
 docs/build/
 *.xls
+**/.ipynb_checkpoints

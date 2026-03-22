@@ -1,3 +1,4 @@
+import os
 import requests
 import re
 import warnings
@@ -10,8 +11,6 @@ import time
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 class MorningstarSession(requests.Session):
@@ -24,14 +23,15 @@ class MorningstarSession(requests.Session):
         options = Options()
         options.add_argument("--headless=new")
         options.add_argument("--disable-blink-features=AutomationControlled")
+        # loading additional user defined flags, eg. "--no-sandbox --disable-dev-shm-usage --disable-gpu"
+        extra_flags = os.environ.get("SELENIUM_CHROME_FLAGS", "").split()
+        for flag in extra_flags:
+            options.add_argument(flag)
 
-        driver = webdriver.Chrome(
-            service=Service(ChromeDriverManager().install()),
-            options=options
-        )
+        driver = webdriver.Chrome(options=options)
 
         driver.get("https://global.morningstar.com")
-        time.sleep(8)
+        time.sleep(os.environ.get("SELENIUM_DRIVER_WAIT_TIME", 8))
 
         cookies = driver.get_cookies()
         user_agent = driver.execute_script("return navigator.userAgent")

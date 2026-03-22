@@ -12,9 +12,6 @@ Our mission is to democratize access to financial insights and support investors
 
 The project is open to contributions — join us on [GitHub](https://github.com/Mael-J/mstarpy) and help improve the future of financial transparency.
 
-# Prerequisites
-
-You need to install [Google Chrome](https://www.google.com/intl/en_uk/chrome/) to query the data.
 
 # Getting Started
 
@@ -245,6 +242,33 @@ session.screener_universe("a",
    'sector': {'value': 'Technology'}}}]
 
 ```
+
+## Tuning
+
+You can tune the package with additional environment variables.
+
+Under the hood `mstarpy` uses Selenium for browser session management. 
+Hence, all [Selenium Manager](https://www.selenium.dev/documentation/selenium_manager/#configuration) variables are available, e.g.:
+
+```bash
+SE_CHROME_PATH=<path to your chrome/chromium browser>
+SE_CHROMEDRIVER=<path to your chromedriver>
+```
+
+You can pass additional options to your browser with `SELENIUM_CHROME_FLAGS`. 
+Each option should be separated by whitespace, e.g.:
+
+```bash
+SELENIUM_CHROME_FLAGS="--no-sandbox --disable-dev-shm-usage --disable-gpu"
+```
+
+The browser driver instance takes by default 8 seconds per request to load.
+If you wanted to reduce this to 5 seconds:
+
+```bash
+SELENIUM_DRIVER_WAIT_TIME=5
+```
+
 
 # Contribution
 
