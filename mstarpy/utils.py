@@ -226,20 +226,12 @@ signal.signal(signal.SIGTERM, lambda s, f: cleanup_all_webdrivers())
 @contextmanager
 def get_webdriver():
     """
-    Browser webdriver provider with options applied.
+    Browser webdriver provider.
     To be used in a context manager for safe cleanups, should browser (sub)processes get killed or crash.
     """
-    options = Options()
-    options.add_argument("--headless=new")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    # loading additional user defined flags, eg. "--no-sandbox --disable-dev-shm-usage --disable-gpu"
-    extra_flags = os.environ.get("SELENIUM_CHROME_FLAGS", "").split()
-    for flag in extra_flags:
-        options.add_argument(flag)
-
     driver = None
     try:
-        driver = webdriver.Chrome(options=options)
+        driver = webdriver.Chrome(options=(browser_options()))
         _active_webdrivers.add(driver)
         yield driver
     finally:
@@ -248,3 +240,15 @@ def get_webdriver():
                 driver.quit()
             except Exception:
                 pass
+
+
+def browser_options() -> Options:
+    """Builds browser options."""
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    # loading additional user defined flags, eg. "--no-sandbox --disable-dev-shm-usage --disable-gpu"
+    extra_flags = os.environ.get("SELENIUM_CHROME_FLAGS", "").split()
+    for flag in extra_flags:
+        options.add_argument(flag)
+    return options
