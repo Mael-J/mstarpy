@@ -4,13 +4,10 @@ import re
 import warnings
 import pandas as pd
 
-from .utils import random_user_agent
+from .utils import random_user_agent, get_webdriver
 from .utils import ASSET_TYPE, FILTER_TYPE, LANGUAGE
 from .error import not_200_response
 import time
-
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 
 
 class MorningstarSession(requests.Session):
@@ -20,23 +17,12 @@ class MorningstarSession(requests.Session):
 
     def _init_browser_session(self):
 
-        options = Options()
-        options.add_argument("--headless=new")
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        # loading additional user defined flags, eg. "--no-sandbox --disable-dev-shm-usage --disable-gpu"
-        extra_flags = os.environ.get("SELENIUM_CHROME_FLAGS", "").split()
-        for flag in extra_flags:
-            options.add_argument(flag)
+        with get_webdriver() as driver:
+            driver.get("https://global.morningstar.com")
+            time.sleep(float(os.environ.get("SELENIUM_DRIVER_WAIT_TIME", 8)))
 
-        driver = webdriver.Chrome(options=options)
-
-        driver.get("https://global.morningstar.com")
-        time.sleep(float(os.environ.get("SELENIUM_DRIVER_WAIT_TIME", 8)))
-
-        cookies = driver.get_cookies()
-        user_agent = driver.execute_script("return navigator.userAgent")
-
-        driver.quit()
+            cookies = driver.get_cookies()
+            user_agent = driver.execute_script("return navigator.userAgent")
 
         self.cookies.clear()
 

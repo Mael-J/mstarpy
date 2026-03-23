@@ -1,4 +1,13 @@
+import atexit
+from contextlib import contextmanager
+import os
 import random
+import signal
+import weakref
+
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+
 
 APIKEY = "lstzFDEOhfFNMLikKa0am9mgEKLBl49T"
 
@@ -197,3 +206,45 @@ def random_user_agent() -> str:
     """
 
     return random.choice(USER_AGENTS)
+
+
+# a WeakSet for webdrivers means if a driver object gets garbage collected naturally,
+# it's automatically removed from the set without having to manage it.
+_active_webdrivers = weakref.WeakSet()
+
+def cleanup_all_webdrivers():
+    """Helps cleaning up actively registered webdrivers."""
+    for driver in _active_webdrivers:
+        try:
+            driver.quit()
+        except Exception:
+            pass
+
+atexit.register(cleanup_all_webdrivers)
+signal.signal(signal.SIGTERM, lambda s, f: cleanup_all_webdrivers())
+
+@contextmanager
+def get_webdriver():
+    """
+    Browser webdriver provider with options applied.
+    To be used in a context manager for safe cleanups, should browser (sub)processes get killed or crash.
+    """
+    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--disable-blink-features=AutomationControlled")
+    # loading additional user defined flags, eg. "--no-sandbox --disable-dev-shm-usage --disable-gpu"
+    extra_flags = os.environ.get("SELENIUM_CHROME_FLAGS", "").split()
+    for flag in extra_flags:
+        options.add_argument(flag)
+
+    driver = None
+    try:
+        driver = webdriver.Chrome(options=options)
+        _active_webdrivers.add(driver)
+        yield driver
+    finally:
+        if driver:
+            try:
+                driver.quit()
+            except Exception:
+                pass
