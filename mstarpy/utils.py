@@ -231,7 +231,7 @@ def get_webdriver():
     """
     driver = None
     try:
-        driver = webdriver.Chrome(options=(browser_options()))
+        driver = webdriver.Chrome(options=browser_options())
         _active_webdrivers.add(driver)
         yield driver
     finally:
