@@ -1,4 +1,4 @@
 sphinx
 myst-parser
 sphinx-rtd-theme
-mstarpy==9.0.2
+mstarpy==9.0.3
