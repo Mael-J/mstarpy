@@ -38,7 +38,7 @@ import mstarpy as ms
 ```
 ## Initialize session
 
-From version >= 10.0.0, you need to initialize a MorningStar session to request Data using Selenium. The session only works with Chrome headed browser. It means that a window of Chrome will open when you initialize the session. Let this window open, it will close automatically and you will acess the data.
+From version >= 10.0.0, you need to initialize a MorningStar session to request Data using Selenium. The session only works with Chrome headed browser. It means that a window of Chrome will open when you initialize the session. Let this window open, it will close automatically and you will access the data.
 
 ```python
 
