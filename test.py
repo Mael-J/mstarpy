@@ -9,7 +9,9 @@ from mstarpy.search import MorningstarSession
 fund = Funds("UFF Actions")
 print(fund.name)
 print(fund.holdings())
-
+stock = Stock("AAPL")
+print(stock.name)
+print(stock.freeCashFlow())
 
 # fund = Funds("VMFXX",language="en-gb")
 # print(fund.quote())

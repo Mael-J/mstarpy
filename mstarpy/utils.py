@@ -245,7 +245,7 @@ def get_webdriver():
 def browser_options() -> Options:
     """Builds browser options."""
     options = Options()
-    options.add_argument("--headless=new")
+    #options.add_argument("--headless=new")
     options.add_argument("--disable-blink-features=AutomationControlled")
     # loading additional user defined flags, eg. "--no-sandbox --disable-dev-shm-usage --disable-gpu"
     extra_flags = os.environ.get("SELENIUM_CHROME_FLAGS", "").split()
