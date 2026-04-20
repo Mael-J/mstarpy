@@ -2,6 +2,7 @@
 import pandas as pd
 import datetime
 import warnings
+import requests
 
 from .security import Security
 from .utils import random_user_agent
@@ -43,6 +44,7 @@ class Funds(Security):
         sortby:str=None,
         ascending:bool=True,
         proxies:dict=None,
+        session:requests.Session=None
     ) -> None:
         
         fund_filter = {"investmentType" : ['FE', 'FO', 'FC', 'FV','FM']}
@@ -60,6 +62,7 @@ class Funds(Security):
             sortby=sortby,
             ascending=ascending,
             proxies=proxies,
+            session=session
         )
 
     def allocationMap(self, 

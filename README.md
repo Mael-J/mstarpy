@@ -36,14 +36,25 @@ Import the package MStarpy as follow
 import mstarpy as ms
 
 ```
+## Initialize session
 
-## Fund analysis
-
-Initialize Funds to start your analysis
+From version >= 10.0.0, you need to initialize a MorningStar session to request Data using Selenium. The session only works with Chrome headed browser. It means that a window of Chrome will open when you initialize the session. Let this window open, it will close automatically and you will acess the data.
 
 ```python
 
-funds = ms.Funds("VTSAX")
+session = ms.MorningstarSession()
+
+```
+
+You will use this session for the funds and stocks analysis.
+
+## Fund analysis
+
+Initialize Funds to start your analysis injecting the session
+
+```python
+
+funds = ms.Funds("VTSAX", session=session)
 
 ```
 
@@ -98,11 +109,11 @@ Examples are available in this notebook:
 
 ## Stock Analysis
 
-Initialize Stock to start your analysis
+Initialize Stock to start your analysis injecting the session
 
 ```python
 
-stock = ms.Stock("FR0000121014")
+stock = ms.Stock("FR0000121014", session=session)
 
 ```
 
@@ -195,8 +206,6 @@ Examples are available in this notebook:
 You can search for securities using the `screener_universe` method, which leverages the logic behind Morningstar's screener : <a href="https://global.morningstar.com/en-gb/tools/screener/">MorningStar screener</a>
 
 ```python
-
-session = ms.MorningstarSession()
 
 session.screener_universe("a",
                      language = "fr",

@@ -13,7 +13,7 @@ from .utils import (
 
 
 
-class Security(MorningstarSession):
+class Security():
     """
     Parent class to access data about security
 
@@ -50,6 +50,7 @@ class Security(MorningstarSession):
         sortby:str=None,
         ascending:bool=True,
         proxies:dict=None,
+        session:requests.Session=None,
     ) -> None:
         
 
@@ -93,7 +94,8 @@ class Security(MorningstarSession):
                 f"language parameter can only take one of the values : {', '.join(LANGUAGE)}"
             )
         #instantiate superclass MorningstarSession
-        super().__init__() 
+        self.session = session or MorningstarSession()
+
         self.language = language
         self.proxies = proxies
         self.filters = filters
@@ -108,7 +110,7 @@ class Security(MorningstarSession):
         code_list = []
 
 
-        code_list = self.screener_universe(
+        code_list = self.session.screener_universe(
                 term,
                 language=self.language,
                 field=["isin", "name"],
@@ -194,7 +196,7 @@ class Security(MorningstarSession):
 
         """
 
-        result =  self.screener_universe(
+        result =  self.session.screener_universe(
             self.isin, 
             language=self.language,
             field=field,

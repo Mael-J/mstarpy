@@ -1,5 +1,6 @@
 from .security import Security
 import datetime
+import requests
 
 class Stock(Security):
     """
@@ -36,6 +37,7 @@ class Stock(Security):
         sortby:str=None,
         ascending:bool=True,
         proxies:dict=None,
+        session:requests.Session=None
     ) -> None:
         
         stock_filter = {"investmentType" : 'EQ'}
@@ -53,6 +55,7 @@ class Stock(Security):
             sortby=sortby,
             ascending=ascending,
             proxies=proxies,
+            session=session
         )
 
     def analysisData(self) -> dict:

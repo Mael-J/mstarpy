@@ -5,13 +5,24 @@ import datetime
 import pandas as pd
 from mstarpy.search import MorningstarSession
 
-
-fund = Funds("UFF Actions")
+session = MorningstarSession()
+fund = Funds("UFF Actions", session=session)
 print(fund.name)
 print(fund.holdings())
-stock = Stock("AAPL")
+stock = Stock("AAPL", session=session)
 print(stock.name)
 print(stock.freeCashFlow())
+
+filter_value = session.screener_universe("a",
+                     language = "fr",
+                     field=["name", "isin", "priceToEarnings", "sector"], 
+                     filters={"priceToEarnings[trailing]": ("<", 10),
+                              "investmentType" : "EQ",
+                              "sector": "Technology",
+                              "domicile": "FRA"}
+                     )
+
+print(filter_value)
 
 # fund = Funds("VMFXX",language="en-gb")
 # print(fund.quote())
