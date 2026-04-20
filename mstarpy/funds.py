@@ -256,7 +256,7 @@ class Funds(Security):
             dict with documents information
 
         Examples:
-            >>> Funds("myria").getDocumentInformation("fr")
+            >>> Funds("myria").downloadDocument("fr","PRIIP KID","en")
 
         """
 
@@ -321,7 +321,7 @@ class Funds(Security):
         
         headers = {"user-agent": random_user_agent()}
 
-        response = self.get(
+        response = self.session.get(
             url, params=params, proxies=self.proxies
         )
 
@@ -523,7 +523,7 @@ class Funds(Security):
         params = { "marketId" : marketId}
         headers = {"user-agent": random_user_agent()}
 
-        response = self.get(
+        response = self.session.get(
             url, params=params, proxies=self.proxies
         )
 
