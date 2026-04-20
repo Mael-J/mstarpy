@@ -7,7 +7,10 @@ from mstarpy.search import MorningstarSession
 
 session = MorningstarSession()
 fund = Funds("UFF Actions", session=session)
-fund.downloadDocument("fr","PRIIP KID","fr")
+
+end_date = datetime.datetime.today()
+start_date = end_date - datetime.timedelta(30)
+print(fund.nav(start_date,end_date))
 
 
 # fund = Funds("VMFXX",language="en-gb")
