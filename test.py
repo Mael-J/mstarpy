@@ -7,22 +7,8 @@ from mstarpy.search import MorningstarSession
 
 session = MorningstarSession()
 fund = Funds("UFF Actions", session=session)
-print(fund.name)
-print(fund.holdings())
-stock = Stock("AAPL", session=session)
-print(stock.name)
-print(stock.freeCashFlow())
+fund.downloadDocument("fr","PRIIP KID","fr")
 
-filter_value = session.screener_universe("a",
-                     language = "fr",
-                     field=["name", "isin", "priceToEarnings", "sector"], 
-                     filters={"priceToEarnings[trailing]": ("<", 10),
-                              "investmentType" : "EQ",
-                              "sector": "Technology",
-                              "domicile": "FRA"}
-                     )
-
-print(filter_value)
 
 # fund = Funds("VMFXX",language="en-gb")
 # print(fund.quote())
