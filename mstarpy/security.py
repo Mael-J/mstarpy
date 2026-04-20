@@ -437,7 +437,7 @@ class Security():
             queryField = field
 
         # bearer token
-        bearer_token = self.token_chart()
+        bearer_token = self.session.token_chart()
         # url for nav
         url = "https://www.us-api.morningstar.com/QS-markets/chartservice/v2/timeseries"
         # header with bearer token
