@@ -120,19 +120,19 @@ class Security():
                 sortby=sortby,
                 ascending=ascending,
                 proxies=self.proxies,)
-
+        
         if code_list:
             if itemRange < len(code_list):
-                self.code = code_list[itemRange]['meta']["securityID"]
-                if "name" in code_list[itemRange]['fields']:
-                    self.name = code_list[itemRange]['fields']["name"]['value']
+                self.code = code_list[itemRange]['value']["securityID"]
+                if "name" in code_list[itemRange]['value']:
+                    self.name = code_list[itemRange]['value']["name"]
                 else:
                     self.name = self.code
-                if "isin" in code_list[itemRange]['fields']:
-                    self.isin = code_list[itemRange]['fields']["isin"]['value']
+                if "isin" in code_list[itemRange]['value']:
+                    self.isin = code_list[itemRange]['value']["isin"]
                 else:
                     self.isin = self.code
-                universe = code_list[itemRange]['meta']["universe"]
+                universe = code_list[itemRange]['value']["investmentType"]
 
                 if universe not in ASSET_TYPE:
                     raise ValueError(

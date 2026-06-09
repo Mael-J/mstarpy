@@ -6,11 +6,17 @@ import pandas as pd
 from mstarpy.search import MorningstarSession
 
 session = MorningstarSession()
-fund = Funds("UFF Actions", session=session)
 
-end_date = datetime.datetime.today()
-start_date = end_date - datetime.timedelta(30)
-print(fund.nav(start_date,end_date))
+result = session.screener_universe("FR0011351659", 
+                                   field=["ticker",'previousClosePrice', 'maximumEntryCost'], 
+                                   filters={"baseCurrency" : "XPAR"},
+                                          pageSize=1, page=1)
+print(result)
+# fund = Funds("UFF Actions", session=session)
+
+# end_date = datetime.datetime.today()
+# start_date = end_date - datetime.timedelta(30)
+# print(fund.nav(start_date,end_date))
 
 
 # fund = Funds("VMFXX",language="en-gb")

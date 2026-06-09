@@ -91,7 +91,7 @@ class MorningstarSession(requests.Session):
                 f"language parameter can only take one of the values : {', '.join(LANGUAGE)}"
             )
         # url
-        url = f"https://global.morningstar.com/api/v1/{language}/tools/screener/_data"
+        url = f"https://www.morningstar.com/api/v2/search"
         # headers
         headers = {
             "user-agent": random_user_agent(),
@@ -242,7 +242,7 @@ class MorningstarSession(requests.Session):
                     else:
                         query_params += f" AND {f} = '{filters[f]}'"
         params = {
-            "query": query_params,
+            "q": term,
             "fields" : fields,
             "page" : page,
             "limit": pageSize,
@@ -252,9 +252,6 @@ class MorningstarSession(requests.Session):
                 params["sort"] = f"{sortby}:asc"
             else:
                 params["sort"] = f"{sortby}:desc"
-
-
-        
 
         result = self.general_search(params, 
                                 language=language,
