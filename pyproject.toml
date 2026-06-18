@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=82.0.1", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "mstarpy"
@@ -11,13 +11,13 @@ license = { text = "MIT License" }
 authors = [
     { name = "Maël Jourdain", email = "mael.jourdain@gmail.com" }
 ]
-requires-python = ">=3.14"
+requires-python = ">=3.11"
 dependencies = [
-        "pandas>=3.0.3",
-        "requests>=2.34.2",
-        "selenium>=4.45.0",
-        "statsmodels>=0.14.6",
-        "matplotlib>=3.11.0"
+    "pandas>=2.0",
+    "requests>=2.28",
+    "selenium>=4.0",
+    "statsmodels>=0.14",
+    "matplotlib>=3.7"
 ]
 
 [tool.setuptools.packages.find]
