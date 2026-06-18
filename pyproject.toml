@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=82.0.1", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "mstarpy"
+version = "11.0.0"
+description = "Mutual funds and stocks data extraction from MorningStar with Python"
+readme = "README.md"
+license = { text = "MIT License" }
+authors = [
+    { name = "Maël Jourdain", email = "mael.jourdain@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+        pandas>=3.0.3
+        requests>=2.34.2
+        selenium==4.45.0
+        statsmodels>=0.14.6
+        matplotlib>=3.11.0
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
