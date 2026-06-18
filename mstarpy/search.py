@@ -210,7 +210,7 @@ class MorningstarSession(requests.Session):
             )
         
         query_params = f"_ ~= '{term}'"
-
+        dic_filter = {}
         if filters:
             list_filter = self.search_filter()
             for f in filters:
@@ -240,13 +240,19 @@ class MorningstarSession(requests.Session):
                         query_params += f" AND {f} {filters[f][0]} {filters[f][1]}"
                     # else = condition
                     else:
+                        dic_filter[f] = filters[f]
                         query_params += f" AND {f} = '{filters[f]}'"
+
         params = {
             "q": term,
             "fields" : fields,
             "page" : page,
             "limit": pageSize,
-        }   
+        } 
+        #add dic filter to params  
+        if dic_filter:
+            params = {**params, **dic_filter}
+
         if sortby:
             if ascending == True:
                 params["sort"] = f"{sortby}:asc"
