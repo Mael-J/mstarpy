@@ -13,11 +13,11 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
-        pandas>=3.0.3
-        requests>=2.34.2
-        selenium==4.45.0
-        statsmodels>=0.14.6
-        matplotlib>=3.11.0
+        "pandas>=3.0.3"
+        "requests>=2.34.2"
+        "selenium>=4.45.0"
+        "statsmodels>=0.14.6"
+        "matplotlib>=3.11.0"
 ]
 
 [tool.setuptools.packages.find]
