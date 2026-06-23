@@ -756,7 +756,9 @@ class Funds(Security):
 
         """
 
-        return self.GetData("securityMetaData",url_suffix="").json()
+        # The SAL securityMetaData endpoint is only served under the "fund" path
+        # segment; the "etf" segment returns HTTP 400.
+        return self.GetData("securityMetaData", url_suffix="", asset_type="fund").json()
     
     def morningstarAnalyst(self) -> dict:
         """
@@ -1094,7 +1096,10 @@ class Funds(Security):
         if version not in range(1,8):
             raise ValueError("version paramater should be between 2 and 7")
 
-        return self.GetData(f"quote/v{version}").json()
+        # The SAL quote endpoint is only served under the "fund" path segment;
+        # the "etf" segment returns HTTP 400. The "fund" segment works for both
+        # mutual funds (F-code) and ETFs (performanceId).
+        return self.GetData(f"quote/v{version}", asset_type="fund").json()
     
     def regionalSector(self) -> dict:
         """

@@ -208,14 +208,15 @@ class Security():
             ascending=self.ascending,
         )
         
-        return result[self.itemRange]['fields']
+        return result[self.itemRange]['value']
         
     
-    def GetData(self, 
-                field:str, 
-                params:dict=None, 
-                headers:dict=None, 
-                url_suffix:str="data") -> dict|list:
+    def GetData(self,
+                field:str,
+                params:dict=None,
+                headers:dict=None,
+                url_suffix:str="data",
+                asset_type:str=None) -> dict|list:
         """
         This function retrieves data from the MorningStar global API.
         Args:
@@ -223,6 +224,10 @@ class Security():
             params (dict) : parameter for the request
             headers (dict) : headers of the request
             url_suffix (str) : suffix of the url
+            asset_type (str) : overrides the asset_type segment of the url path.
+                Defaults to self.asset_type. Some SAL endpoints (e.g. quote/v7,
+                securityMetaData) are only served under the "fund" segment and
+                reject the "etf" segment, so those methods pass asset_type="fund".
 
         Raises:
             TypeError raised whenever type of paramater are invalid
@@ -243,12 +248,16 @@ class Security():
 
         if not isinstance(url_suffix, str):
             raise TypeError("url_suffix parameter should be a string")
-        
+
         if headers and not isinstance(headers, dict):
             raise TypeError("headers parameter should be a dict")
 
+        if asset_type and not isinstance(asset_type, str):
+            raise TypeError("asset_type parameter should be a string")
+
         # url of API
-        url = f"""https://api-global.morningstar.com/sal-service/v1/{self.asset_type}/{field}/{self.code}"""
+        path_asset_type = asset_type or self.asset_type
+        url = f"""https://api-global.morningstar.com/sal-service/v1/{path_asset_type}/{field}/{self.code}"""
 
         if url_suffix:
             url += f"""/{url_suffix}"""
