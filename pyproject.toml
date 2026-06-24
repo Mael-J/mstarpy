@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mstarpy"
-version = "11.0.0+nico.1"
+version = "11.0.1"
 description = "Mutual funds and stocks data extraction from MorningStar with Python"
 readme = "README.md"
 license = { text = "MIT License" }
