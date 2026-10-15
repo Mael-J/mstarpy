@@ -409,13 +409,12 @@ class MorningstarSession(requests.Session):
         url = "https://www.morningstar.com/funds/xnas/afozx/chart"
 
         headers = {"user-agent": random_user_agent()}
+        response = self.get(url, proxies=proxies,headers=headers)
+        match = re.search(r'maasToken:"([^"]+)"', response.text)
 
-        response = self.get(url, proxies=proxies)
+        if not match:
+            raise ValueError("maasToken not found in HTML")
 
-        all_text = response.text
-        if all_text.find("token") == -1:
-            return None
-
-        token_start = all_text[all_text.find("token") :]
-        return token_start[7 : token_start.find("}") - 1]
+        token = match.group(1)
+        return token
 
