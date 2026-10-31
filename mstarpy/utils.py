@@ -233,6 +233,14 @@ def get_webdriver():
     try:
         driver = webdriver.Chrome(options=browser_options())
         _active_webdrivers.add(driver)
+        # headless Chrome advertises "HeadlessChrome" in its user agent, which the
+        # morningstar WAF blocks, so we mask it as a regular Chrome user agent
+        user_agent = driver.execute_script("return navigator.userAgent")
+        if "HeadlessChrome" in user_agent:
+            driver.execute_cdp_cmd(
+                "Network.setUserAgentOverride",
+                {"userAgent": user_agent.replace("HeadlessChrome", "Chrome")},
+            )
         yield driver
     finally:
         if driver:
@@ -245,7 +253,7 @@ def get_webdriver():
 def browser_options() -> Options:
     """Builds browser options."""
     options = Options()
-    #options.add_argument("--headless=new")
+    options.add_argument("--headless=new")
     options.add_argument("--disable-blink-features=AutomationControlled")
     # loading additional user defined flags, eg. "--no-sandbox --disable-dev-shm-usage --disable-gpu"
     extra_flags = os.environ.get("SELENIUM_CHROME_FLAGS", "").split()
