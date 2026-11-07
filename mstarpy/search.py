@@ -410,7 +410,7 @@ class MorningstarSession(requests.Session):
 
         headers = {"user-agent": random_user_agent()}
         response = self.get(url, proxies=proxies,headers=headers)
-        match = re.search(r'maasToken:"([^"]+)"', response.text)
+        match = re.search(r"(eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+)", response.text)
 
         if not match:
             raise ValueError("maasToken not found in HTML")
