@@ -6,9 +6,9 @@ from mstarpy.search import MorningstarSession
 session = MorningstarSession()
 
 stock = Stock(
-        "US8334451098",
+        "US0378331005",
         language="en-gb",
         filters={"exchange": "XNYS"},
         session=session,
     )
-stock.financialSummary()
+print(stock.balanceSheet())
