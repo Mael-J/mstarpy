@@ -38,3 +38,5 @@ cover/
 docs/build/
 *.xls
 **/.ipynb_checkpoints
+
+*.pdf
