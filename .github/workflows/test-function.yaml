@@ -2,7 +2,7 @@ name: Test All Functions
 
 on:
   schedule:
-    - cron: "0 4 * * *"
+    - cron: "7 4 * * *"
       timezone: "Europe/Amsterdam"
 
   # Allows manual execution from GitHub
