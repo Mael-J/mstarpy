@@ -3,10 +3,9 @@ name: Test All Functions
 on:
   schedule:
     - cron: "7 4 * * *"
-      timezone: "Europe/Amsterdam"
 
   # Allows manual execution from GitHub
-  workflow_dispatch:
+  #workflow_dispatch:
 
 jobs:
   test-functions:
